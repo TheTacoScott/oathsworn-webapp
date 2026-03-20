@@ -1,0 +1,15 @@
+# Decompiled APK output - run scripts/decompile.sh to generate
+app/
+
+# APK download cache (setup.sh default location)
+cache/
+
+# Generated data files - run scripts/generate_data.py to generate
+web/data/
+
+# Claude Code local config (machine-specific paths and permissions)
+.claude/
+
+# Python
+__pycache__/
+*.pyc

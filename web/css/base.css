@@ -1,0 +1,64 @@
+*, *::before, *::after {
+    box-sizing: border-box;
+}
+
+html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    background-color: var(--bg-dark);
+    color: var(--color-text);
+    font-family: var(--font-body);
+    font-size: 17px;
+    -webkit-font-smoothing: antialiased;
+}
+
+a {
+    color: var(--color-gold-light);
+    text-decoration: none;
+}
+
+a:hover {
+    color: var(--color-gold);
+    text-decoration: underline;
+}
+
+/* Screen routing */
+
+.screen {
+    display: none;
+    height: 100vh;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+.screen.active {
+    display: block;
+}
+
+/* Game screen overrides: flex column, no outer scroll */
+.game-screen.active {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    background-color: var(--bg-dark);
+}
+
+/* Scrollbar (Webkit) */
+
+::-webkit-scrollbar {
+    width: 5px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--bg-dark);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--color-border);
+    border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--color-gold);
+}
