@@ -1,0 +1,15 @@
+.git/
+
+# Decompiled APK output (large, not needed in images)
+app/
+
+# Generated data files (provided via Docker volume at runtime)
+web/data/
+
+# Python cache
+__pycache__/
+*.pyc
+
+# Temporary APK file
+_oathsworn_setup.apk
+*.apk

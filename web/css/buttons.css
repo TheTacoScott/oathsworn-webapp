@@ -1,0 +1,34 @@
+.btn-primary-game {
+    background-color: var(--btn-primary-bg);
+    border: 1px solid var(--color-gold);
+    color: var(--color-gold-light);
+    font-family: var(--font-title);
+    font-size: 0.9rem;
+    letter-spacing: 0.1em;
+    padding: 0.65rem 1.5rem;
+    transition: background-color 0.2s, border-color 0.2s, color 0.2s;
+}
+
+.btn-primary-game:hover,
+.btn-primary-game:focus {
+    background-color: var(--btn-primary-hover);
+    border-color: var(--color-gold-light);
+    color: #fff;
+}
+
+.btn-ghost-game {
+    background-color: transparent;
+    border: 1px solid var(--color-border);
+    color: var(--color-text-dim);
+    font-size: 0.85rem;
+    letter-spacing: 0.04em;
+    padding: 0.35rem 0.8rem;
+    transition: background-color 0.2s, border-color 0.2s, color 0.2s;
+}
+
+.btn-ghost-game:hover,
+.btn-ghost-game:focus {
+    background-color: rgba(200, 150, 42, 0.08);
+    border-color: var(--color-gold);
+    color: var(--color-gold-light);
+}
