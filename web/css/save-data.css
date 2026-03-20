@@ -1,0 +1,57 @@
+.save-data-panel {
+    background-color: var(--bg-panel);
+    border: 1px solid var(--color-border);
+    padding: 0.75rem 1rem;
+    border-radius: 3px;
+}
+
+.save-data-chapter-label {
+    font-family: var(--font-title);
+    color: var(--color-gold);
+    font-size: 0.95rem;
+    letter-spacing: 0.1em;
+    margin-bottom: 0.5rem;
+}
+
+.save-data-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+}
+
+.save-data-table td {
+    padding: 0.1rem 0;
+    vertical-align: top;
+}
+
+.save-data-key {
+    color: var(--color-text-dim);
+    width: 40%;
+    padding-right: 0.75rem;
+}
+
+.save-data-val {
+    color: var(--color-text);
+}
+
+.save-data-summary {
+    color: var(--color-text-dim);
+    font-size: 0.85rem;
+    cursor: pointer;
+    user-select: none;
+}
+
+.save-data-summary:hover {
+    color: var(--color-gold);
+}
+
+.save-data-raw {
+    background-color: var(--bg-panel);
+    border: 1px solid var(--color-border);
+    color: var(--color-text-dim);
+    font-size: 0.75rem;
+    padding: 0.75rem;
+    margin-top: 0.5rem;
+    overflow-x: auto;
+    white-space: pre;
+}

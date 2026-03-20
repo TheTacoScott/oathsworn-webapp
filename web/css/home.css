@@ -1,0 +1,28 @@
+#screen-home {
+    background: radial-gradient(ellipse at center, #1c1209 0%, #090705 100%);
+}
+
+.home-wrap {
+    min-height: 100vh;
+    padding: 2rem 1rem;
+}
+
+.game-title {
+    font-family: var(--font-title);
+    font-size: clamp(2.5rem, 6vw, 4rem);
+    font-weight: 700;
+    color: var(--color-gold);
+    letter-spacing: 0.35em;
+    text-shadow: 0 0 40px rgba(200, 150, 42, 0.35), 0 2px 4px rgba(0,0,0,0.8);
+    margin: 0;
+    line-height: 1.1;
+}
+
+.game-subtitle {
+    font-family: var(--font-title);
+    font-size: 1rem;
+    color: var(--color-text-dim);
+    letter-spacing: 0.18em;
+    margin-top: 0.6rem;
+    margin-bottom: 0;
+}

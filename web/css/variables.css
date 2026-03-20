@@ -1,0 +1,26 @@
+:root {
+    --bg-dark:          #0e0b07;
+    --bg-panel:         #1c1609;
+    --bg-panel-alt:     #241d0d;
+    --bg-header:        #120f07;
+    --color-gold:       #c8962a;
+    --color-gold-light: #e0b84a;
+    --color-text:       #d4c090;
+    --color-text-dim:   #8a7850;
+    --color-border:     #3a2e18;
+
+    --btn-primary-bg:   #5a3d10;
+    --btn-primary-hover:#7a5518;
+    --btn-choice-bg:    #1a2e1c;
+    --btn-choice-border:#2a4830;
+    --btn-choice-text:  #90d090;
+    --btn-location-bg:  #1c1830;
+    --btn-location-border:#2e2848;
+    --btn-location-text:#b0a0e0;
+    --btn-popup-bg:     #381010;
+    --btn-popup-border: #622020;
+    --btn-popup-text:   #f0a0a0;
+
+    --font-title: 'Cinzel', 'Palatino Linotype', Georgia, serif;
+    --font-body:  'Crimson Text', Georgia, 'Times New Roman', serif;
+}
