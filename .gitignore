@@ -9,6 +9,10 @@ web/data/
 
 # Claude Code local config (machine-specific paths and permissions)
 .claude/
+CLAUDE.md
+
+# Local investigation notes
+todo/
 
 # Python
 __pycache__/
