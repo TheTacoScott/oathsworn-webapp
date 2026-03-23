@@ -39,6 +39,15 @@ APK_SHA256 = '0c1c0b496969ff3a33019db46506350d796000a17606617690c261eedfa9bc96'
 # Helpers
 # ---------------------------------------------------------------------------
 
+def banner(title):
+    width = 60
+    inner = width - 8  # "=== " + " ===" = 8 chars
+    line = '=' * width
+    print(f"\n{line}")
+    print(f"=== {title.center(inner)} ===")
+    print(line)
+
+
 def ensure_gdown():
     """Import gdown, installing it via pip if necessary."""
     try:
@@ -80,7 +89,7 @@ def verify_sha256(path, expected):
 # ---------------------------------------------------------------------------
 
 def step_download(dest_path):
-    print("\n=== Step 1: Download APK ===")
+    banner("Download APK")
     gdown = ensure_gdown()
     if gdown is None:
         return False
@@ -112,7 +121,7 @@ _DECOMPILE_REQUIRED = [
 
 
 def step_decompile(apk_path):
-    print("\n=== Step 2: Decompile APK ===")
+    banner("Decompile APK")
 
     app_dir = os.path.join(REPO_ROOT, 'app')
     if os.path.isdir(app_dir):
@@ -123,6 +132,7 @@ def step_decompile(apk_path):
     print(f"  Output: {REPO_ROOT}")
     subprocess.run([
         'jadx',
+        '-q',
         '--export-gradle',
         '--export-gradle-type', 'android-app',
         '-d', REPO_ROOT,
@@ -140,7 +150,7 @@ def step_decompile(apk_path):
 
 
 def step_generate():
-    print("\n=== Step 3: Generate web data ===")
+    banner("Generate web data")
     script = os.path.join(REPO_ROOT, 'scripts', 'generate_data.py')
     result = subprocess.run([sys.executable, script])
     return result.returncode == 0
@@ -169,7 +179,7 @@ def main():
         print(f"Using local APK: {apk_path}")
     elif os.path.isfile(CACHED_APK):
         apk_path = CACHED_APK
-        print(f"\n=== Step 1: Download APK ===")
+        banner("Download APK")
         print(f"  Using cached APK: {CACHED_APK}")
     else:
         os.makedirs(APK_CACHE_DIR, exist_ok=True)
@@ -178,7 +188,7 @@ def main():
             sys.exit(1)
 
     # Verify APK integrity
-    print("\n=== Verifying APK ===")
+    banner("Verifying APK")
     if not verify_sha256(apk_path, APK_SHA256):
         sys.exit(1)
     print("  SHA256 OK.")
@@ -190,8 +200,7 @@ def main():
     if not step_generate():
         sys.exit(1)
 
-    print("\n=== Setup complete ===")
-    print("Open web/index.html in a browser to play.")
+    banner("Fixing File Ownership")
 
     # Fix ownership of bind-mounted output directories so files aren't root-owned
     # on the host. HOST_UID/HOST_GID are passed in from setup.sh.
@@ -204,7 +213,6 @@ def main():
             ['chown', '-R', f'{host_uid}:{host_gid}', data_dir, APK_CACHE_DIR],
             check=True,
         )
-
 
 if __name__ == '__main__':
     main()

@@ -481,8 +481,6 @@ def write_chapters_js(all_chapters):
 # ---------------------------------------------------------------------------
 
 def main():
-    print("=== Oathsworn Web Data Generator ===\n")
-
     # Strings
     print("Parsing strings.xml...")
     strings = parse_strings_xml()
