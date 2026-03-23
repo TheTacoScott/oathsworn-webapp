@@ -7,6 +7,7 @@
  * TABLE OF CONTENTS  (Ctrl+F the [TAG] to jump to each section)
  *
  *   [CONSTANTS]         AUDIO_BASE, IMAGE_BASE, CHAPTER_ORDER, sentinels
+ *   [SETTINGS]          persistent user preferences (localStorage)
  *   [HELPERS]           S(), locationLabel(), imageUrl(), audioUrl()
  *   [SCREEN_ROUTING]    showScreen()
  *   [GAME_STATE]        module-level variables
@@ -48,6 +49,46 @@ const NEXT_RETURN_TO_TOKEN = -3;
 
 // Seconds into audio playback before auto-scroll begins
 const AUDIO_SCROLL_START_SEC = 10;
+
+//
+// ============================================================================
+//  [SETTINGS]
+// ============================================================================
+//
+
+const SETTINGS_KEY = 'oathsworn_settings';
+
+const SETTINGS_DEFAULTS = {
+    autoScroll:         true,
+    autoStartNarration: false,
+    autoPlayNext:       false,
+};
+
+function loadSettings() {
+    try {
+        const raw = localStorage.getItem(SETTINGS_KEY);
+        return raw ? Object.assign({}, SETTINGS_DEFAULTS, JSON.parse(raw)) : Object.assign({}, SETTINGS_DEFAULTS);
+    } catch (e) {
+        return Object.assign({}, SETTINGS_DEFAULTS);
+    }
+}
+
+function saveSettings() {
+    localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
+}
+
+function syncSettingsUI() {
+    document.getElementById('setting-auto-scroll').checked    = settings.autoScroll;
+    document.getElementById('setting-auto-narration').checked = settings.autoStartNarration;
+    document.getElementById('setting-auto-next').checked      = settings.autoPlayNext;
+}
+
+function openSettingsModal() {
+    syncSettingsUI();
+    $('#settings-modal').css('display', 'flex');
+}
+
+let settings = loadSettings();
 
 //
 // ============================================================================
@@ -208,9 +249,8 @@ function startChapter(chapterNum) {
 
 function loadSection(goingBack) {
     stopAudio();
-    autoScroll = true;
-    const cb = document.getElementById('auto-scroll-check');
-    if (cb) cb.checked = true;
+    autoScroll = settings.autoScroll;
+    $('#autoscroll-paused').addClass('d-none');
 
     currentSectionNum = engine.getCurrentSectionNum();
     const chapterData = engine.chapterData;
@@ -532,7 +572,11 @@ function setupAudio() {
     });
 
     const isEncounterAudio = rawTracks[0] === 'encounter_audio';
-    playAudioTrack(0, isEncounterAudio);
+    if (settings.autoStartNarration) {
+        playAudioTrack(0, isEncounterAudio);
+    } else {
+        loadAudioTrack(0, isEncounterAudio);
+    }
 }
 
 function loadAudioTrack(idx, loop) {
@@ -540,7 +584,7 @@ function loadAudioTrack(idx, loop) {
     audioPlayer.src = audioTracks[idx];
     audioPlayer.loop = !!loop;
     audioPlayer.onended = () => {
-        if (!audioPlayer.loop) {
+        if (!audioPlayer.loop && settings.autoPlayNext) {
             audioTrackIndex++;
             if (audioTrackIndex < audioTracks.length) {
                 playAudioTrack(audioTrackIndex, false);
@@ -820,18 +864,40 @@ $(function() {
     // never fire from programmatic scrollTop changes)
     function disableAutoScroll() {
         autoScroll = false;
-        const cb = document.getElementById('auto-scroll-check');
-        if (cb) cb.checked = false;
+        if (settings.autoScroll) $('#autoscroll-paused').removeClass('d-none');
     }
     const gameContent = document.getElementById('game-content');
     gameContent.addEventListener('wheel', disableAutoScroll, { passive: true });
     gameContent.addEventListener('touchmove', disableAutoScroll, { passive: true });
 
-    $('#auto-scroll-check').on('change', function() {
-        autoScroll = this.checked;
-        if (autoScroll) {
-            const audio = document.getElementById('audio-native');
-            if (audio && !audio.paused) startScrollAnimation();
-        }
+    $('#autoscroll-paused').on('click', function() {
+        autoScroll = true;
+        $(this).addClass('d-none');
+        const audio = document.getElementById('audio-native');
+        if (audio && !audio.paused) startScrollAnimation();
+    });
+
+    // Settings modal
+    $('#btn-settings, #btn-settings-game').on('click', openSettingsModal);
+
+    $('#btn-settings-close').on('click', function() { $('#settings-modal').hide(); });
+
+    $('#settings-modal').on('click', function(e) {
+        if (e.target === this) $('#settings-modal').hide();
+    });
+
+    $('#setting-auto-scroll').on('change', function() {
+        settings.autoScroll = this.checked;
+        saveSettings();
+    });
+
+    $('#setting-auto-narration').on('change', function() {
+        settings.autoStartNarration = this.checked;
+        saveSettings();
+    });
+
+    $('#setting-auto-next').on('change', function() {
+        settings.autoPlayNext = this.checked;
+        saveSettings();
     });
 });
