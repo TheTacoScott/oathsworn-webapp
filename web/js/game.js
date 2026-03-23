@@ -331,9 +331,22 @@ class GameEngine {
 
         for (let unit = 1; unit <= timeAdded; unit++) {
             time++;
+
+            // Unconditional trigger: always fires regardless of story path.
             const trigger = this.chapterData.timeTriggers[time];
             if (trigger !== undefined) {
                 return trigger;
+            }
+
+            // Conditional trigger: only fires when nextPositionToken matches the
+            // condition, allowing different redirects for path-A vs path-B players.
+            const cond = this.chapterData.conditionalTimeTriggers &&
+                         this.chapterData.conditionalTimeTriggers[time];
+            if (cond) {
+                const npt = this._getInt('nextPositionToken');
+                if (_timeTriggerConditionMatches(npt, cond)) {
+                    return cond.goTo;
+                }
             }
         }
         return -1;
@@ -562,6 +575,35 @@ class GameEngine {
         this._save(save);
     }
 
+}
+
+//
+// ============================================================================
+//  Conditional time trigger condition evaluator
+//
+//  Used by GameEngine._timePop to test whether a conditional trigger should
+//  fire for the player's current nextPositionToken.
+//
+//  Condition fields (all optional; any matching field fires the trigger):
+//    whenTokenInRange:    [min, max]  - fires when min <= npt <= max
+//    whenTokenNotInRange: [min, max]  - fires when npt < min OR npt > max
+//    orTokenIs:           [v, ...]    - additional exact token values (OR'd with
+//                                       the range check above)
+// ============================================================================
+
+function _timeTriggerConditionMatches(npt, cond) {
+    if (cond.whenTokenInRange) {
+        const [min, max] = cond.whenTokenInRange;
+        if (npt >= min && npt <= max) return true;
+    }
+    if (cond.whenTokenNotInRange) {
+        const [min, max] = cond.whenTokenNotInRange;
+        if (npt < min || npt > max) return true;
+    }
+    if (cond.orTokenIs) {
+        if (cond.orTokenIs.includes(npt)) return true;
+    }
+    return false;
 }
 
 //

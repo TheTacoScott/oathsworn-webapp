@@ -32,7 +32,6 @@ APK_DRIVE_URLS = [
     'https://drive.google.com/file/d/1QUtQbaeUKrc31m8UwbuXcSRaIfefvpXO/view?usp=drive_link',
 ]
 
-APK_MIN_SIZE = 10 * 1024 * 1024  # sanity check: real APK should be >10 MB
 APK_SHA256 = '0c1c0b496969ff3a33019db46506350d796000a17606617690c261eedfa9bc96'
 
 
@@ -58,15 +57,6 @@ def ensure_gdown():
         return None
     import gdown
     return gdown
-
-
-def is_valid_apk(path):
-    """Check that the file looks like a ZIP/APK (PK magic bytes)."""
-    try:
-        with open(path, 'rb') as f:
-            return f.read(2) == b'PK'
-    except OSError:
-        return False
 
 
 def verify_sha256(path, expected):
@@ -104,13 +94,8 @@ def step_download(dest_path):
             output = None
 
         if output and os.path.exists(dest_path):
-            size = os.path.getsize(dest_path)
-            if size >= APK_MIN_SIZE and is_valid_apk(dest_path):
-                print(f"  Downloaded: {dest_path} ({size // (1024*1024)} MB)")
-                return True
-            else:
-                print(f"  Download looks invalid (size={size}, not a ZIP). Trying next source.")
-                os.remove(dest_path)
+            print(f"  Downloaded: {dest_path}")
+            return True
 
     print("  Error: all download sources failed.")
     return False
@@ -182,11 +167,10 @@ def main():
             sys.exit(1)
         apk_path = args.apk
         print(f"Using local APK: {apk_path}")
-    elif os.path.isfile(CACHED_APK) and is_valid_apk(CACHED_APK):
+    elif os.path.isfile(CACHED_APK):
         apk_path = CACHED_APK
-        size = os.path.getsize(CACHED_APK)
         print(f"\n=== Step 1: Download APK ===")
-        print(f"  Using cached APK: {CACHED_APK} ({size // (1024*1024)} MB)")
+        print(f"  Using cached APK: {CACHED_APK}")
     else:
         os.makedirs(APK_CACHE_DIR, exist_ok=True)
         apk_path = CACHED_APK
