@@ -49,6 +49,10 @@ docker run --rm \
     -v "$CACHE_DIR:/cache" \
     oathsworn-setup
 
+echo ""
+echo "============================================================"
+echo "===                    Copying Files                     ==="
+echo "============================================================"
 # Copy static web assets into the output directory.
 # Skipped when OUTPUT_DIR is already the repo's web/ directory.
 WEB_SRC="$SCRIPT_DIR/web"
@@ -61,5 +65,8 @@ if [[ "$(realpath "$OUTPUT_DIR")" != "$(realpath "$WEB_SRC")" ]]; then
 fi
 
 echo ""
-echo "Done."
-echo "Open: $OUTPUT_DIR/index.html"
+echo "============================================================"
+echo "===                    Setup complete                    ==="
+echo "============================================================"
+echo "Open: $OUTPUT_DIR/index.html in your web browser of choice to get started."
+echo ""
