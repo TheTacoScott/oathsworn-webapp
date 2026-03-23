@@ -12,7 +12,7 @@ Thus: let's make a web app.
 
 ## Quick start (Docker)
 
-**Prerequisites:** Docker
+**Prerequisites:** Docker + Linux (Some kind of linux-ish environment like MacOS or maybe even Windows with WSL should™ work)
 
 ```bash
 ./setup.sh
