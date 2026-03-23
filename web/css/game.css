@@ -107,14 +107,32 @@
 
 .audio-track-label {
     font-family: var(--font-title);
-    font-size: 0.75rem;
+    font-size: 0.875rem;
     letter-spacing: 0.1em;
-    color: var(--color-text-dim);
+    color: var(--color-gold-light);
 }
 
 .btn-audio-nav {
-    font-size: 0.85rem;
-    line-height: 1.4;
+    font-size: 1rem;
+    height: auto;
+    line-height: 1;
+    border: none;
+    background: transparent;
+    color: var(--color-gold-light);
+    padding: 0 0.25rem;
+    transition: color 0.15s;
+}
+
+.btn-audio-nav:hover,
+.btn-audio-nav:focus {
+    color: #fff;
+    background: transparent;
+}
+
+.btn-audio-nav:disabled {
+    opacity: 0.25;
+    cursor: default;
+    pointer-events: none;
 }
 
 .auto-scroll-label {
