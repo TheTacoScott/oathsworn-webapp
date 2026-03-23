@@ -28,6 +28,7 @@ ENV PATH="/opt/jadx/bin:${PATH}"
 
 # Cache directory for the downloaded APK - bind-mount a host path here
 # to persist the APK across runs and skip re-downloading.
+ENV PYTHONUNBUFFERED=1
 ENV APK_CACHE_DIR=/cache
 RUN mkdir -p /cache
 
