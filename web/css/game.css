@@ -139,10 +139,10 @@
 .autoscroll-paused-bar {
     text-align: center;
     font-family: var(--font-title);
-    font-size: 0.72rem;
+    font-size: 0.95rem;
     letter-spacing: 0.08em;
     color: var(--color-text-dim);
-    padding: 0.35rem;
+    padding: 0.75rem;
     cursor: pointer;
     background: var(--bg-header);
     border-top: 1px solid var(--color-border);
