@@ -30,6 +30,7 @@
             <button id="btn-new-campaign" class="btn btn-primary-game">New Campaign</button>
             <button id="btn-continue-campaign" class="btn btn-primary-game d-none">Continue Campaign</button>
             <button id="btn-view-save" class="btn btn-ghost-game">View Saved Data</button>
+            <button id="btn-settings" class="btn btn-ghost-game">Settings</button>
         </div>
     </div>
 </div>
@@ -41,7 +42,7 @@
 <div id="screen-save-data" class="screen">
     <div class="container py-3">
         <div class="d-flex align-items-center mb-4 gap-3">
-            <button id="btn-save-back" class="btn btn-ghost-game">&#8592; Back</button>
+            <button id="btn-save-back" class="btn btn-ghost-game">&#8592;</button>
             <h4 class="mb-0 screen-heading">Saved Data</h4>
             <button id="btn-copy-save" class="btn btn-ghost-game ms-auto">Copy JSON</button>
         </div>
@@ -62,7 +63,7 @@
 <div id="screen-chapters" class="screen">
     <div class="container py-3">
         <div class="d-flex align-items-center mb-4 gap-3">
-            <button id="btn-chapters-back" class="btn btn-ghost-game btn-back-home">&#8592; Back</button>
+            <button id="btn-chapters-back" class="btn btn-ghost-game btn-back-home">&#8592;</button>
             <h4 class="mb-0 screen-heading">Select Chapter</h4>
         </div>
         <div id="chapter-grid" class="row row-cols-4 row-cols-sm-6 row-cols-lg-11 g-2">
@@ -80,9 +81,10 @@
 
         <!-- Game header bar -->
         <div class="game-header d-flex align-items-center justify-content-between px-3 py-2 flex-shrink-0">
-            <button id="btn-game-back" class="btn btn-ghost-game">&#8592; Back</button>
+            <button id="btn-game-back" class="btn btn-ghost-game">&#8592;</button>
             <span id="game-time" class="game-time-display">TIME: 0</span>
             <div class="d-flex gap-2">
+                <button id="btn-settings-game" class="btn btn-ghost-game" title="Settings">&#9881;</button>
                 <button id="btn-bug-report" class="btn btn-ghost-game">Bug Report</button>
                 <button id="btn-game-menu" class="btn btn-ghost-game">Exit to Chapter Select</button>
             </div>
@@ -99,6 +101,11 @@
             <!-- populated by renderPlate() -->
         </div>
 
+        <!-- Auto-scroll paused indicator -->
+        <div id="autoscroll-paused" class="autoscroll-paused-bar d-none">
+            Auto-scroll paused &middot; click to resume
+        </div>
+
         <!-- Audio controls + choice/location buttons -->
         <div class="game-bottom flex-shrink-0 px-3 pb-3">
             <div id="audio-controls" class="audio-native-area invisible">
@@ -108,15 +115,48 @@
                     <button id="btn-audio-next" class="btn btn-audio-nav px-1" title="Next track">&#9197;</button>
                 </div>
                 <audio id="audio-native" controls class="w-100"></audio>
-                <label class="auto-scroll-label">
-                    <input type="checkbox" id="auto-scroll-check" checked> Auto Scroll
-                </label>
             </div>
             <div id="choice-buttons" class="choice-buttons-area d-flex flex-column gap-2">
                 <!-- populated by renderButtons() -->
             </div>
         </div>
 
+    </div>
+</div>
+
+
+<!-- ============================================================
+     SETTINGS MODAL
+     ============================================================ -->
+<div id="settings-modal" class="bug-modal-overlay" style="display:none">
+    <div class="settings-modal">
+        <div class="bug-modal-header">
+            <span class="bug-modal-title">Settings</span>
+            <button id="btn-settings-close" class="btn btn-ghost-game btn-sm">&#10005;</button>
+        </div>
+        <div class="settings-modal-body">
+            <div class="settings-row">
+                <label class="settings-label">
+                    <input type="checkbox" id="setting-auto-scroll" class="settings-checkbox">
+                    <span class="settings-label-text">Auto Scroll</span>
+                </label>
+                <p class="settings-desc">Scroll the page automatically as narration plays. Scrolling manually will disable it for the current section.</p>
+            </div>
+            <div class="settings-row">
+                <label class="settings-label">
+                    <input type="checkbox" id="setting-auto-narration" class="settings-checkbox">
+                    <span class="settings-label-text">Auto Start Narration</span>
+                </label>
+                <p class="settings-desc">Begin playing narration automatically when a new section loads.</p>
+            </div>
+            <div class="settings-row">
+                <label class="settings-label">
+                    <input type="checkbox" id="setting-auto-next" class="settings-checkbox">
+                    <span class="settings-label-text">Auto Play Next Track</span>
+                </label>
+                <p class="settings-desc">Advance to the next audio track automatically when one finishes.</p>
+            </div>
+        </div>
     </div>
 </div>
 
