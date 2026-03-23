@@ -135,24 +135,22 @@
     pointer-events: none;
 }
 
-.auto-scroll-label {
+
+.autoscroll-paused-bar {
+    text-align: center;
     font-family: var(--font-title);
     font-size: 0.72rem;
     letter-spacing: 0.08em;
     color: var(--color-text-dim);
-    display: flex;
-    align-items: center;
-    gap: 0.4rem;
+    padding: 0.35rem;
     cursor: pointer;
-    user-select: none;
-    margin-top: 0.3rem;
+    background: var(--bg-header);
+    border-top: 1px solid var(--color-border);
+    transition: color 0.15s;
 }
 
-.auto-scroll-label input[type="checkbox"] {
-    accent-color: var(--color-gold);
-    width: 13px;
-    height: 13px;
-    cursor: pointer;
+.autoscroll-paused-bar:hover {
+    color: var(--color-gold-light);
 }
 
 .choice-buttons-area {
@@ -198,6 +196,83 @@
     color: #d8ccff;
 }
 
+/* Back buttons - oversized arrow clipped to button bounds */
+
+#btn-game-back, #btn-chapters-back, #btn-save-back {
+    font-size: 2.5rem;
+    line-height: 1;
+    height: 2rem;
+    padding-top: 0;
+    padding-bottom: 0;
+    overflow: hidden;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Settings modal */
+
+.settings-modal {
+    background: var(--bg-panel);
+    border: 1px solid var(--color-border);
+    border-radius: 4px;
+    width: 92%;
+    max-width: 520px;
+}
+
+.settings-modal-body {
+    padding: 1.25rem 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+}
+
+.settings-row {
+    padding: 1rem 0;
+    border-bottom: 1px solid var(--color-border);
+}
+
+.settings-row:first-child {
+    padding-top: 0;
+}
+
+.settings-row:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+}
+
+.settings-label {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    cursor: pointer;
+    margin-bottom: 0.4rem;
+}
+
+.settings-label-text {
+    font-family: var(--font-title);
+    font-size: 1rem;
+    letter-spacing: 0.05em;
+    color: var(--color-gold-light);
+}
+
+.settings-checkbox {
+    accent-color: var(--color-gold);
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+    flex-shrink: 0;
+}
+
+.settings-desc {
+    font-family: var(--font-body);
+    font-size: 0.95rem;
+    color: var(--color-text-dim);
+    margin: 0;
+    padding-left: 1.65rem;
+    line-height: 1.4;
+}
+
 /* Bug report modal */
 
 .bug-modal-overlay {
@@ -237,6 +312,10 @@
     font-size: 0.9rem;
     letter-spacing: 0.12em;
     color: var(--color-gold-light);
+}
+
+.settings-modal .bug-modal-title {
+    font-size: 1.1rem;
 }
 
 .bug-modal-body {
