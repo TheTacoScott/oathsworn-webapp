@@ -20,6 +20,7 @@
  *   [GAME_MENU]         exit to chapter select
  *   [AUDIO]             playback, auto-scroll
  *   [SAVE_DATA]         save data viewer screen
+ *   [BUG_REPORT]        bug report modal
  *   [INIT]              document ready, event wiring
  */
 
@@ -681,6 +682,100 @@ function loadSaveDataScreen() {
     document.getElementById('save-data-raw').textContent = raw ? JSON.stringify(JSON.parse(raw), null, 2) : '{}';
     showScreen('screen-save-data');
 }
+
+//
+// ============================================================================
+//  [BUG_REPORT]
+// ============================================================================
+//
+
+function buildBugReportText() {
+    const chLabel = CHAPTER_LABELS[currentChapterNum] || String(currentChapterNum);
+    const section = currentSection;
+    const cd = engine.chapterData;
+
+    // Asset keys for the current section - these encode the storybook entry reference
+    const strings  = (section.sectionTexts || []).filter(Boolean);
+    const popups   = (section.popUpTexts   || []).filter(Boolean);
+    const audio    = (section.audio        || []).filter(Boolean);
+    const images   = (section.imageLinks   || []).filter(Boolean);
+
+    // Chapter save state from localStorage
+    const raw  = localStorage.getItem(STORAGE_KEY) || '{}';
+    const save = JSON.parse(raw);
+    const cs   = (save.chapters && save.chapters[currentChapterNum]) || {};
+
+    // Time triggers for this chapter
+    const unconditional = JSON.stringify(cd.timeTriggers || {});
+    const conditional   = cd.conditionalTimeTriggers
+        ? JSON.stringify(cd.conditionalTimeTriggers)
+        : 'none';
+
+    const lines = [
+        '## Bug Report - Oathsworn Web Companion',
+        '',
+        '**Describe the bug:**',
+        '<!-- What went wrong? What did you expect to happen? -->',
+        '',
+        '---',
+        '',
+        '### Current position',
+        `- Chapter: ${chLabel}`,
+        `- Section index (internal): ${currentSectionNum}`,
+        `- Story text keys: ${strings.length  ? strings.join(', ')  : 'none'}`,
+        `- Popup text keys: ${popups.length   ? popups.join(', ')   : 'none'}`,
+        `- Audio keys:      ${audio.length    ? audio.join(', ')    : 'none'}`,
+        `- Image keys:      ${images.length   ? images.join(', ')   : 'none'}`,
+        '',
+        '### Chapter save state',
+        `- Time track:                    ${cs.timeTrackList || 0}`,
+        `- nextPositionToken:             ${cs.nextPositionToken !== undefined ? cs.nextPositionToken : -1}`,
+        `- timeTrackRedirectedSectionNum: ${cs.timeTrackRedirectedSectionNum !== undefined ? cs.timeTrackRedirectedSectionNum : -1}`,
+        `- sectionsList:                  [${(cs.sectionsList             || []).join(', ')}]`,
+        `- locationsList:                 [${(cs.locationsList            || []).join(', ')}]`,
+        `- removedLocationsList:          [${(cs.removedLocationsList     || []).join(', ')}]`,
+        `- timeAddedList:                 [${(cs.timeAddedList            || []).join(', ')}]`,
+        `- nextPositionTokenWhenTripped:  [${(cs.nextPositionTokenWhenTimeWasTripped || []).join(', ')}]`,
+        `- clue1: ${cs.clue1 || false}, clue2: ${cs.clue2 || false}`,
+        cd.deepwoodChapter
+            ? `- unvisitedDeepwoodTokens: [${(cs.unvisitedDeepwoodTokens || []).join(', ')}]`
+            : null,
+        '',
+        '### Chapter time triggers',
+        `- Unconditional: ${unconditional}`,
+        `- Conditional:   ${conditional}`,
+        '',
+        '### Full save data',
+        '```json',
+        JSON.stringify(save, null, 2),
+        '```',
+    ].filter(line => line !== null);
+
+    return lines.join('\n');
+}
+
+$('#btn-bug-report').on('click', function() {
+    $('#bug-report-text').val(buildBugReportText());
+    $('#bug-report-modal').css('display', 'flex');
+});
+
+$('#btn-bug-modal-close').on('click', function() {
+    $('#bug-report-modal').hide();
+});
+
+$('#bug-report-modal').on('click', function(e) {
+    if (e.target === this) $('#bug-report-modal').hide();
+});
+
+$('#btn-bug-copy').on('click', function() {
+    const text = document.getElementById('bug-report-text').value;
+    navigator.clipboard.writeText(text).then(() => {
+        const btn = document.getElementById('btn-bug-copy');
+        const orig = btn.textContent;
+        btn.textContent = 'Copied!';
+        setTimeout(() => { btn.textContent = orig; }, 1500);
+    });
+});
 
 //
 // ============================================================================

@@ -179,3 +179,97 @@
     border-color: #8878d0;
     color: #d8ccff;
 }
+
+/* Bug report modal */
+
+.bug-modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.75);
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.5rem;
+}
+
+.bug-modal {
+    background: var(--bg-panel);
+    border: 1px solid var(--color-border);
+    border-radius: 4px;
+    width: 100%;
+    max-width: 860px;
+    height: calc(100vh - 1rem);
+    display: flex;
+    flex-direction: column;
+}
+
+.bug-modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid var(--color-border);
+    background: var(--bg-header);
+    flex-shrink: 0;
+}
+
+.bug-modal-title {
+    font-family: var(--font-title);
+    font-size: 0.9rem;
+    letter-spacing: 0.12em;
+    color: var(--color-gold-light);
+}
+
+.bug-modal-body {
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    flex: 1 1 0;
+    min-height: 0;
+}
+
+.bug-modal-instructions {
+    font-family: var(--font-body);
+    color: var(--color-text-dim);
+    font-size: 0.95rem;
+    margin: 0;
+}
+
+.bug-modal-link {
+    font-family: var(--font-title);
+    font-size: 0.8rem;
+    letter-spacing: 0.08em;
+    color: var(--color-gold);
+    text-decoration: none;
+}
+
+.bug-modal-link:hover {
+    color: var(--color-gold-light);
+    text-decoration: underline;
+}
+
+.bug-report-textarea {
+    flex: 1 1 0;
+    min-height: 0;
+    width: 100%;
+    background: #0e0b07;
+    border: 1px solid var(--color-border);
+    color: #a0b890;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 0.75rem;
+    line-height: 1.5;
+    padding: 0.6rem;
+    resize: none;
+    border-radius: 2px;
+}
+
+.bug-modal-footer {
+    padding: 0.75rem 1rem;
+    border-top: 1px solid var(--color-border);
+    background: var(--bg-header);
+    display: flex;
+    justify-content: flex-end;
+    flex-shrink: 0;
+}
