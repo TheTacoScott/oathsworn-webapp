@@ -330,14 +330,23 @@ def parse_gt_java(chapter_num, filename):
     with open(path, 'r', encoding='utf-8') as f:
         content = f.read()
 
-    # Extract timeN() return values
+    # Extract timeN() return values.
+    # Some path-guarded methods have an early "return -1;" before the real trigger
+    # value, so a non-greedy first-match would capture the wrong line.  Instead,
+    # collect every return value in the method body and take the first non-(-1) one.
     time_triggers = {}
     for i in range(1, 33):
-        m = re.search(rf'public int time{i}\(\).*?return\s+(-?\d+)\s*;', content, re.DOTALL)
+        m = re.search(rf'public int time{i}\(\)(.*?)(?=\n    (?:public|protected|@Override|/\*)|\Z)',
+                      content, re.DOTALL)
         if m:
-            val = int(m.group(1))
-            if val != -1:
-                time_triggers[i] = val
+            body = m.group(1)
+            # Skip methods that JADX could not decompile (no usable Java source).
+            if 'UnsupportedOperationException' in body:
+                continue
+            returns = [int(v) for v in re.findall(r'return\s+(-?\d+)\s*;', body)]
+            non_sentinel = [v for v in returns if v != -1]
+            if non_sentinel:
+                time_triggers[i] = non_sentinel[0]
 
     # Parse onNormalPath - extract the return statement(s)
     on_normal_path = 'always'
