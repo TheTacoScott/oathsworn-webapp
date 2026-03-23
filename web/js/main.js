@@ -101,8 +101,9 @@ let currentChapterNum = null;
 let currentSection = null;  // the Section object
 let currentSectionNum = null;
 let audioPlayer = null;
-let audioTracks = [];       // [url, url, ...] non-null audio tracks for this section
+let audioTracks = [];           // [url, url, ...] non-null audio tracks for this section
 let audioTrackIndex = 0;
+let audioTrackDurations = [];   // preloaded durations (seconds) indexed same as audioTracks; null until loaded
 let autoScroll = true;
 let scrollAnimFrame = null;
 
@@ -518,9 +519,17 @@ function setupAudio() {
         return;
     }
     $('#audio-controls').removeClass('invisible');
-    // Show prev/next only when there are multiple tracks
+    // Disable prev/next when there is only one track
     const showNav = audioTracks.length > 1;
-    $('#btn-audio-prev, #btn-audio-next').toggleClass('d-none', !showNav);
+    $('#btn-audio-prev, #btn-audio-next').prop('disabled', !showNav);
+
+    // Preload durations for all tracks so the scroll animation can use combined position
+    audioTrackDurations = audioTracks.map(() => null);
+    audioTracks.forEach((url, i) => {
+        const tmp = new Audio();
+        tmp.addEventListener('loadedmetadata', () => { audioTrackDurations[i] = tmp.duration; });
+        tmp.src = url;
+    });
 
     const isEncounterAudio = rawTracks[0] === 'encounter_audio';
     playAudioTrack(0, isEncounterAudio);
@@ -563,6 +572,7 @@ function stopAudio() {
     audioPlayer = null;
     audioTrackIndex = 0;
     audioTracks = [];
+    audioTrackDurations = [];
 }
 
 function startScrollAnimation() {
@@ -576,9 +586,22 @@ function startScrollAnimation() {
             const content = document.getElementById('game-content');
             const maxScroll = content.scrollHeight - content.clientHeight;
             if (maxScroll > 0) {
-                const t = audio.currentTime;
+                // Use combined position across all tracks if all durations are loaded
+                let t, totalDur;
+                const allLoaded = audioTrackDurations.length > 0 &&
+                    audioTrackDurations.every(d => d !== null);
+                if (allLoaded && audioTrackDurations.length > 1) {
+                    const elapsedBefore = audioTrackDurations
+                        .slice(0, audioTrackIndex)
+                        .reduce((sum, d) => sum + d, 0);
+                    t = elapsedBefore + audio.currentTime;
+                    totalDur = audioTrackDurations.reduce((sum, d) => sum + d, 0);
+                } else {
+                    t = audio.currentTime;
+                    totalDur = dur;
+                }
                 const target = t < AUDIO_SCROLL_START_SEC ? 0
-                    : ((t - AUDIO_SCROLL_START_SEC) / (dur - AUDIO_SCROLL_START_SEC)) * maxScroll;
+                    : ((t - AUDIO_SCROLL_START_SEC) / (totalDur - AUDIO_SCROLL_START_SEC)) * maxScroll;
                 const diff = target - content.scrollTop;
                 if (Math.abs(diff) > 0.5) {
                     content.scrollTop += diff * 0.08;
