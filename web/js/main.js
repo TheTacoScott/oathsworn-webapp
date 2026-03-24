@@ -985,6 +985,7 @@ $('#btn-bug-copy').on('click', function() {
 //
 
 $(function() {
+    document.getElementById('app-version').textContent = VERSION;
     initHomeScreen();
     showScreen('screen-home');
 
