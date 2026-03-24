@@ -204,7 +204,6 @@
     text-align: left;
     padding: 0.6rem 1rem;
     width: 100%;
-    transition: background-color 0.15s, border-color 0.15s, color 0.15s;
 }
 
 .btn-choice:hover,
@@ -223,7 +222,6 @@
     text-align: left;
     padding: 0.6rem 1rem;
     width: 100%;
-    transition: background-color 0.15s, border-color 0.15s, color 0.15s;
 }
 
 .btn-location:hover,
