@@ -72,8 +72,8 @@
     font-family: var(--font-title);
     font-size: 0.8rem;
     letter-spacing: 0.12em;
-    color: var(--color-text-dim);
-    opacity: 0.7;
+    color: var(--color-text);
+    opacity: 0.85;
     margin-top: 0.4rem;
     display: inline-block;
 }

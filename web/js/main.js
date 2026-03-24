@@ -914,6 +914,7 @@ function buildBugReportText() {
 
     const lines = [
         '## Bug Report - Oathsworn Web Companion',
+        `**App version:** ${VERSION}`,
         '',
         '**Describe the bug:**',
         '<!-- What went wrong? What did you expect to happen? -->',
