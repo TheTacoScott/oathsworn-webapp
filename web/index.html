@@ -65,13 +65,20 @@
      CHAPTER SELECT SCREEN
      ============================================================ -->
 <div id="screen-chapters" class="screen">
-    <div class="container py-3">
-        <div class="d-flex align-items-center mb-4 gap-3">
-            <button id="btn-chapters-back" class="btn btn-ghost-game btn-back-home">&#8592;</button>
-            <h4 class="mb-0 screen-heading">Select Chapter</h4>
+    <div class="chapters-layout">
+        <div class="chapters-list-pane">
+            <div class="chapters-list-header">
+                <button id="btn-chapters-back" class="btn btn-ghost-game btn-back-home">&#8592;</button>
+                <h4 class="mb-0 screen-heading">Select Chapter</h4>
+            </div>
+            <div id="chapter-list" class="chapters-list-scroll">
+                <!-- populated by loadChapterSelectScreen() -->
+            </div>
         </div>
-        <div id="chapter-grid" class="row row-cols-4 g-3">
-            <!-- populated by loadChapterSelectScreen() -->
+        <div class="chapters-detail-pane">
+            <div id="chapter-detail">
+                <!-- populated by selectChapterDetail() -->
+            </div>
         </div>
     </div>
 </div>
@@ -101,7 +108,7 @@
         </div>
 
         <!-- Scrollable plate content -->
-        <div id="game-content" class="game-content px-3 py-2">
+        <div id="game-content" class="game-content">
             <!-- populated by renderPlate() -->
         </div>
 

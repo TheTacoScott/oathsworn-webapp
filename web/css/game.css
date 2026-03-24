@@ -2,7 +2,6 @@
 
 .game-panel {
     height: 100vh;
-    max-width: 920px;
     margin: 0 auto;
     width: 100%;
     background-color: rgba(28, 22, 9, 0.90);
@@ -54,7 +53,8 @@
     flex: 1 1 0;
     overflow-y: auto;
     min-height: 0;
-    background-color: rgba(28, 22, 9, 0.90);
+    background-color: rgba(28, 22, 9, 0.0);
+    padding: 0.5rem 10% 1rem;
 }
 
 .plate-text {
@@ -68,9 +68,9 @@
 
 .plate-image {
     display: block;
-    max-width: 100%;
+    width: 50%;
     height: auto;
-    margin-bottom: 1.1rem;
+    margin: 0 auto 1.1rem;
     border-radius: 3px;
     cursor: zoom-in;
     transition: filter 0.15s, box-shadow 0.15s;
