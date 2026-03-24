@@ -1,3 +1,10 @@
+.btn-primary-game,
+.btn-ghost-game,
+.btn-choice,
+.btn-location {
+    transition: background-color 0.15s, border-color 0.15s, color 0.15s;
+}
+
 .btn-primary-game {
     background-color: var(--btn-primary-bg);
     border: 1px solid var(--color-gold);
@@ -6,7 +13,6 @@
     font-size: 0.9rem;
     letter-spacing: 0.1em;
     padding: 0.65rem 1.5rem;
-    transition: background-color 0.2s, border-color 0.2s, color 0.2s;
 }
 
 .btn-primary-game:hover,
@@ -23,7 +29,6 @@
     font-size: 0.85rem;
     letter-spacing: 0.04em;
     padding: 0.35rem 0.8rem;
-    transition: background-color 0.2s, border-color 0.2s, color 0.2s;
 }
 
 .btn-ghost-game:hover,
