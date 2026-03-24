@@ -23,10 +23,9 @@
 <div id="screen-home" class="screen active">
     <div class="home-wrap d-flex flex-column align-items-center justify-content-center h-100">
         <div class="text-center mb-5">
-            <h1 class="game-title">OATHSWORN</h1>
-            <p class="game-subtitle">Into the Deepwood</p>
+            <img src="data/ui/oathsworn_logo.png" alt="Oathsworn: Into the Deepwood" class="home-logo">
         </div>
-        <div class="d-flex flex-column gap-3" style="width: 280px;">
+        <div class="d-flex flex-column gap-3 home-button-col">
             <button id="btn-new-campaign" class="btn btn-primary-game">New Campaign</button>
             <button id="btn-continue-campaign" class="btn btn-primary-game d-none">Continue Campaign</button>
             <button id="btn-view-save" class="btn btn-ghost-game">View Saved Data</button>
@@ -71,7 +70,7 @@
             <button id="btn-chapters-back" class="btn btn-ghost-game btn-back-home">&#8592;</button>
             <h4 class="mb-0 screen-heading">Select Chapter</h4>
         </div>
-        <div id="chapter-grid" class="row row-cols-4 row-cols-sm-6 row-cols-lg-11 g-2">
+        <div id="chapter-grid" class="row row-cols-4 g-3">
             <!-- populated by loadChapterSelectScreen() -->
         </div>
     </div>
