@@ -68,7 +68,9 @@
 
 .plate-image {
     display: block;
-    width: 50%;
+    max-width: 50%;
+    max-height: 80vh;
+    width: auto;
     height: auto;
     margin: 0 auto 1.1rem;
     border-radius: 3px;
