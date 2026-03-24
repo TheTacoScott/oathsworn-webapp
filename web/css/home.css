@@ -26,3 +26,24 @@
     margin-top: 0.6rem;
     margin-bottom: 0;
 }
+
+.home-credit-link {
+    color: inherit;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+}
+
+.home-credit-link:hover {
+    color: var(--color-text-dim);
+    opacity: 1;
+}
+
+.home-credit {
+    font-family: var(--font-body);
+    font-size: 0.85rem;
+    color: var(--color-text-dim);
+    opacity: 0.6;
+    margin-top: 2.5rem;
+    margin-bottom: 0;
+    text-align: center;
+}
