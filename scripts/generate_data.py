@@ -25,6 +25,13 @@ AUDIO_DIR = os.path.join(RES_DIR, 'raw')
 OUT_IMAGE_DIR = os.path.join(OUT_DIR, 'images')
 OUT_AUDIO_DIR = os.path.join(OUT_DIR, 'audio')
 OUT_CHAPTERS_DIR = os.path.join(OUT_DIR, 'chapters')
+OUT_UI_DIR = os.path.join(OUT_DIR, 'ui')
+
+# Specific assets used by the web UI itself (not game content images)
+UI_ASSETS = [
+    'oathsworn_logo.png',
+    'oathsworn_background.jpg',
+]
 
 os.makedirs(OUT_DIR, exist_ok=True)
 
@@ -133,6 +140,29 @@ def copy_audio():
         print(f"  WARNING: audio dir not found: {AUDIO_DIR}")
         return 0, 0
     return _sync_dir(AUDIO_DIR, OUT_AUDIO_DIR, lambda f: f.endswith('.mp3'))
+
+
+def copy_ui_assets():
+    """Copy specific UI assets (logo, background) to web/data/ui/."""
+    if not os.path.isdir(IMAGE_DIR):
+        print(f"  WARNING: image dir not found: {IMAGE_DIR}")
+        return 0
+    os.makedirs(OUT_UI_DIR, exist_ok=True)
+    copied = 0
+    for fname in UI_ASSETS:
+        src = os.path.join(IMAGE_DIR, fname)
+        dest = os.path.join(OUT_UI_DIR, fname)
+        if not os.path.exists(src):
+            print(f"  WARNING: UI asset not found: {src}")
+            continue
+        ss = os.stat(src)
+        if os.path.exists(dest):
+            ds = os.stat(dest)
+            if ss.st_size == ds.st_size and ss.st_mtime == ds.st_mtime:
+                continue
+        shutil.copy2(src, dest)
+        copied += 1
+    return copied
 
 
 # ---------------------------------------------------------------------------
@@ -514,6 +544,11 @@ def main():
     print("\nCopying audio...")
     copied, removed = copy_audio()
     print(f"  {copied} copied, {removed} removed -> {OUT_AUDIO_DIR}")
+
+    # Copy UI assets
+    print("\nCopying UI assets...")
+    copied = copy_ui_assets()
+    print(f"  {copied} copied -> {OUT_UI_DIR}")
 
     # Chapters
     print("\nParsing chapter files...")

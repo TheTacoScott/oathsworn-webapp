@@ -43,6 +43,7 @@ const CHAPTER_LABELS = {
     22: '11.5'
 };
 
+
 // Special next-section sentinel values
 const NEXT_CHAPTER_END = -1;
 const NEXT_DIED = -2;
@@ -212,16 +213,30 @@ function loadChapterSelectScreen() {
         if (!ch) return;
 
         const label = CHAPTER_LABELS[chNum] || String(chNum);
-        const started = GameState.isChapterStarted(chNum);
+        const completed = GameState.isChapterCompleted(chNum);
+        const started = !completed && GameState.isChapterStarted(chNum);
 
         const col = document.createElement('div');
         col.className = 'col';
 
         const btn = document.createElement('button');
-        btn.className = 'btn w-100 chapter-btn' + (started ? ' chapter-started' : '');
-        btn.textContent = label;
+        let statusClass = completed ? ' chapter-completed' : (started ? ' chapter-in-progress' : '');
+        btn.className = 'btn w-100 chapter-btn' + statusClass;
         btn.dataset.chapter = chNum;
         btn.addEventListener('click', () => startChapter(chNum));
+
+
+        const numSpan = document.createElement('span');
+        numSpan.className = 'chapter-btn-num';
+        numSpan.textContent = label;
+        btn.appendChild(numSpan);
+
+        if (completed || started) {
+            const statusSpan = document.createElement('span');
+            statusSpan.className = 'chapter-btn-status';
+            statusSpan.textContent = completed ? 'Completed' : 'Resume';
+            btn.appendChild(statusSpan);
+        }
 
         col.appendChild(btn);
         grid.appendChild(col);
@@ -489,6 +504,7 @@ function handleLocationClick(locationId, nextSectionNum) {
 function advanceAndGo(nextSectionNum) {
     if (nextSectionNum === NEXT_CHAPTER_END) {
         // Record that chapter is done then return to chapter select
+        GameState.markChapterCompleted(engine.chapterNum);
         loadChapterSelectScreen();
         return;
     }

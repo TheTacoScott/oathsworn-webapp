@@ -651,6 +651,20 @@ const GameState = {
         return progress !== 0;
     },
 
+    markChapterCompleted(chapterNum) {
+        const save = this._load();
+        if (!save.chapters) save.chapters = {};
+        if (!save.chapters[chapterNum]) save.chapters[chapterNum] = {};
+        save.chapters[chapterNum].completed = true;
+        this._save(save);
+    },
+
+    isChapterCompleted(chapterNum) {
+        const save = this._load();
+        const cs = save.chapters && save.chapters[chapterNum];
+        return cs ? cs.completed === true : false;
+    },
+
     clearAll() {
         const save = this._load();
         save.chapters = {};
