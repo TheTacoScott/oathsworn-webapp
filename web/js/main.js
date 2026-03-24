@@ -43,6 +43,67 @@ const CHAPTER_LABELS = {
     22: '11.5'
 };
 
+// Short tagline shown on chapter select; edit freely
+const CHAPTER_TAGLINES = {
+    1:  'The road winds into the dark wood...',
+    2:  'A gathering at the Broken Oak...',
+    3:  'Calm before the storm...',
+    4:  'Lost and hunted...',
+    5:  'A desperate retreat...',
+    6:  'Something stirs beneath the skin...',
+    7:  'A grim march...',
+    8:  'Victory that feels like defeat...',
+    9:  'Weary and scarred...',
+    10: 'Trapped...',
+    11: 'Old grudges...',
+    22: 'A special encounter...',
+    12: 'Racing through the dark...',
+    13: 'Fire and screams...',
+    14: 'Infection...',
+    15: 'The City of Masks...',
+    16: 'Blades sharpened in the shadows...',
+    17: 'A horrible task...',
+    18: 'Return through plague-barred gates...',
+    19: 'Halfway there...',
+    20: 'Under the light ...',
+    21: 'Unleashed...',
+};
+
+// Per-chapter art shown in the detail panel; edit freely
+const CHAPTER_ART = {
+    1:  'data/ui/chapters/ch1_21_1__p4.jpg',
+    2:  'data/ui/chapters/ch2_13_4__p2.jpg',
+    3:  'data/ui/chapters/ch3_14_1__p2.jpg',
+    4:  'data/ui/chapters/ch4_45_1__p1.jpg',
+    5:  'data/ui/chapters/ch5_3_11__p1.jpg',
+    6:  'data/ui/chapters/ch6ab__p1.jpg',
+    7:  'data/ui/chapters/ch7_29_1__p4.jpg',
+    8:  'data/ui/chapters/ch8_8_10__p1.jpg',
+    9:  'data/ui/chapters/ch11_20_5__p2.jpg',
+    10: 'data/ui/chapters/ch10_117_1__p2.jpg',
+    11: 'data/ui/chapters/ch11_20_5__p2.jpg',
+    22: 'data/ui/chapters/ch11_1_1__p1.jpg',
+    12: 'data/ui/chapters/ch11_20_5__p2.jpg',
+    13: 'data/ui/chapters/ch13_7_1__p1.jpg',
+    14: 'data/ui/chapters/ch14_2_1011__p1.jpg',
+    15: 'data/ui/chapters/ch15a_16_2__p1.jpg',
+    16: 'data/ui/chapters/ch11_20_5__p2.jpg',
+    17: 'data/ui/chapters/ch17.jpg',
+    18: 'data/ui/chapters/ch18_1_19__p1.jpg',
+    19: 'data/ui/chapters/ch19_1_1__p1.jpg',
+    20: 'data/ui/chapters/ch20_0_1__p1.jpg',
+    21: 'data/ui/chapters/ch21_1_3__p1.jpg',
+};
+
+// Extra inline CSS applied to the chapter detail image div, keyed by chapter number.
+// Any valid CSS property string works, e.g. 'filter: hue-rotate(90deg) brightness(0.8)'
+const CHAPTER_ART_STYLE = {
+    9: 'filter: hue-rotate(45deg)',
+    11: 'filter: hue-rotate(90deg)',
+    12: 'filter: hue-rotate(125deg)',
+    16: 'filter: hue-rotate(180deg)',
+};
+
 // Special next-section sentinel values
 const NEXT_CHAPTER_END = -1;
 const NEXT_DIED = -2;
@@ -203,31 +264,90 @@ $('#btn-copy-save').on('click', function() {
 // ============================================================================
 //
 
+let selectedChapterNum = null;
+
 function loadChapterSelectScreen() {
-    const grid = document.getElementById('chapter-grid');
-    grid.innerHTML = '';
+    const list = document.getElementById('chapter-list');
+    list.innerHTML = '';
 
     CHAPTER_ORDER.forEach(chNum => {
         const ch = CHAPTERS[chNum];
         if (!ch) return;
 
         const label = CHAPTER_LABELS[chNum] || String(chNum);
-        const started = GameState.isChapterStarted(chNum);
+        const completed = GameState.isChapterCompleted(chNum);
+        const started = !completed && GameState.isChapterStarted(chNum);
+        const tagline = CHAPTER_TAGLINES[chNum] || '';
 
-        const col = document.createElement('div');
-        col.className = 'col';
+        const item = document.createElement('button');
+        let stateClass = completed ? ' chapter-completed' : (started ? ' chapter-in-progress' : '');
+        item.className = 'btn chapter-list-item' + stateClass;
+        item.dataset.chapter = chNum;
+        item.addEventListener('click', () => selectChapterDetail(chNum));
 
-        const btn = document.createElement('button');
-        btn.className = 'btn w-100 chapter-btn' + (started ? ' chapter-started' : '');
-        btn.textContent = label;
-        btn.dataset.chapter = chNum;
-        btn.addEventListener('click', () => startChapter(chNum));
+        const numEl = document.createElement('span');
+        numEl.className = 'chapter-list-num';
+        numEl.textContent = 'Chapter ' + label;
+        item.appendChild(numEl);
 
-        col.appendChild(btn);
-        grid.appendChild(col);
+        const tagEl = document.createElement('span');
+        tagEl.className = 'chapter-list-tagline';
+        tagEl.textContent = tagline;
+        item.appendChild(tagEl);
+
+        list.appendChild(item);
     });
 
+    // Preload all chapter art so image swaps are instant
+    Object.values(CHAPTER_ART).forEach(path => { new Image().src = path; });
+
+    // Auto-select the first in-progress chapter, or the first chapter
+    const firstInProgress = CHAPTER_ORDER.find(n => !GameState.isChapterCompleted(n) && GameState.isChapterStarted(n));
+    selectChapterDetail(firstInProgress || CHAPTER_ORDER[0]);
+
     showScreen('screen-chapters');
+}
+
+function selectChapterDetail(chNum) {
+    selectedChapterNum = chNum;
+
+    document.querySelectorAll('.chapter-list-item').forEach(el => {
+        el.classList.toggle('active', parseInt(el.dataset.chapter) === chNum);
+    });
+
+    const label = CHAPTER_LABELS[chNum] || String(chNum);
+    const completed = GameState.isChapterCompleted(chNum);
+    const started = !completed && GameState.isChapterStarted(chNum);
+    const tagline = CHAPTER_TAGLINES[chNum] || '';
+    const artPath = CHAPTER_ART[chNum] || null;
+    const artExtraStyle = CHAPTER_ART_STYLE[chNum] || '';
+
+    let statusHtml = '';
+    if (completed) {
+        statusHtml = '<div class="chapter-detail-status chapter-status-completed">Completed</div>';
+    } else if (started) {
+        statusHtml = '<div class="chapter-detail-status chapter-status-inprogress">In Progress</div>';
+    }
+
+    const btnLabel = started ? 'Resume Chapter' : completed ? 'Replay Chapter' : 'Start Chapter';
+
+    const detail = document.getElementById('chapter-detail');
+    detail.innerHTML = `
+        <div class="chapter-detail-image" style="${artPath ? `background-image: url('${artPath}'); ` : ''}${artExtraStyle}"></div>
+        <div class="chapter-detail-info">
+            <div class="chapter-detail-num">Chapter ${label}</div>
+            <div class="chapter-detail-tagline">${tagline}</div>
+            ${statusHtml}
+            <button class="btn btn-primary-game chapter-detail-start" id="btn-chapter-start">${btnLabel}</button>
+        </div>
+    `;
+
+    document.getElementById('btn-chapter-start').addEventListener('click', () => startChapter(chNum));
+
+    // Fade in the image (starts at 0 via inline style, transitions to 1)
+    const imageDiv = detail.querySelector('.chapter-detail-image');
+    imageDiv.style.opacity = '0';
+    requestAnimationFrame(() => requestAnimationFrame(() => { imageDiv.style.opacity = ''; }));
 }
 
 $('#btn-chapters-back').on('click', function() {
@@ -358,7 +478,7 @@ function renderPlate() {
             if (url) {
                 const img = document.createElement('img');
                 img.src = url;
-                img.className = 'plate-image w-100';
+                img.className = 'plate-image';
                 img.alt = '';
                 img.addEventListener('click', () => openImageLightbox(url));
                 content.appendChild(img);
@@ -489,6 +609,7 @@ function handleLocationClick(locationId, nextSectionNum) {
 function advanceAndGo(nextSectionNum) {
     if (nextSectionNum === NEXT_CHAPTER_END) {
         // Record that chapter is done then return to chapter select
+        GameState.markChapterCompleted(engine.chapterNum);
         loadChapterSelectScreen();
         return;
     }
