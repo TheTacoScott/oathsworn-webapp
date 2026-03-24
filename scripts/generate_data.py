@@ -26,12 +26,17 @@ OUT_IMAGE_DIR = os.path.join(OUT_DIR, 'images')
 OUT_AUDIO_DIR = os.path.join(OUT_DIR, 'audio')
 OUT_CHAPTERS_DIR = os.path.join(OUT_DIR, 'chapters')
 OUT_UI_DIR = os.path.join(OUT_DIR, 'ui')
+OUT_UI_CHAPTERS_DIR = os.path.join(OUT_DIR, 'ui', 'chapters')
 
 # Specific assets used by the web UI itself (not game content images)
 UI_ASSETS = [
     'oathsworn_logo.png',
     'oathsworn_background.jpg',
 ]
+
+# All ch*.jpg images from the drawable dir, copied to web/data/ui/chapters/
+# (includes both chapter select art and in-game section images)
+UI_CHAPTER_ART_GLOB = 'ch*.jpg'
 
 os.makedirs(OUT_DIR, exist_ok=True)
 
@@ -142,18 +147,18 @@ def copy_audio():
     return _sync_dir(AUDIO_DIR, OUT_AUDIO_DIR, lambda f: f.endswith('.mp3'))
 
 
-def copy_ui_assets():
-    """Copy specific UI assets (logo, background) to web/data/ui/."""
-    if not os.path.isdir(IMAGE_DIR):
-        print(f"  WARNING: image dir not found: {IMAGE_DIR}")
+def _copy_named_assets(src_dir, dest_dir, names):
+    """Copy a fixed list of named files from src_dir to dest_dir, skipping unchanged."""
+    if not os.path.isdir(src_dir):
+        print(f"  WARNING: source dir not found: {src_dir}")
         return 0
-    os.makedirs(OUT_UI_DIR, exist_ok=True)
+    os.makedirs(dest_dir, exist_ok=True)
     copied = 0
-    for fname in UI_ASSETS:
-        src = os.path.join(IMAGE_DIR, fname)
-        dest = os.path.join(OUT_UI_DIR, fname)
+    for fname in names:
+        src = os.path.join(src_dir, fname)
+        dest = os.path.join(dest_dir, fname)
         if not os.path.exists(src):
-            print(f"  WARNING: UI asset not found: {src}")
+            print(f"  WARNING: asset not found: {src}")
             continue
         ss = os.stat(src)
         if os.path.exists(dest):
@@ -163,6 +168,22 @@ def copy_ui_assets():
         shutil.copy2(src, dest)
         copied += 1
     return copied
+
+
+def copy_ui_assets():
+    """Copy logo/background to web/data/ui/."""
+    return _copy_named_assets(IMAGE_DIR, OUT_UI_DIR, UI_ASSETS)
+
+
+def copy_chapter_art():
+    """Copy all ch*.jpg from the drawable dir to web/data/ui/chapters/."""
+    import glob as _glob
+    if not os.path.isdir(IMAGE_DIR):
+        print(f"  WARNING: image dir not found: {IMAGE_DIR}")
+        return 0
+    os.makedirs(OUT_UI_CHAPTERS_DIR, exist_ok=True)
+    names = [os.path.basename(p) for p in _glob.glob(os.path.join(IMAGE_DIR, UI_CHAPTER_ART_GLOB))]
+    return _copy_named_assets(IMAGE_DIR, OUT_UI_CHAPTERS_DIR, names)
 
 
 # ---------------------------------------------------------------------------
@@ -549,6 +570,8 @@ def main():
     print("\nCopying UI assets...")
     copied = copy_ui_assets()
     print(f"  {copied} copied -> {OUT_UI_DIR}")
+    copied = copy_chapter_art()
+    print(f"  {copied} copied -> {OUT_UI_CHAPTERS_DIR}")
 
     # Chapters
     print("\nParsing chapter files...")
