@@ -72,6 +72,43 @@
     height: auto;
     margin-bottom: 1.1rem;
     border-radius: 3px;
+    cursor: zoom-in;
+    transition: filter 0.15s, box-shadow 0.15s;
+}
+
+.plate-image:hover {
+    filter: brightness(1.1);
+    box-shadow: 0 0 10px 3px rgba(224, 184, 74, 0.35);
+}
+
+.image-lightbox-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.88);
+    z-index: 2000;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    padding: 1.5rem;
+    cursor: zoom-out;
+}
+
+.image-lightbox-img {
+    max-width: 95vw;
+    max-height: 88vh;
+    object-fit: contain;
+    border-radius: 3px;
+    display: block;
+    cursor: zoom-out;
+}
+
+.image-lightbox-hint {
+    font-family: var(--font-title);
+    font-size: 0.85rem;
+    letter-spacing: 0.1em;
+    color: var(--color-text-dim);
 }
 
 .popup-box {

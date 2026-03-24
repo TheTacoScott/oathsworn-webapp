@@ -15,6 +15,7 @@
  *   [CHAPTER_SELECT]    chapter select screen
  *   [GAME_SCREEN]       startChapter(), loadSection()
  *   [RENDER_PLATE]      renderPlate()
+ *   [IMAGE_LIGHTBOX]    openImageLightbox()
  *   [RENDER_BUTTONS]    renderButtons()
  *   [BUTTON_HANDLERS]   handleChoiceClick(), handleLocationClick(), advanceAndGo()
  *   [BACK_BUTTON]       back navigation
@@ -359,10 +360,22 @@ function renderPlate() {
                 img.src = url;
                 img.className = 'plate-image w-100';
                 img.alt = '';
+                img.addEventListener('click', () => openImageLightbox(url));
                 content.appendChild(img);
             }
         }
     }
+}
+
+//
+// ============================================================================
+//  [IMAGE_LIGHTBOX]
+// ============================================================================
+//
+
+function openImageLightbox(url) {
+    document.getElementById('image-lightbox-img').src = url;
+    $('#image-lightbox').css('display', 'flex');
 }
 
 //
@@ -881,6 +894,8 @@ $(function() {
     $('#btn-settings, #btn-settings-game').on('click', openSettingsModal);
 
     $('#btn-settings-close').on('click', function() { $('#settings-modal').hide(); });
+
+    $('#image-lightbox').on('click', function() { $(this).hide(); });
 
     $('#settings-modal').on('click', function(e) {
         if (e.target === this) $('#settings-modal').hide();
