@@ -2,17 +2,16 @@
 
 .game-panel {
     height: 100vh;
-    max-width: 920px;
     margin: 0 auto;
     width: 100%;
-    background-color: var(--bg-panel);
+    background-color: rgba(28, 22, 9, 0.90);
     border-left: 1px solid var(--color-border);
     border-right: 1px solid var(--color-border);
     min-height: 0;
 }
 
 .game-header {
-    background-color: var(--bg-header);
+    background-color: rgba(18, 15, 7, 0.95);
     border-bottom: 1px solid var(--color-border);
     min-height: 50px;
 }
@@ -27,7 +26,7 @@
 /* Chapter title area (section 0) */
 
 .chapter-title-area {
-    background-color: #160d04;
+    background-color: rgba(22, 13, 4, 0.95);
     border-bottom: 1px solid var(--color-border);
     padding: 1.25rem 1rem;
 }
@@ -54,7 +53,8 @@
     flex: 1 1 0;
     overflow-y: auto;
     min-height: 0;
-    background-color: var(--bg-panel);
+    background-color: rgba(28, 22, 9, 0.0);
+    padding: 0.5rem 10% 1rem;
 }
 
 .plate-text {
@@ -68,9 +68,9 @@
 
 .plate-image {
     display: block;
-    max-width: 100%;
+    width: 50%;
     height: auto;
-    margin-bottom: 1.1rem;
+    margin: 0 auto 1.1rem;
     border-radius: 3px;
     cursor: zoom-in;
     transition: filter 0.15s, box-shadow 0.15s;
@@ -126,7 +126,7 @@
 /* Bottom bar: audio + choices */
 
 .game-bottom {
-    background-color: var(--bg-header);
+    background-color: rgba(18, 15, 7, 0.95);
     border-top: 1px solid var(--color-border);
     padding-top: 0.6rem;
 }
@@ -181,7 +181,7 @@
     color: var(--color-text-dim);
     padding: 0.75rem;
     cursor: pointer;
-    background: var(--bg-header);
+    background: rgba(18, 15, 7, 0.95);
     border-top: 1px solid var(--color-border);
     transition: color 0.15s;
 }
