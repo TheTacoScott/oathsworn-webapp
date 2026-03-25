@@ -487,6 +487,18 @@ function renderPlate() {
             }
         }
     }
+
+    requestAnimationFrame(updateContentFade);
+}
+
+function updateContentFade() {
+    const container = document.getElementById('game-content');
+    const top    = document.getElementById('content-fade-top');
+    const bottom = document.getElementById('content-fade-bottom');
+    const maxScroll = container.scrollHeight - container.clientHeight;
+    const ratio = maxScroll > 0 ? container.scrollTop / maxScroll : 0;
+    if (top)    top.style.opacity    = ratio * 0.5;
+    if (bottom) bottom.style.opacity = (1 - ratio) * 0.5;
 }
 
 //
@@ -1025,6 +1037,8 @@ $(function() {
     const gameContent = document.getElementById('game-content');
     gameContent.addEventListener('wheel', disableAutoScroll, { passive: true });
     gameContent.addEventListener('touchmove', disableAutoScroll, { passive: true });
+    gameContent.addEventListener('scroll', updateContentFade, { passive: true });
+    new ResizeObserver(updateContentFade).observe(gameContent);
 
     $('#autoscroll-paused').on('click', function() {
         autoScroll = true;
