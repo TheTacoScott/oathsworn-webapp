@@ -192,9 +192,47 @@
     color: var(--color-gold-light);
 }
 
+.choice-area-wrapper {
+    position: relative;
+}
+
 .choice-buttons-area {
     max-height: 40vh;
     overflow-y: auto;
+}
+
+.choice-fade {
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: 44px;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.2s;
+    display: flex;
+    justify-content: center;
+    font-family: var(--font-title);
+    font-size: 0.85rem;
+    letter-spacing: 0.1em;
+    color: rgba(255, 245, 200, 0.9);
+}
+
+.choice-fade.is-visible {
+    opacity: 1;
+}
+
+.choice-fade-top {
+    top: 0;
+    background: radial-gradient(ellipse 90% 100% at 50% 0%, rgba(224, 184, 74, 0.42), transparent 80%);
+    align-items: flex-start;
+    padding-top: 0.2rem;
+}
+
+.choice-fade-bottom {
+    bottom: 0;
+    background: radial-gradient(ellipse 90% 100% at 50% 100%, rgba(224, 184, 74, 0.42), transparent 80%);
+    align-items: flex-end;
+    padding-bottom: 0.2rem;
 }
 
 .btn-choice {

@@ -109,8 +109,10 @@ const NEXT_CHAPTER_END = -1;
 const NEXT_DIED = -2;
 const NEXT_RETURN_TO_TOKEN = -3;
 
-// Seconds into audio playback before auto-scroll begins
-const AUDIO_SCROLL_START_SEC = 10;
+// Auto-scroll start delay: 15% of total audio duration, clamped to [5, 20] seconds
+const SCROLL_START_RATIO = 0.15;
+const SCROLL_START_MIN   = 5;
+const SCROLL_START_MAX   = 20;
 
 //
 // ============================================================================
@@ -538,6 +540,18 @@ function renderButtons() {
             container.appendChild(btn);
         });
     }
+
+    requestAnimationFrame(updateScrollHint);
+}
+
+function updateScrollHint() {
+    const container = document.getElementById('choice-buttons');
+    const top    = document.getElementById('choice-fade-top');
+    const bottom = document.getElementById('choice-fade-bottom');
+    const clippedTop    = container.scrollTop > 2;
+    const clippedBottom = container.scrollTop + container.clientHeight < container.scrollHeight - 2;
+    if (top)    top.classList.toggle('is-visible',    clippedTop);
+    if (bottom) bottom.classList.toggle('is-visible', clippedBottom);
 }
 
 //
@@ -778,8 +792,9 @@ function startScrollAnimation() {
                     t = audio.currentTime;
                     totalDur = dur;
                 }
-                const target = t < AUDIO_SCROLL_START_SEC ? 0
-                    : ((t - AUDIO_SCROLL_START_SEC) / (totalDur - AUDIO_SCROLL_START_SEC)) * maxScroll;
+                const startSec = Math.max(SCROLL_START_MIN, Math.min(SCROLL_START_MAX, totalDur * SCROLL_START_RATIO));
+                const target = t < startSec ? 0
+                    : ((t - startSec) / (totalDur - startSec)) * maxScroll;
                 const diff = target - content.scrollTop;
                 if (Math.abs(diff) > 0.5) {
                     content.scrollTop += diff * 0.08;
@@ -995,6 +1010,11 @@ $(function() {
     audioEl.addEventListener('play', startScrollAnimation);
     audioEl.addEventListener('pause', stopScrollAnimation);
     audioEl.addEventListener('ended', stopScrollAnimation);
+
+    // Keep scroll fades in sync as the user scrolls and as layout changes (resize, zoom)
+    const choiceButtons = document.getElementById('choice-buttons');
+    choiceButtons.addEventListener('scroll', updateScrollHint, { passive: true });
+    new ResizeObserver(updateScrollHint).observe(choiceButtons);
 
     // Disable auto-scroll on genuine user scroll input (wheel/touch only - these
     // never fire from programmatic scrollTop changes)
