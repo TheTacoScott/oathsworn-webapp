@@ -233,19 +233,6 @@
     color: #d8ccff;
 }
 
-/* Back buttons - oversized arrow clipped to button bounds */
-
-#btn-game-back, #btn-chapters-back, #btn-save-back {
-    font-size: 2.5rem;
-    line-height: 1;
-    height: 2rem;
-    padding-top: 0;
-    padding-bottom: 0;
-    overflow: hidden;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-}
 
 /* Settings modal */
 

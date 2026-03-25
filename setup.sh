@@ -45,8 +45,8 @@ echo "Running setup..."
 docker run --rm \
     -e HOST_UID="$(id -u)" \
     -e HOST_GID="$(id -g)" \
-    -v "$OUTPUT_DIR/data:/repo/web/data" \
-    -v "$CACHE_DIR:/cache" \
+    -v "$OUTPUT_DIR/data:/repo/web/data:z" \
+    -v "$CACHE_DIR:/cache:z" \
     oathsworn-setup
 
 echo ""
