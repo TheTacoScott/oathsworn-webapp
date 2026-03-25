@@ -279,12 +279,16 @@
 
 .btn-location {
     background-color: var(--btn-location-bg);
+    background-image: url('../data/ui/deepwood_token.png');
+    background-repeat: no-repeat;
+    background-size: auto 90%;
+    background-position: 0.25rem center;
     border: 1px solid var(--btn-location-border);
     color: var(--btn-location-text);
     font-family: var(--font-body);
     font-size: 1rem;
     text-align: left;
-    padding: 0.6rem 1rem;
+    padding: 0.6rem 1rem 0.6rem 3.5rem;
     width: 100%;
 }
 
@@ -294,6 +298,7 @@
     border-color: #8878d0;
     color: #d8ccff;
 }
+
 
 
 /* Settings modal */
