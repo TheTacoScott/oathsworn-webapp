@@ -355,7 +355,10 @@ function selectChapterDetail(chNum) {
         </div>
     `;
 
-    document.getElementById('btn-chapter-start').addEventListener('click', () => startChapter(chNum));
+    document.getElementById('btn-chapter-start').addEventListener('click', () => {
+        if (completed) engine.clearCampaign(chNum);
+        startChapter(chNum);
+    });
 
     // Fade in the image (starts at 0 via inline style, transitions to 1)
     const imageDiv = detail.querySelector('.chapter-detail-image');
