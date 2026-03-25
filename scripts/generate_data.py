@@ -14,6 +14,7 @@ import re
 import json
 import os
 import shutil
+from PIL import Image, ImageDraw, ImageFilter
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 APP_DIR = os.path.join(BASE_DIR, 'app', 'src', 'main')
@@ -173,6 +174,63 @@ def _copy_named_assets(src_dir, dest_dir, names):
 def copy_ui_assets():
     """Copy logo/background to web/data/ui/."""
     return _copy_named_assets(IMAGE_DIR, OUT_UI_DIR, UI_ASSETS)
+
+
+def generate_deepwood_token():
+    """
+    Composite the deepwood time token from two clean semicircles found in
+    ch15b_7_6__p1.jpg, apply a circular mask, and write deepwood_token.png
+    to web/data/ui/.
+
+    The source image has four tokens on a white background; two of them have
+    clean halves at the crop coordinates below.  Stacking top+bottom gives a
+    complete 324x308 circle which is then masked to a transparent-background PNG.
+    """
+    src = os.path.join(IMAGE_DIR, 'ch15b_7_6__p1.jpg')
+    out = os.path.join(OUT_UI_DIR, 'deepwood_token.png')
+
+    if not os.path.exists(src):
+        print(f"  WARNING: token source not found: {src}")
+        return False
+
+    # Skip if output is already newer than the source
+    if os.path.exists(out) and os.path.getmtime(out) >= os.path.getmtime(src):
+        return False
+
+    img = Image.open(src).convert('RGB')
+
+    # Crop: (left, upper, right, lower) == (x, y, x+w, y+h)
+    top_half    = img.crop((491, 310,  491+324, 310+154))   # clean top semicircle
+    bottom_half = img.crop((195, 1055, 195+324, 1055+154))  # clean bottom semicircle
+
+    # Stack into a 324x308 composite
+    w, half_h = 324, 154
+    combined = Image.new('RGB', (w, half_h * 2), (255, 255, 255))
+    combined.paste(top_half,    (0, 0))
+    combined.paste(bottom_half, (0, half_h))
+    combined = combined.convert('RGBA')
+
+    # Circular alpha mask, slightly inset, with a soft edge
+    mask = Image.new('L', (w, half_h * 2), 0)
+    cx, cy, r = w // 2 + 1, half_h + 2, half_h - 7
+    ImageDraw.Draw(mask).ellipse((cx - r, cy - r, cx + r, cy + r), fill=255)
+    mask = mask.filter(ImageFilter.GaussianBlur(radius=1.5))
+
+    combined.putalpha(mask)
+
+    # Trim to the bounding box of non-transparent pixels, plus a small equal margin
+    margin = 4
+    bbox = combined.getbbox()
+    combined = combined.crop((
+        max(0, bbox[0] - margin),
+        max(0, bbox[1] - margin),
+        min(combined.width,  bbox[2] + margin),
+        min(combined.height, bbox[3] + margin),
+    ))
+
+    os.makedirs(OUT_UI_DIR, exist_ok=True)
+    combined.save(out)
+    return True
 
 
 def copy_chapter_art():
@@ -572,6 +630,8 @@ def main():
     print(f"  {copied} copied -> {OUT_UI_DIR}")
     copied = copy_chapter_art()
     print(f"  {copied} copied -> {OUT_UI_CHAPTERS_DIR}")
+    generated = generate_deepwood_token()
+    print(f"  deepwood_token.png {'generated' if generated else 'up to date'} -> {OUT_UI_DIR}")
 
     # Chapters
     print("\nParsing chapter files...")

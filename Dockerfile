@@ -34,7 +34,7 @@ RUN mkdir -p /cache
 
 WORKDIR /repo
 
-RUN pip install --no-cache-dir gdown
+RUN pip install --no-cache-dir gdown Pillow
 
 COPY scripts/ scripts/
 
