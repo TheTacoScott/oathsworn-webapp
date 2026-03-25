@@ -38,8 +38,14 @@
     font-size: 1.1rem;
 }
 
-.chapters-list-scroll {
+.chapter-list-wrapper {
     flex: 1;
+    min-height: 0;
+    position: relative;
+}
+
+.chapters-list-scroll {
+    height: 100%;
     overflow-y: scroll;
 }
 
