@@ -49,12 +49,36 @@
 
 /* Plate content */
 
-.game-content {
+.content-area-wrapper {
     flex: 1 1 0;
-    overflow-y: auto;
     min-height: 0;
+    position: relative;
+}
+
+.game-content {
+    height: 100%;
+    overflow-y: auto;
     background-color: rgba(28, 22, 9, 0.0);
     padding: 0.5rem 20% 1rem;
+}
+
+.content-fade {
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: 20px;
+    pointer-events: none;
+    opacity: 0;
+}
+
+.content-fade-top {
+    top: 0;
+    background: radial-gradient(ellipse 70% 70% at 50% 0%, rgba(224, 184, 74, 0.6), transparent 80%);
+}
+
+.content-fade-bottom {
+    bottom: 0;
+    background: radial-gradient(ellipse 70% 70% at 50% 100%, rgba(224, 184, 74, 0.6), transparent 80%);
 }
 
 .plate-text {
