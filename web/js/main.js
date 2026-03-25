@@ -308,6 +308,17 @@ function loadChapterSelectScreen() {
     selectChapterDetail(firstInProgress || CHAPTER_ORDER[0]);
 
     showScreen('screen-chapters');
+    requestAnimationFrame(updateChapterListFade);
+}
+
+function updateChapterListFade() {
+    const container = document.getElementById('chapter-list');
+    const top    = document.getElementById('chapter-list-fade-top');
+    const bottom = document.getElementById('chapter-list-fade-bottom');
+    const clippedTop    = container.scrollTop > 2;
+    const clippedBottom = container.scrollTop + container.clientHeight < container.scrollHeight - 2;
+    if (top)    top.classList.toggle('is-visible', clippedTop);
+    if (bottom) bottom.classList.toggle('is-visible', clippedBottom);
 }
 
 function selectChapterDetail(chNum) {
@@ -1022,6 +1033,11 @@ $(function() {
     audioEl.addEventListener('play', startScrollAnimation);
     audioEl.addEventListener('pause', stopScrollAnimation);
     audioEl.addEventListener('ended', stopScrollAnimation);
+
+    // Chapter list scroll fades
+    const chapterList = document.getElementById('chapter-list');
+    chapterList.addEventListener('scroll', updateChapterListFade, { passive: true });
+    new ResizeObserver(updateChapterListFade).observe(chapterList);
 
     // Keep scroll fades in sync as the user scrolls and as layout changes (resize, zoom)
     const choiceButtons = document.getElementById('choice-buttons');

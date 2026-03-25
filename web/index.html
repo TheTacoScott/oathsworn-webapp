@@ -73,8 +73,12 @@
                 <button id="btn-chapters-back" class="btn btn-ghost-game btn-back-home">Back</button>
                 <h4 class="mb-0 screen-heading">Select Chapter</h4>
             </div>
-            <div id="chapter-list" class="chapters-list-scroll">
-                <!-- populated by loadChapterSelectScreen() -->
+            <div class="chapter-list-wrapper">
+                <div id="chapter-list" class="chapters-list-scroll">
+                    <!-- populated by loadChapterSelectScreen() -->
+                </div>
+                <div id="chapter-list-fade-top"    class="choice-fade choice-fade-top">&#9650; scroll for more</div>
+                <div id="chapter-list-fade-bottom" class="choice-fade choice-fade-bottom">scroll for more &#9660;</div>
             </div>
         </div>
         <div class="chapters-detail-pane">
