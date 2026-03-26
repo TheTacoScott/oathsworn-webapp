@@ -487,7 +487,15 @@ function renderPlate() {
         } else if (item.type === 'popup') {
             const box = document.createElement('div');
             box.className = 'popup-box';
-            box.textContent = S(item.strKey);
+            const icon = document.createElement('img');
+            icon.src = 'data/ui/info.png';
+            icon.className = 'popup-box-icon';
+            icon.alt = '';
+            const text = document.createElement('span');
+            text.className = 'popup-box-text';
+            text.textContent = S(item.strKey);
+            box.appendChild(icon);
+            box.appendChild(text);
             content.appendChild(box);
         } else if (item.type === 'image') {
             const url = imageUrl(item.name);

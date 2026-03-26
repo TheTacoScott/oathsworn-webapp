@@ -22,6 +22,7 @@ JAVA_DIR = os.path.join(APP_DIR, 'java', 'com', 'shadowborne_games', 'oathsworn'
 RES_DIR = os.path.join(APP_DIR, 'res')
 OUT_DIR = os.path.join(BASE_DIR, 'web', 'data')
 IMAGE_DIR = os.path.join(RES_DIR, 'drawable-land-xxxhdpi')
+DRAWABLE_DIR = os.path.join(RES_DIR, 'drawable')
 AUDIO_DIR = os.path.join(RES_DIR, 'raw')
 OUT_IMAGE_DIR = os.path.join(OUT_DIR, 'images')
 OUT_AUDIO_DIR = os.path.join(OUT_DIR, 'audio')
@@ -33,6 +34,11 @@ OUT_UI_CHAPTERS_DIR = os.path.join(OUT_DIR, 'ui', 'chapters')
 UI_ASSETS = [
     'oathsworn_logo.png',
     'oathsworn_background.jpg',
+]
+
+# UI assets sourced from res/drawable (not drawable-land-xxxhdpi)
+DRAWABLE_UI_ASSETS = [
+    'info.png',
 ]
 
 # All ch*.jpg images from the drawable dir, copied to web/data/ui/chapters/
@@ -172,8 +178,10 @@ def _copy_named_assets(src_dir, dest_dir, names):
 
 
 def copy_ui_assets():
-    """Copy logo/background to web/data/ui/."""
-    return _copy_named_assets(IMAGE_DIR, OUT_UI_DIR, UI_ASSETS)
+    """Copy logo/background/icons to web/data/ui/."""
+    copied = _copy_named_assets(IMAGE_DIR, OUT_UI_DIR, UI_ASSETS)
+    copied += _copy_named_assets(DRAWABLE_DIR, OUT_UI_DIR, DRAWABLE_UI_ASSETS)
+    return copied
 
 
 def generate_deepwood_token():
