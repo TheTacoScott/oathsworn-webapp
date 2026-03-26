@@ -147,7 +147,7 @@
     margin-bottom: 0.75rem;
     padding: 0.75rem 1rem;
     display: flex;
-    align-items: flex-start;
+    align-items: center;
     gap: 0.75rem;
 }
 
@@ -155,8 +155,8 @@
     width: 1.75rem;
     height: 1.75rem;
     flex-shrink: 0;
-    margin-top: 0.2rem;
-    opacity: 0.8;
+    align-self: center;
+    filter: invert(0.8);
 }
 
 .popup-box-text {
@@ -188,6 +188,42 @@
     font-size: 0.875rem;
     letter-spacing: 0.1em;
     color: var(--color-gold-light);
+}
+
+.settings-icon {
+    height: 1.1rem;
+    width: auto;
+    display: block;
+    filter: invert(0.8);
+}
+
+.btn-ghost-game:hover .settings-icon,
+.btn-ghost-game:focus .settings-icon {
+    filter: invert(1);
+}
+
+.back-icon {
+    height: 1.1rem;
+    width: auto;
+    display: block;
+    filter: invert(0.8);
+}
+
+.btn-ghost-game:hover .back-icon,
+.btn-ghost-game:focus .back-icon {
+    filter: invert(1);
+}
+
+.audio-nav-icon {
+    height: 1.1rem;
+    width: auto;
+    display: block;
+    filter: invert(0.8);
+}
+
+.btn-audio-nav:hover .audio-nav-icon,
+.btn-audio-nav:focus .audio-nav-icon {
+    filter: invert(1);
 }
 
 .btn-audio-nav {

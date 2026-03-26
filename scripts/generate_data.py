@@ -39,6 +39,10 @@ UI_ASSETS = [
 # UI assets sourced from res/drawable (not drawable-land-xxxhdpi)
 DRAWABLE_UI_ASSETS = [
     'info.png',
+    'settings.png',
+    'up_image.png',
+    'play_next.png',
+    'play_previous.png',
 ]
 
 # All ch*.jpg images from the drawable dir, copied to web/data/ui/chapters/

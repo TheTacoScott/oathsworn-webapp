@@ -48,7 +48,7 @@
 <div id="screen-save-data" class="screen">
     <div class="container py-3">
         <div class="d-flex align-items-center mb-4 gap-3">
-            <button id="btn-save-back" class="btn btn-ghost-game">Back</button>
+            <button id="btn-save-back" class="btn btn-ghost-game"><img src="data/ui/up_image.png" class="back-icon" alt="Back"></button>
             <h4 class="mb-0 screen-heading">Saved Data</h4>
             <button id="btn-copy-save" class="btn btn-ghost-game ms-auto">Copy JSON</button>
         </div>
@@ -70,7 +70,7 @@
     <div class="chapters-layout">
         <div class="chapters-list-pane">
             <div class="chapters-list-header">
-                <button id="btn-chapters-back" class="btn btn-ghost-game btn-back-home">Back</button>
+                <button id="btn-chapters-back" class="btn btn-ghost-game btn-back-home"><img src="data/ui/up_image.png" class="back-icon" alt="Back"></button>
                 <h4 class="mb-0 screen-heading">Select Chapter</h4>
             </div>
             <div class="chapter-list-wrapper">
@@ -98,10 +98,10 @@
 
         <!-- Game header bar -->
         <div class="game-header d-flex align-items-center justify-content-between px-3 py-2 flex-shrink-0">
-            <button id="btn-game-back" class="btn btn-ghost-game">Back</button>
+            <button id="btn-game-back" class="btn btn-ghost-game"><img src="data/ui/up_image.png" class="back-icon" alt="Back"></button>
             <span id="game-time" class="game-time-display">TIME: 0</span>
             <div class="d-flex gap-2">
-                <button id="btn-settings-game" class="btn btn-ghost-game" title="Settings">&#9881;</button>
+                <button id="btn-settings-game" class="btn btn-ghost-game" title="Settings"><img src="data/ui/settings.png" class="settings-icon" alt="Settings"></button>
                 <button id="btn-bug-report" class="btn btn-ghost-game">Bug Report</button>
                 <button id="btn-game-menu" class="btn btn-ghost-game">Exit to Chapter Select</button>
             </div>
@@ -131,9 +131,9 @@
         <div class="game-bottom flex-shrink-0 px-3 pb-3">
             <div id="audio-controls" class="audio-native-area invisible">
                 <div class="d-flex align-items-center justify-content-center gap-2 mb-1">
-                    <button id="btn-audio-prev" class="btn btn-audio-nav px-1" title="Previous / Restart">&#9198;</button>
+                    <button id="btn-audio-prev" class="btn btn-audio-nav px-1" title="Previous / Restart"><img src="data/ui/play_previous.png" class="audio-nav-icon" alt="Previous"></button>
                     <span id="audio-track-label" class="audio-track-label"></span>
-                    <button id="btn-audio-next" class="btn btn-audio-nav px-1" title="Next track">&#9197;</button>
+                    <button id="btn-audio-next" class="btn btn-audio-nav px-1" title="Next track"><img src="data/ui/play_next.png" class="audio-nav-icon" alt="Next"></button>
                 </div>
                 <audio id="audio-native" controls class="w-100"></audio>
             </div>
