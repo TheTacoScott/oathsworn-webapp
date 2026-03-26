@@ -1073,6 +1073,12 @@ $(function() {
 
     $('#image-lightbox').on('click', function() { $(this).hide(); });
 
+    $(document).on('keydown', function(e) {
+        if (e.key === 'Escape' && $('#image-lightbox').is(':visible')) {
+            $('#image-lightbox').hide();
+        }
+    });
+
     $('#settings-modal').on('click', function(e) {
         if (e.target === this) $('#settings-modal').hide();
     });
