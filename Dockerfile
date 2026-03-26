@@ -19,8 +19,7 @@ ARG JADX_VERSION=1.5.5
 ARG JADX_SHA256=38a5766d3c8170c41566b4b13ea0ede2430e3008421af4927235c2880234d51a
 
 RUN wget -q "https://github.com/skylot/jadx/releases/download/v${JADX_VERSION}/jadx-${JADX_VERSION}.zip" \
-    && { echo "${JADX_SHA256}  jadx-${JADX_VERSION}.zip" | sha256sum -c - \
-         || { echo "ERROR: jadx-${JADX_VERSION}.zip failed SHA256 check -- if JADX_VERSION was updated, JADX_SHA256 must also be updated in the Dockerfile"; exit 1; }; } \
+    && echo "${JADX_SHA256}  jadx-${JADX_VERSION}.zip" | sha256sum -c - \
     && unzip "jadx-${JADX_VERSION}.zip" -d /opt/jadx \
     && rm "jadx-${JADX_VERSION}.zip" \
     && chmod +x /opt/jadx/bin/jadx
