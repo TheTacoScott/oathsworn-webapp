@@ -10,7 +10,7 @@ Thus: let's make a web app.
 
 ---
 
-## Getting the app without building
+## Getting the app without downloading a release
 
 The `main` branch is always kept in a working, releasable state. If you just want
 to get the latest version, cloning the repo directly is equivalent to downloading
