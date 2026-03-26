@@ -9,11 +9,8 @@
 #   output-dir          Host path to write the full web app into (default: ./web)
 #
 # Environment:
-#   APK_CACHE           Host path used to cache the downloaded APK between runs
-#                       (default: ./cache). Bind-mounted to /cache in the container.
-#   OATHSWORN_LANGUAGE  Language code for story strings (default: en).
-#                       Must match an Android values-<LANG> directory in the APK.
-#                       Examples: de, fr, es, ja
+#   APK_CACHE    Host path used to cache the downloaded APK between runs
+#                (default: ./cache). Bind-mounted to /cache in the container.
 #
 # The output directory will mirror the repo's web/ layout:
 #   output-dir/
@@ -36,11 +33,8 @@ CACHE_DIR="${APK_CACHE:-$SCRIPT_DIR/cache}"
 mkdir -p "$CACHE_DIR"
 CACHE_DIR="$(realpath "$CACHE_DIR")"
 
-LANGUAGE="${OATHSWORN_LANGUAGE:-en}"
-
 echo "Output:    $OUTPUT_DIR"
 echo "APK cache: $CACHE_DIR"
-echo "Language:  $LANGUAGE"
 echo ""
 
 echo "Building setup image..."
@@ -51,7 +45,6 @@ echo "Running setup..."
 docker run --rm \
     -e HOST_UID="$(id -u)" \
     -e HOST_GID="$(id -g)" \
-    -e OATHSWORN_LANGUAGE="$LANGUAGE" \
     -v "$OUTPUT_DIR/data:/repo/web/data:z" \
     -v "$CACHE_DIR:/cache:z" \
     oathsworn-setup
