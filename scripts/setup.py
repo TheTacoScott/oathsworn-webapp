@@ -149,10 +149,13 @@ def step_decompile(apk_path):
     print("  Decompile complete.")
 
 
-def step_generate():
+def step_generate(language='en'):
     banner("Generate web data")
     script = os.path.join(REPO_ROOT, 'scripts', 'generate_data.py')
-    result = subprocess.run([sys.executable, script])
+    cmd = [sys.executable, script]
+    if language != 'en':
+        cmd += ['--language', language]
+    result = subprocess.run(cmd)
     return result.returncode == 0
 
 
@@ -167,6 +170,12 @@ def main():
     parser.add_argument(
         '--apk',
         help='Skip download and use this local APK file instead',
+    )
+    parser.add_argument(
+        '--language', '-l',
+        default='en',
+        metavar='LANG',
+        help='Language code for story strings (default: en). E.g. de, fr, es. Must match an Android values-<LANG> directory in the APK.',
     )
     args = parser.parse_args()
 
@@ -197,7 +206,7 @@ def main():
     step_decompile(apk_path)
 
     # Generate data
-    if not step_generate():
+    if not step_generate(language=args.language):
         sys.exit(1)
 
     banner("Fixing File Ownership")

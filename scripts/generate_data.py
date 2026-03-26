@@ -74,8 +74,28 @@ def parse_android_string(text):
     return text
 
 
-def parse_strings_xml():
-    path = os.path.join(RES_DIR, 'values', 'strings.xml')
+def parse_strings_xml(language='en'):
+    """Parse strings.xml for the given language code.
+
+    'en' (or omitted) reads from res/values/strings.xml (the default).
+    Any other code reads from res/values-<language>/strings.xml.
+    """
+    if language == 'en':
+        values_dir = 'values'
+    else:
+        values_dir = f'values-{language}'
+
+    path = os.path.join(RES_DIR, values_dir, 'strings.xml')
+    if not os.path.isfile(path):
+        available = sorted(
+            d[len('values-'):] for d in os.listdir(RES_DIR)
+            if d.startswith('values-') and os.path.isfile(os.path.join(RES_DIR, d, 'strings.xml'))
+        )
+        raise FileNotFoundError(
+            f"No strings.xml found for language '{language}' (looked in {path}).\n"
+            f"Available language codes: {', '.join(available)}"
+        )
+
     strings = {}
     with open(path, 'r', encoding='utf-8') as f:
         content = f.read()
@@ -601,13 +621,29 @@ def write_chapters_js(all_chapters):
 # ---------------------------------------------------------------------------
 
 def main():
+    import argparse
+    parser = argparse.ArgumentParser(description='Generate web app data files from APK resources.')
+    parser.add_argument(
+        '--language', '-l',
+        default='en',
+        metavar='LANG',
+        help='Language code for strings (default: en). Use the Android values-<LANG> directory name, e.g. de, fr, es.',
+    )
+    args = parser.parse_args()
+    language = args.language
+
     # Strings
-    print("Parsing strings.xml...")
-    strings = parse_strings_xml()
+    values_dir = 'values' if language == 'en' else f'values-{language}'
+    print(f"Parsing strings.xml (language: {language}, source: res/{values_dir}/strings.xml)...")
+    try:
+        strings = parse_strings_xml(language)
+    except FileNotFoundError as e:
+        print(f"Error: {e}")
+        raise SystemExit(1)
     print(f"  {len(strings)} strings found")
     strings_path = os.path.join(OUT_DIR, 'strings.js')
     with open(strings_path, 'w', encoding='utf-8') as f:
-        f.write('// Auto-generated from res/values/strings.xml\n')
+        f.write(f'// Auto-generated from res/{values_dir}/strings.xml\n')
         f.write('const STRINGS = ')
         f.write(json.dumps(strings, ensure_ascii=False, indent=2))
         f.write(';\n')
