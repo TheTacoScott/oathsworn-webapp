@@ -62,7 +62,7 @@ To write the web output to a different directory:
 ### All 22 chapters supported
 - All 21 numbered chapters plus Chapter 11.5
 - Correct handling of two-path chapters (2, 5, 7, 9, 15) where the story splits into path A and path B
-- Correct handling of Deepwood exploration chapters (4, 10, 14, 17, 18) with token mechanics
+- Correct handling of Deepwood exploration chapters (4, 10, 14, 17, 18) with time token mechanics
 
 ### Gamebook experience
 - Full section text and popup/event text displayed in reading order
@@ -70,7 +70,7 @@ To write the web output to a different directory:
 - Image lightbox: click any image to zoom in full-screen; click or press Escape to close
 - Hover highlight on images to indicate they are clickable
 - Story choices and location buttons rendered at the bottom of each section
-- Deepwood location buttons display the Deepwood token icon
+- Location buttons display the time token icon
 
 ### Audio narration
 - Full narration audio for all sections that have it
