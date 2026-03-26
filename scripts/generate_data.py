@@ -621,16 +621,7 @@ def write_chapters_js(all_chapters):
 # ---------------------------------------------------------------------------
 
 def main():
-    import argparse
-    parser = argparse.ArgumentParser(description='Generate web app data files from APK resources.')
-    parser.add_argument(
-        '--language', '-l',
-        default='en',
-        metavar='LANG',
-        help='Language code for strings (default: en). Use the Android values-<LANG> directory name, e.g. de, fr, es.',
-    )
-    args = parser.parse_args()
-    language = args.language
+    language = os.environ.get('OATHSWORN_LANGUAGE', 'en')
 
     # Strings
     values_dir = 'values' if language == 'en' else f'values-{language}'
