@@ -24,6 +24,7 @@ REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # Defaults to /cache (the Docker default); override with APK_CACHE_DIR env var.
 APK_CACHE_DIR = os.environ.get('APK_CACHE_DIR', '/cache')
 CACHED_APK = os.path.join(APK_CACHE_DIR, 'oathsworn.apk')
+CACHED_APK_DE = os.path.join(APK_CACHE_DIR, 'oathsworn_de.apk')
 
 # Sharing URLs for the three APK versions on Google Drive
 APK_DRIVE_URLS = [
@@ -32,7 +33,15 @@ APK_DRIVE_URLS = [
     'https://drive.google.com/file/d/1QUtQbaeUKrc31m8UwbuXcSRaIfefvpXO/view?usp=drive_link',
 ]
 
+# German APK mirrors (contains full German strings.xml at res/values/strings.xml)
+APK_DE_DRIVE_URLS = [
+    'https://drive.google.com/file/d/11F_UkgX92eq9eBQDn7eY7G5lRsl7KD3m/view',
+    'https://drive.google.com/file/d/1ftOw0kdLL68_6OTEUY9TTuZe0SX_4pZI/view',
+    'https://drive.google.com/file/d/1k7L_BvWOTrfc4_YabMkagmIh9invaE3f/view',
+]
+
 APK_SHA256 = '0c1c0b496969ff3a33019db46506350d796000a17606617690c261eedfa9bc96'
+APK_DE_SHA256 = 'bd243191111bff0f9ce7c7b25ba8b06ca6829008cbec758ff4cb2399bbdb03d5'
 
 
 # ---------------------------------------------------------------------------
@@ -149,6 +158,61 @@ def step_decompile(apk_path):
     print("  Decompile complete.")
 
 
+def step_download_german():
+    banner("Download German APK")
+    gdown = ensure_gdown()
+    if gdown is None:
+        return False
+
+    for i, url in enumerate(APK_DE_DRIVE_URLS, 1):
+        print(f"  [{i}/{len(APK_DE_DRIVE_URLS)}] {url}")
+        try:
+            output = gdown.download(url, CACHED_APK_DE, quiet=False, fuzzy=True)
+        except Exception as e:
+            print(f"  Failed: {e}")
+            output = None
+
+        if output and os.path.exists(CACHED_APK_DE):
+            print(f"  Downloaded: {CACHED_APK_DE}")
+            return True
+
+    print("  Error: all German APK download sources failed.")
+    return False
+
+
+_DE_STRINGS_SRC = os.path.join('app', 'src', 'main', 'res', 'values', 'strings.xml')
+
+
+def step_extract_german_strings(apk_path):
+    banner("Extract German Strings")
+    de_decompile_dir = '/tmp/oathsworn_de_decompile'
+
+    if os.path.isdir(de_decompile_dir):
+        shutil.rmtree(de_decompile_dir)
+
+    print(f"  Source: {apk_path}")
+    print(f"  Decompiling to: {de_decompile_dir}")
+    subprocess.run([
+        'jadx',
+        '-q',
+        '--export-gradle',
+        '--export-gradle-type', 'android-app',
+        '-d', de_decompile_dir,
+        apk_path,
+    ])
+
+    de_strings_path = os.path.join(de_decompile_dir, _DE_STRINGS_SRC)
+    if not os.path.isfile(de_strings_path):
+        print(f"  Error: strings.xml not found at {de_strings_path}")
+        sys.exit(1)
+
+    dest = os.path.join(REPO_ROOT, _DE_STRINGS_SRC)
+    shutil.copy2(de_strings_path, dest)
+    print(f"  Replaced {dest} with German strings.")
+
+    shutil.rmtree(de_decompile_dir)
+
+
 def step_generate():
     banner("Generate web data")
     script = os.path.join(REPO_ROOT, 'scripts', 'generate_data.py')
@@ -195,6 +259,20 @@ def main():
 
     # Decompile
     step_decompile(apk_path)
+
+    # German strings: download German APK and swap in its strings.xml
+    if os.environ.get('OATHSWORN_GERMAN', '').lower() == 'true':
+        if os.path.isfile(CACHED_APK_DE):
+            banner("Download German APK")
+            print(f"  Using cached German APK: {CACHED_APK_DE}")
+        else:
+            if not step_download_german():
+                sys.exit(1)
+        banner("Verifying German APK")
+        if not verify_sha256(CACHED_APK_DE, APK_DE_SHA256):
+            sys.exit(1)
+        print("  SHA256 OK.")
+        step_extract_german_strings(CACHED_APK_DE)
 
     # Generate data
     if not step_generate():
