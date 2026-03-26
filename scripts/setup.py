@@ -185,23 +185,22 @@ _DE_STRINGS_SRC = os.path.join('app', 'src', 'main', 'res', 'values', 'strings.x
 
 def step_extract_german_strings(apk_path):
     banner("Extract German Strings")
-    de_decompile_dir = '/tmp/oathsworn_de_decompile'
+    de_res_dir = '/tmp/oathsworn_de_res'
 
-    if os.path.isdir(de_decompile_dir):
-        shutil.rmtree(de_decompile_dir)
+    if os.path.isdir(de_res_dir):
+        shutil.rmtree(de_res_dir)
 
     print(f"  Source: {apk_path}")
-    print(f"  Decompiling to: {de_decompile_dir}")
+    print(f"  Extracting resources to: {de_res_dir}")
     subprocess.run([
         'jadx',
         '-q',
-        '--export-gradle',
-        '--export-gradle-type', 'android-app',
-        '-d', de_decompile_dir,
+        '-s',           # skip source decompilation - we only need resources
+        '-dr', de_res_dir,
         apk_path,
     ])
 
-    de_strings_path = os.path.join(de_decompile_dir, _DE_STRINGS_SRC)
+    de_strings_path = os.path.join(de_res_dir, 'res', 'values', 'strings.xml')
     if not os.path.isfile(de_strings_path):
         print(f"  Error: strings.xml not found at {de_strings_path}")
         sys.exit(1)
@@ -210,7 +209,7 @@ def step_extract_german_strings(apk_path):
     shutil.copy2(de_strings_path, dest)
     print(f"  Replaced {dest} with German strings.")
 
-    shutil.rmtree(de_decompile_dir)
+    shutil.rmtree(de_res_dir)
 
 
 def step_generate():
