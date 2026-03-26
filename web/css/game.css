@@ -202,18 +202,6 @@
     filter: invert(1);
 }
 
-.back-icon {
-    height: 1.1rem;
-    width: auto;
-    display: block;
-    filter: invert(0.8);
-}
-
-.btn-ghost-game:hover .back-icon,
-.btn-ghost-game:focus .back-icon {
-    filter: invert(1);
-}
-
 .audio-nav-icon {
     height: 1.1rem;
     width: auto;

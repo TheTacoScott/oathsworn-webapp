@@ -40,7 +40,6 @@ UI_ASSETS = [
 DRAWABLE_UI_ASSETS = [
     'info.png',
     'settings.png',
-    'up_image.png',
     'play_next.png',
     'play_previous.png',
 ]
