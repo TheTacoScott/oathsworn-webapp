@@ -1,6 +1,6 @@
 # Oathsworn: Into the Deepwood - Web Companion App
 
-A browser-based companion for the board game [Oathsworn: Into the Deepwood](https://shadowborne-games.com/oathapp) by Shadowborne Games. It recreates the full in-app gamebook experience — chapter navigation, section text, narration audio, popup instructions, location tracking, time tracking, and more — accessible in any browser without needing a phone or Android emulator.
+A browser-based companion for the board game [Oathsworn: Into the Deepwood](https://shadowborne-games.com/oathapp) by Shadowborne Games. It recreates the full in-app gamebook experience (chapter navigation, section text, narration audio, popup instructions, location tracking, time tracking, and more) accessible in any browser without needing a phone or Android emulator.
 
 **This repo contains no copyrighted game content - not from the game or the app.**
 All assets (audio, images, story text) are generated locally from the official game APK on your own machine and are never stored in this repository.
@@ -56,7 +56,7 @@ To write the web output to a different directory:
 - One-command setup via `./setup.sh` (requires Docker)
 - Downloads the official APK from Google Drive and validates it with SHA256
 - Decompiles the APK using jadx, extracts all story text, audio, and images
-- Generates a fully self-contained web app in `./web/` — no server needed, just open `index.html` in a browser
+- Generates a fully self-contained web app in `./web/`: no server needed, just open `index.html` in a browser
 - APK is cached locally so repeated runs skip the re-download
 
 ### All 22 chapters supported
@@ -80,7 +80,7 @@ To write the web output to a different directory:
 
 ### Auto-scroll
 - Automatically scrolls through the story text in sync with narration
-- Pauses when you scroll manually; a tap-to-resume bar appears at the bottom
+- Pauses when you scroll manually, with a tap-to-resume bar at the bottom
 - Auto-scroll can be disabled in settings
 
 ### Time tracking
