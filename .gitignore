@@ -13,8 +13,7 @@ CLAUDE.md
 
 # Local investigation notes (may contain copyrighted game/app content)
 todo/
-docs/patches-verification.md
-docs/decompiled-source-reference.md
+docs/
 
 # Python
 __pycache__/
