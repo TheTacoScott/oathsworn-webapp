@@ -35,6 +35,64 @@ OLLAMA_URL = os.environ.get('OLLAMA_URL', 'http://localhost:11434')
 
 
 # ---------------------------------------------------------------------------
+# Sanity check configuration
+# ---------------------------------------------------------------------------
+
+# Game-specific terms that must not be translated.
+# Injected into the prompt and verified in output.
+GAME_TERMS = [
+    'Oathsworn',
+    'Deepwood',
+]
+
+# Substrings that indicate the model responded with something other than a
+# translation. Add to this list as new bad patterns are discovered.
+BAD_OUTPUT_PATTERNS = [
+    'Google Translate',
+    'Microsoft Translator',
+    'DeepL',
+    'I cannot translate',
+    "I'm unable to translate",
+    'I am unable to translate',
+    'I cannot provide',
+    'As an AI',
+]
+
+# Translated text length must be within this ratio of the original.
+LENGTH_RATIO_MIN = 0.2
+LENGTH_RATIO_MAX = 8.0
+
+
+def check_translation(original, translated):
+    """Return a list of warning strings, empty if the translation looks ok."""
+    warnings = []
+
+    # Bad output patterns
+    for pattern in BAD_OUTPUT_PATTERNS:
+        if pattern.lower() in translated.lower():
+            warnings.append(f"contains bad pattern: {pattern!r}")
+
+    # Length ratio
+    if original.strip():
+        ratio = len(translated) / max(len(original), 1)
+        if ratio < LENGTH_RATIO_MIN or ratio > LENGTH_RATIO_MAX:
+            warnings.append(f"length ratio {ratio:.1f} outside [{LENGTH_RATIO_MIN}, {LENGTH_RATIO_MAX}]")
+
+    # Game terms preservation
+    for term in GAME_TERMS:
+        if term in original and term not in translated:
+            warnings.append(f"game term {term!r} not preserved")
+
+    # Newline count
+    orig_nl = original.count('\n')
+    trans_nl = translated.count('\n')
+    if orig_nl > 0 and trans_nl != orig_nl:
+        warnings.append(f"newline count changed ({orig_nl} -> {trans_nl})")
+
+    return warnings
+
+
+# ---------------------------------------------------------------------------
 # strings.js parsing / writing
 # ---------------------------------------------------------------------------
 
@@ -112,11 +170,12 @@ def ensure_model(model):
 
 def translate_string(text, language, model):
     """Send one string to the Ollama API and return the translated text."""
+    terms_list = ', '.join(GAME_TERMS)
     prompt = (
         f'Translate the text below to {language}. '
         f'Return only the translated text with no explanation, quotes, or commentary. '
         f'Preserve all newlines and punctuation. '
-        f'Do not translate proper nouns or game-specific terms such as Oathsworn and Deepwood.\n\n'
+        f'Do not translate proper nouns or game-specific terms: {terms_list}.\n\n'
         f'Text to translate:\n{text}'
     )
     payload = json.dumps({
@@ -188,9 +247,17 @@ def main():
             done_keys[key] = value
         else:
             try:
-                done_keys[key] = translate_string(value, args.language, args.model)
+                result = translate_string(value, args.language, args.model)
+                warnings = check_translation(value, result)
+                if warnings:
+                    for w in warnings:
+                        print(f"  SANITY FAIL [{key}]: {w}", flush=True)
+                    print(f"  Keeping original for '{key}'", flush=True)
+                    done_keys[key] = value
+                else:
+                    done_keys[key] = result
             except Exception as e:
-                print(f"  WARNING: failed on '{key}': {e} - keeping original")
+                print(f"  WARNING: failed on '{key}': {e} - keeping original", flush=True)
                 done_keys[key] = value
 
         # Write output file after each string - it is the checkpoint
