@@ -152,6 +152,7 @@ let mightDefense      = 2;   // defense value for damage calc; range 0-20, 0 act
 // Combined side-level history. One entry per Draw click:
 //   { sessionId, side, cards: [{...card, cfg}], total, isMiss }
 let mightSessionHistory = [];
+let mightLastDrawCards  = [];  // flat card list from the most recent draw, for the shared grid
 
 function mightTotalStaged() {
     return Object.values(mightDecks).reduce((n, d) => n + d.staged, 0);
@@ -252,40 +253,47 @@ function buildCardBackHTML(side, color) {
     );
 }
 
-function buildDeckRowHTML(side, color) {
+function buildDeckSlotHTML(side, color) {
     const key = mightKey(side, color);
     const cfg = MIGHT_COLOR_CFG[color];
-    let emptySlots = '';
-    for (let i = 0; i < MIGHT_DISPLAY_SLOTS; i++) {
-        emptySlots += `<div class="might-card-slot-empty"></div>`;
-    }
     return (
-        `<div class="might-deck-row" data-key="${key}">` +
-            `<div class="might-deck-left">` +
-                `<div class="might-deck-label">${cfg.label}</div>` +
-                buildCardBackHTML(side, color) +
-                `<div class="might-deck-ctrl">` +
-                    `<button class="btn btn-ghost-game btn-sm might-btn-unstage" data-key="${key}" title="Unstage one">&#8722;</button>` +
-                    `<button class="btn btn-ghost-game btn-sm might-btn-stage"   data-key="${key}" title="Stage one">&#43;</button>` +
-                `</div>` +
-            `</div>` +
-            `<div class="might-drawn-area" id="might-drawn-${key}">` +
-                `<div class="might-grid" id="might-grid-${key}">${emptySlots}</div>` +
+        `<div class="might-deck-slot" id="might-slot-${key}">` +
+            `<div class="might-deck-label">${cfg.label}</div>` +
+            buildCardBackHTML(side, color) +
+            `<div class="might-deck-ctrl">` +
+                `<button class="btn btn-ghost-game btn-sm might-btn-unstage" data-key="${key}" title="Unstage one">&#8722;</button>` +
+                `<button class="btn btn-ghost-game btn-sm might-btn-stage"   data-key="${key}" title="Stage one">&#43;</button>` +
             `</div>` +
         `</div>`
     );
 }
 
-function buildSideHTML(side) {
-    const title = side === 'player' ? 'Players' : 'Monsters';
-    let rows = '';
-    for (const color of MIGHT_COLORS) rows += buildDeckRowHTML(side, color);
+function buildDecksRowHTML() {
+    const playerSlots  = MIGHT_COLORS.map(c => buildDeckSlotHTML('player',  c)).join('');
+    const monsterSlots = MIGHT_COLORS.map(c => buildDeckSlotHTML('monster', c)).join('');
     return (
-        `<div class="might-side">` +
-            `<div class="might-side-title-row">` +
-                `<span class="might-side-title might-side-${side}">${title}</span>` +
+        `<div class="might-decks-row">` +
+            `<div class="might-deck-group">` +
+                `<div class="might-deck-group-label might-side-player">Players</div>` +
+                `<div class="might-deck-group-inner">${playerSlots}</div>` +
             `</div>` +
-            rows +
+            `<div class="might-decks-divider"></div>` +
+            `<div class="might-deck-group">` +
+                `<div class="might-deck-group-label might-side-monster">Monsters</div>` +
+                `<div class="might-deck-group-inner">${monsterSlots}</div>` +
+            `</div>` +
+        `</div>`
+    );
+}
+
+function buildSharedDrawnHTML() {
+    let emptySlots = '';
+    for (let i = 0; i < MIGHT_DISPLAY_SLOTS; i++) {
+        emptySlots += `<div class="might-card-slot-empty"></div>`;
+    }
+    return (
+        `<div class="might-shared-drawn">` +
+            `<div class="might-grid" id="might-shared-grid">${emptySlots}</div>` +
         `</div>`
     );
 }
@@ -343,10 +351,8 @@ function buildOverlayHTML() {
                     `<button id="btn-might-draw"    class="btn btn-primary-game btn-draw-might" disabled>Draw</button>` +
                 `</div>` +
             `</div>` +
-            `<div class="might-decks-area">` +
-                buildSideHTML('player') +
-                buildSideHTML('monster') +
-            `</div>` +
+            buildDecksRowHTML() +
+            buildSharedDrawnHTML() +
             buildHistoryModalHTML() +
         `</div>`
     );
@@ -497,32 +503,18 @@ function renderHistoryModal() {
     renderHistorySide('monster');
 }
 
-function renderCurrentRound(key) {
-    const deck  = mightDecks[key];
-    const grid  = document.getElementById(`might-grid-${key}`);
+function renderSharedDrawnArea() {
+    const grid = document.getElementById('might-shared-grid');
     if (!grid) return;
-
-    const cfg   = MIGHT_COLOR_CFG[deck.color];
-    const round = deck.currentRound;
-    let html    = '';
-
-    if (round && round.sessionId === mightSessionId) {
-        for (const card of round.cards) {
-            html += buildDrawnCardHTML(card, cfg, 'full');
-        }
-        for (let i = round.cards.length; i < MIGHT_DISPLAY_SLOTS; i++) {
-            html += `<div class="might-card-slot-empty"></div>`;
-        }
-    } else {
-        for (let i = 0; i < MIGHT_DISPLAY_SLOTS; i++) {
-            html += `<div class="might-card-slot-empty"></div>`;
-        }
+    let html = '';
+    for (const card of mightLastDrawCards) {
+        html += buildDrawnCardHTML(card, card.cfg, 'full');
+    }
+    const padTo = Math.max(MIGHT_DISPLAY_SLOTS, mightLastDrawCards.length);
+    for (let i = mightLastDrawCards.length; i < padTo; i++) {
+        html += `<div class="might-card-slot-empty"></div>`;
     }
     grid.innerHTML = html;
-}
-
-function renderDeckDrawnArea(key) {
-    renderCurrentRound(key);
 }
 
 //
@@ -567,11 +559,6 @@ function handleDraw() {
         updateDeckDisplay(key);
     }
 
-    // Re-render every deck grid: drawn decks show new cards, all others clear.
-    for (const key of Object.keys(mightDecks)) {
-        renderDeckDrawnArea(key);
-    }
-
     if (draws.length > 0) {
         const total = draws.reduce((s, { round }) => s + round.score, 0);
         // Miss: 2+ blank ('0') cards in the INITIAL draw of player decks only.
@@ -593,6 +580,8 @@ function handleDraw() {
             }
         }
         sessionCards.sort((a, b) => MIGHT_COLOR_ORDER[a.color] - MIGHT_COLOR_ORDER[b.color]);
+        mightLastDrawCards = [...sessionCards];
+        renderSharedDrawnArea();
         mightSessionHistory.push({
             sessionId: mightSessionId,
             side: draws[0].side,
@@ -606,22 +595,14 @@ function handleDraw() {
 
 }
 
-function handleResetDeck(key) {
-    const deck = mightDecks[key];
-    if (!deck) return;
-    deck.reset();
-    renderDeckDrawnArea(key);
-    updateDeckDisplay(key);
-    updateStagingBar();
-}
-
 function handleResetAll() {
     for (const key of Object.keys(mightDecks)) {
         mightDecks[key].reset();
-        renderDeckDrawnArea(key);
         updateDeckDisplay(key);
     }
-    mightLastResult = null;
+    mightLastResult    = null;
+    mightLastDrawCards = [];
+    renderSharedDrawnArea();
     updateStagingBar();
 }
 

@@ -187,85 +187,73 @@
 }
 
 /* ------------------------------------------------------------------
-   Decks area: two equal columns, fills remaining height, no scroll
+   Decks row: Players group + divider + Monsters group, horizontal
    ------------------------------------------------------------------ */
 
-.might-decks-area {
+.might-decks-row {
     display: flex;
-    flex: 1;
-    min-height: 0; /* critical for flex children to respect parent height */
-    overflow: hidden;
-    position: relative; /* anchors the history slide-out panels */
-}
-
-.might-side {
-    flex: 1;
-    min-width: 0;
-    min-height: 0;
-    padding: 0.45rem 0.7rem;
-    display: flex;
-    flex-direction: column;
-    /* Distribute 4 deck rows evenly across the available height */
-    gap: 0;
-}
-
-.might-side + .might-side {
-    border-left: 1px solid var(--color-border);
-}
-
-.might-side-title-row {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding-bottom: 0.25rem;
-    margin-bottom: 0.25rem;
+    align-items: stretch;
+    padding: 0.4rem 0.75rem;
+    background: var(--bg-panel-alt);
     border-bottom: 1px solid var(--color-border);
     flex-shrink: 0;
 }
 
-.might-side-title {
+.might-deck-group {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+}
+
+.might-deck-group-label {
     font-family: var(--font-title);
-    font-size: 0.85rem;
+    font-size: 0.9rem;
     letter-spacing: 0.1em;
     text-transform: uppercase;
+}
+
+.might-deck-group-inner {
+    display: flex;
+    gap: 0.5rem;
+    width: 100%;
+}
+
+.might-decks-divider {
+    width: 1px;
+    background: var(--color-border);
+    margin: 0 0.75rem;
+    flex-shrink: 0;
 }
 
 .might-side-player  { color: var(--color-gold-light); text-shadow: 0 0 8px rgba(224,184,74,0.25); }
 .might-side-monster { color: #d07878; text-shadow: 0 0 8px rgba(208,80,80,0.25); }
 
 /* ------------------------------------------------------------------
-   Deck row: card back column + drawn area column
-   Each of the 4 rows takes 1/4 of the side's flex space.
+   Deck slot: label + card back + controls (vertical column, in deck group)
    ------------------------------------------------------------------ */
 
-.might-deck-row {
-    display: flex;
-    align-items: stretch;
-    gap: 0.5rem;
-    flex: 1;          /* equal share of the side's height */
-    min-height: 0;
-    padding: 0.2rem 0;
-    border-bottom: 1px solid rgba(255,255,255,0.04);
-}
-
-.might-deck-row:last-child {
-    border-bottom: none;
-}
-
-/* Left column: label, card back, controls */
-.might-deck-left {
+.might-deck-slot {
+    flex: 1;
+    min-width: 0;
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
-    gap: 0.2rem;
-    flex-shrink: 0;
-    width: 90px;
+    gap: 0.25rem;
+    padding: 0.1rem 0.2rem;
+}
+
+/* Override card-back sizing for the horizontal slot context */
+.might-deck-slot .might-card-back {
+    width: 100%;
+    max-width: 110px;
+    height: auto;
 }
 
 .might-deck-label {
     font-family: var(--font-title);
-    font-size: 0.72rem;
+    font-size: 0.9rem;
     letter-spacing: 0.07em;
     color: var(--color-text-dim);
     text-align: center;
@@ -274,12 +262,12 @@
 
 .might-deck-ctrl {
     display: flex;
-    gap: 0.2rem;
+    gap: 0.25rem;
 }
 
 .might-deck-ctrl .btn {
-    font-size: 0.7rem;
-    padding: 0.18rem 0.4rem;
+    font-size: 0.8rem;
+    padding: 0.2rem 0.5rem;
     line-height: 1.2;
 }
 
@@ -391,17 +379,23 @@
 }
 
 /* ------------------------------------------------------------------
-   Right column: history rows + current-round grid
+   Shared drawn area: single grid for all cards from the current draw
    ------------------------------------------------------------------ */
 
-.might-drawn-area {
+.might-shared-drawn {
     flex: 1;
-    min-width: 0;
     min-height: 0;
     display: flex;
-    flex-direction: column;
-    gap: 2px;
-    overflow: hidden;
+    align-items: center;
+    justify-content: center;
+    overflow-y: auto;
+    padding: 0.5rem 0.75rem;
+}
+
+.might-shared-drawn .might-grid {
+    width: 100%;
+    margin: 0;
+    align-self: flex-start;
 }
 
 /* ------------------------------------------------------------------
@@ -536,8 +530,6 @@
     gap: 3px;
     flex-shrink: 0;
     align-items: center;
-    margin-top: auto;
-    margin-bottom: auto;
 }
 
 .might-card-slot-empty {
