@@ -361,8 +361,9 @@ function buildOverlayHTML() {
                     `</div>` +
                 `</div>` +
                 `<div class="might-staging-bar-actions">` +
-                    `<button id="btn-might-draw-more" class="btn btn-ghost-game btn-draw-might" disabled>Draw More</button>` +
-                    `<button id="btn-might-draw"      class="btn btn-primary-game btn-draw-might" disabled>Clear &amp; Draw</button>` +
+                    `<button id="btn-might-clear-draw" class="btn btn-ghost-game btn-draw-might" disabled>Clear</button>` +
+                    `<button id="btn-might-draw-more"  class="btn btn-ghost-game btn-draw-might" disabled>Draw More</button>` +
+                    `<button id="btn-might-draw"       class="btn btn-primary-game btn-draw-might" disabled>Clear &amp; Draw</button>` +
                 `</div>` +
             `</div>` +
             buildDecksRowHTML() +
@@ -451,6 +452,8 @@ function updateStagingBar() {
     if (drawBtn) drawBtn.disabled = total === 0;
     const drawMoreBtn = document.getElementById('btn-might-draw-more');
     if (drawMoreBtn) drawMoreBtn.disabled = total === 0;
+    const clearDrawBtn = document.getElementById('btn-might-clear-draw');
+    if (clearDrawBtn) clearDrawBtn.disabled = mightLastDrawCards.length === 0;
     updateLockStates();
 }
 
@@ -571,6 +574,13 @@ function handleUnstage(key) {
 function handleClearAllStaged() {
     for (const deck of Object.values(mightDecks)) deck.clearStaged();
     for (const key of Object.keys(mightDecks)) updateDeckDisplay(key);
+    updateStagingBar();
+}
+
+function handleClearDrawArea() {
+    mightLastDrawCards = [];
+    mightLastResult    = null;
+    renderSharedDrawnArea();
     updateStagingBar();
 }
 
@@ -754,6 +764,7 @@ function initMightUI() {
 
     document.getElementById('btn-might-draw').addEventListener('click', handleDraw);
     document.getElementById('btn-might-draw-more').addEventListener('click', handleDrawMore);
+    document.getElementById('btn-might-clear-draw').addEventListener('click', handleClearDrawArea);
     document.getElementById('btn-might-history').addEventListener('click', openHistoryModal);
     document.getElementById('btn-might-hist-close').addEventListener('click', closeHistoryModal);
     document.getElementById('btn-might-hist-clear').addEventListener('click', function() {
