@@ -42,9 +42,15 @@ docker run -d \
 echo "Building translate image..."
 docker build -t oathsworn-translation "$SCRIPT_DIR"
 
+# Resolve the input file to an absolute path and mount its directory at /data.
+# The output defaults to the same directory, so it lands next to the input on the host.
+STRINGS_JS_HOST="$(realpath "$1")"
+STRINGS_JS_DIR="$(dirname "$STRINGS_JS_HOST")"
+STRINGS_JS_FILE="$(basename "$STRINGS_JS_HOST")"
+shift
+
 docker run --rm \
     --network "$NETWORK" \
     -e OLLAMA_URL="http://$OLLAMA_CONTAINER:11434" \
-    -v "$REPO_ROOT:/repo" \
-    -w /repo \
-    oathsworn-translation python3 /app/translate.py "$@"
+    -v "$STRINGS_JS_DIR:/data" \
+    oathsworn-translation python3 /app/translate.py "/data/$STRINGS_JS_FILE" "$@"
