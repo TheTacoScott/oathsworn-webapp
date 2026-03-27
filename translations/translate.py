@@ -25,7 +25,6 @@ Arguments:
 import argparse
 import json
 import os
-import random
 import re
 import shutil
 import sys
@@ -97,6 +96,27 @@ def check_translation(original, translated):
 # ---------------------------------------------------------------------------
 # strings.js parsing / writing / replacing
 # ---------------------------------------------------------------------------
+
+# Key/value pairs that must be present (with exact values) in the source file.
+# These are Material Design framework strings that only appear in the English
+# base APK, not in already-translated or corrupted files.
+ENGLISH_FINGERPRINT = {
+    'abc_action_bar_home_description': 'Navigate home',
+    'abc_action_bar_up_description': 'Navigate up',
+    'abc_action_menu_overflow_description': 'More options',
+}
+
+
+def check_english_fingerprint(strings):
+    """Return a list of error strings if the source file does not look like English."""
+    errors = []
+    for key, expected in ENGLISH_FINGERPRINT.items():
+        if key not in strings:
+            errors.append(f"missing key {key!r}")
+        elif strings[key] != expected:
+            errors.append(f"key {key!r} has value {strings[key]!r}, expected {expected!r}")
+    return errors
+
 
 def parse_strings_js(path):
     with open(path, 'r', encoding='utf-8') as f:
@@ -249,6 +269,15 @@ def main():
     strings = parse_strings_js(args.strings_js)
     total = len(strings)
     print(f"  {total} strings found")
+
+    # Preflight: verify the source file looks like English
+    fingerprint_errors = check_english_fingerprint(strings)
+    if fingerprint_errors:
+        print("Error: source file does not appear to be the English strings.js:")
+        for err in fingerprint_errors:
+            print(f"  {err}")
+        print("Pass the original English strings.js, not an already-translated file.")
+        sys.exit(1)
 
     # Load existing output as checkpoint: keys present there are already done
     done_keys = {}
