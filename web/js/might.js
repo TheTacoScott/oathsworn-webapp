@@ -520,7 +520,7 @@ function renderCurrentRound(key) {
     const round = deck.currentRound;
     let html    = '';
 
-    if (round) {
+    if (round && round.sessionId === mightSessionId) {
         for (const card of round.cards) {
             html += buildDrawnCardHTML(card, cfg, 'full');
         }
@@ -578,8 +578,12 @@ function handleDraw() {
         if (deck.staged === 0) continue;
         const round = mightDrawRound(deck, mightSessionId);
         draws.push({ round, side: deck.side, color: deck.color });
-        renderDeckDrawnArea(key);
         updateDeckDisplay(key);
+    }
+
+    // Re-render every deck grid: drawn decks show new cards, all others clear.
+    for (const key of Object.keys(mightDecks)) {
+        renderDeckDrawnArea(key);
     }
 
     if (draws.length > 0) {
