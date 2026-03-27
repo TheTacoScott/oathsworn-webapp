@@ -599,9 +599,10 @@
     inset: 0;
     align-items: center;
     justify-content: center;
-    font-size: 1.6rem;
+    font-size: 6rem;
     color: rgba(255, 70, 70, 0.85);
     pointer-events: none;
+    line-height: 1;
 }
 
 .might-drawn-card.card-disabled .might-card-disabled-x {
@@ -623,12 +624,12 @@
 /* Side label: player/monster attribution near bottom of full-size drawn card */
 .might-card-side-label {
     position: absolute;
-    bottom: 4px;
+    bottom: 5px;
     left: 0;
     right: 0;
     text-align: center;
     font-family: var(--font-title);
-    font-size: 0.6rem;
+    font-size: 0.9rem;
     letter-spacing: 0.1em;
     text-transform: uppercase;
     opacity: 0.4;

@@ -475,8 +475,9 @@ function buildDrawnCardHTML(cardEntry, cfg, size, index) {
         `color:${cfg.cardText}`,
         shadowStyle,
     ].filter(Boolean).join(';');
-    const chainDot     = fromCritical ? `<span class="might-chain-dot"></span>` : '';
-    const disabledMark = isDisabled   ? `<span class="might-card-disabled-x">&#10005;</span>` : '';
+    const chainDot     = fromCritical  ? `<span class="might-chain-dot"></span>` : '';
+    // Always render the X span for full-size cards; CSS show/hide via .card-disabled class.
+    const disabledMark = (size === 'full') ? `<span class="might-card-disabled-x">&#10005;</span>` : '';
     const sideLabel    = (size === 'full' && cardEntry.side)
         ? `<span class="might-card-side-label">${cardEntry.side === 'player' ? 'Player' : 'Monster'}</span>`
         : '';
@@ -577,8 +578,10 @@ function handleToggleCard(index) {
     const card = mightLastDrawCards[index];
     if (!card) return;
     card.disabled = !card.disabled;
+    // Toggle the class directly on the existing element - no re-render, no re-animation.
+    const el = document.querySelector(`.might-shared-drawn [data-card-index="${index}"]`);
+    if (el) el.classList.toggle('card-disabled', card.disabled);
     mightLastResult = computeLiveResult();
-    renderSharedDrawnArea();
     updateStagingBar();
 }
 
@@ -592,15 +595,35 @@ function handleDrawMore() {
     }
     if (draws.length === 0) return;
 
+    // Append new cards without re-sorting so existing card elements stay untouched.
+    const startIndex = mightLastDrawCards.length;
     for (const { round, color, side } of draws) {
         const cfg = MIGHT_COLOR_CFG[color];
         for (const card of round.cards) {
             mightLastDrawCards.push({ ...card, cfg, color, side, disabled: false });
         }
     }
-    mightLastDrawCards.sort((a, b) => MIGHT_COLOR_ORDER[a.color] - MIGHT_COLOR_ORDER[b.color]);
+
+    // Replace empty slots with new card elements; append beyond 20 if needed.
+    const grid = document.getElementById('might-shared-grid');
+    if (grid) {
+        const emptySlots = Array.from(grid.querySelectorAll('.might-card-slot-empty'));
+        let slotIdx = 0;
+        for (let i = startIndex; i < mightLastDrawCards.length; i++) {
+            const card = mightLastDrawCards[i];
+            const tmp  = document.createElement('div');
+            tmp.innerHTML = buildDrawnCardHTML(card, card.cfg, 'full', i);
+            const newEl = tmp.firstElementChild;
+            if (slotIdx < emptySlots.length) {
+                emptySlots[slotIdx].replaceWith(newEl);
+                slotIdx++;
+            } else {
+                grid.appendChild(newEl);
+            }
+        }
+    }
+
     mightLastResult = computeLiveResult();
-    renderSharedDrawnArea();
     updateStagingBar();
 }
 
