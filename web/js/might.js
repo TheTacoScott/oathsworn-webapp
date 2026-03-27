@@ -166,6 +166,19 @@ function mightActiveSide() {
     return null;
 }
 
+// Recomputes total/miss from non-disabled cards in mightLastDrawCards.
+function computeLiveResult() {
+    if (mightLastDrawCards.length === 0) return null;
+    const side    = mightLastDrawCards[0].side;
+    const enabled = mightLastDrawCards.filter(c => !c.disabled);
+    const total   = enabled.reduce((s, c) => s + parseMightValue(c.value), 0);
+    const playerInitialBlanks = (side !== 'monster')
+        ? enabled.filter(c => !c.fromCritical && c.value === '0').length
+        : 0;
+    const isMiss = playerInitialBlanks >= 2;
+    return { total, isMiss, side };
+}
+
 //
 // ============================================================================
 //  [MIGHT_DRAW]
@@ -330,6 +343,7 @@ function buildOverlayHTML() {
             `<div class="might-header">` +
                 `<span class="might-panel-title">Might Decks</span>` +
                 `<div class="d-flex gap-2 align-items-center">` +
+                    `<button id="btn-might-history"   class="btn btn-ghost-game btn-sm">History</button>` +
                     `<button id="btn-might-reset-all" class="btn btn-ghost-game btn-sm">Reshuffle All</button>` +
                     `<button id="btn-might-close"     class="btn btn-ghost-game btn-sm">&#10005;</button>` +
                 `</div>` +
@@ -346,9 +360,9 @@ function buildOverlayHTML() {
                         `<button class="btn btn-ghost-game btn-sm might-btn-def-inc" title="Increase defense">&#43;</button>` +
                     `</div>` +
                 `</div>` +
-                `<div class="d-flex gap-2 align-items-center">` +
-                    `<button id="btn-might-history" class="btn btn-ghost-game">History</button>` +
-                    `<button id="btn-might-draw"    class="btn btn-primary-game btn-draw-might" disabled>Draw</button>` +
+                `<div class="might-staging-bar-actions">` +
+                    `<button id="btn-might-draw-more" class="btn btn-ghost-game btn-draw-might" disabled>Draw More</button>` +
+                    `<button id="btn-might-draw"      class="btn btn-primary-game btn-draw-might" disabled>Clear &amp; Draw</button>` +
                 `</div>` +
             `</div>` +
             buildDecksRowHTML() +
@@ -435,18 +449,24 @@ function updateStagingBar() {
     }
 
     if (drawBtn) drawBtn.disabled = total === 0;
+    const drawMoreBtn = document.getElementById('btn-might-draw-more');
+    if (drawMoreBtn) drawMoreBtn.disabled = total === 0;
     updateLockStates();
 }
 
 // Build one drawn-card div. size: 'full' | 'compact' | 'hist'
-function buildDrawnCardHTML(cardEntry, cfg, size) {
+// index (optional): when provided, adds data-card-index for click-to-disable.
+function buildDrawnCardHTML(cardEntry, cfg, size, index) {
     const { value, isCritical, fromCritical } = cardEntry;
     // Criticals keep their parentheses in the display value; no separate star needed.
-    const display    = value;
-    const critClass  = isCritical   ? ' is-critical'  : '';
-    const chainClass = fromCritical ? ' from-critical' : '';
-    const sizeClass  = size === 'compact' ? ' card-compact' : size === 'hist' ? ' card-hist' : '';
-    const shadowStyle = isCritical
+    const display       = value;
+    const isDisabled    = !!cardEntry.disabled;
+    const critClass     = isCritical  ? ' is-critical'   : '';
+    const chainClass    = fromCritical ? ' from-critical' : '';
+    const disabledClass = isDisabled   ? ' card-disabled' : '';
+    const sizeClass     = size === 'compact' ? ' card-compact' : size === 'hist' ? ' card-hist' : '';
+    const indexAttr     = (index !== undefined) ? ` data-card-index="${index}"` : '';
+    const shadowStyle   = isCritical
         ? `box-shadow:0 0 14px ${cfg.critGlow},inset 0 0 6px rgba(255,255,255,0.1)`
         : '';
     const style = [
@@ -455,13 +475,15 @@ function buildDrawnCardHTML(cardEntry, cfg, size) {
         `color:${cfg.cardText}`,
         shadowStyle,
     ].filter(Boolean).join(';');
-    const chainDot = fromCritical ? `<span class="might-chain-dot"></span>` : '';
-    const sideLabel = (size === 'full' && cardEntry.side)
+    const chainDot     = fromCritical ? `<span class="might-chain-dot"></span>` : '';
+    const disabledMark = isDisabled   ? `<span class="might-card-disabled-x">&#10005;</span>` : '';
+    const sideLabel    = (size === 'full' && cardEntry.side)
         ? `<span class="might-card-side-label">${cardEntry.side === 'player' ? 'Player' : 'Monster'}</span>`
         : '';
     return (
-        `<div class="might-drawn-card${critClass}${chainClass}${sizeClass}" style="${style}">` +
+        `<div${indexAttr} class="might-drawn-card${critClass}${chainClass}${disabledClass}${sizeClass}" style="${style}">` +
             chainDot +
+            disabledMark +
             `<span class="might-drawn-value">${display}</span>` +
             sideLabel +
         `</div>`
@@ -510,8 +532,8 @@ function renderSharedDrawnArea() {
     const grid = document.getElementById('might-shared-grid');
     if (!grid) return;
     let html = '';
-    for (const card of mightLastDrawCards) {
-        html += buildDrawnCardHTML(card, card.cfg, 'full');
+    for (let i = 0; i < mightLastDrawCards.length; i++) {
+        html += buildDrawnCardHTML(mightLastDrawCards[i], mightLastDrawCards[i].cfg, 'full', i);
     }
     const padTo = Math.max(MIGHT_DISPLAY_SLOTS, mightLastDrawCards.length);
     for (let i = mightLastDrawCards.length; i < padTo; i++) {
@@ -551,6 +573,37 @@ function handleClearAllStaged() {
     updateStagingBar();
 }
 
+function handleToggleCard(index) {
+    const card = mightLastDrawCards[index];
+    if (!card) return;
+    card.disabled = !card.disabled;
+    mightLastResult = computeLiveResult();
+    renderSharedDrawnArea();
+    updateStagingBar();
+}
+
+function handleDrawMore() {
+    const draws = [];
+    for (const [key, deck] of Object.entries(mightDecks)) {
+        if (deck.staged === 0) continue;
+        const round = mightDrawRound(deck, mightSessionId);
+        draws.push({ round, side: deck.side, color: deck.color });
+        updateDeckDisplay(key);
+    }
+    if (draws.length === 0) return;
+
+    for (const { round, color, side } of draws) {
+        const cfg = MIGHT_COLOR_CFG[color];
+        for (const card of round.cards) {
+            mightLastDrawCards.push({ ...card, cfg, color, side, disabled: false });
+        }
+    }
+    mightLastDrawCards.sort((a, b) => MIGHT_COLOR_ORDER[a.color] - MIGHT_COLOR_ORDER[b.color]);
+    mightLastResult = computeLiveResult();
+    renderSharedDrawnArea();
+    updateStagingBar();
+}
+
 function handleDraw() {
     mightSessionId++;
     const draws = [];
@@ -572,18 +625,17 @@ function handleDraw() {
             .filter(c => !c.fromCritical && c.value === '0')
             .length;
         const isMiss = playerInitialBlanks >= 2;
-        mightLastResult = { total, isMiss, side: draws[0].side };
-
         // Build a flat card list sorted by color order (white, yellow, red, black)
         const sessionCards = [];
         for (const { round, color, side } of draws) {
             const cfg = MIGHT_COLOR_CFG[color];
             for (const card of round.cards) {
-                sessionCards.push({ ...card, cfg, color, side });
+                sessionCards.push({ ...card, cfg, color, side, disabled: false });
             }
         }
         sessionCards.sort((a, b) => MIGHT_COLOR_ORDER[a.color] - MIGHT_COLOR_ORDER[b.color]);
         mightLastDrawCards = [...sessionCards];
+        mightLastResult = computeLiveResult();
         renderSharedDrawnArea();
         mightSessionHistory.push({
             sessionId: mightSessionId,
@@ -623,6 +675,10 @@ function initMightUI() {
     mightUIBuilt = true;
 
     overlay.addEventListener('click', function(e) {
+        // Drawn card in shared area: toggle disabled state
+        const drawnCard = e.target.closest('.might-shared-drawn [data-card-index]');
+        if (drawnCard) { handleToggleCard(parseInt(drawnCard.dataset.cardIndex, 10)); return; }
+
         const cb = e.target.closest('.might-card-back');
         if (cb) { handleStage(cb.dataset.key); return; }
 
@@ -674,6 +730,7 @@ function initMightUI() {
     }, { passive: false });
 
     document.getElementById('btn-might-draw').addEventListener('click', handleDraw);
+    document.getElementById('btn-might-draw-more').addEventListener('click', handleDrawMore);
     document.getElementById('btn-might-history').addEventListener('click', openHistoryModal);
     document.getElementById('btn-might-hist-close').addEventListener('click', closeHistoryModal);
     document.getElementById('btn-might-hist-clear').addEventListener('click', function() {

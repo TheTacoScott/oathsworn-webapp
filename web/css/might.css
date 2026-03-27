@@ -61,13 +61,21 @@
 .might-staging-bar {
     display: flex;
     align-items: center;
-    justify-content: space-between;
     gap: 1rem;
     padding: 0.5rem 1.1rem;
     background: var(--bg-panel-alt);
     border-bottom: 1px solid var(--color-border);
     flex-shrink: 0;
     min-height: 2.9rem;
+}
+
+/* Right-hand button group in the staging bar */
+.might-staging-bar-actions {
+    flex: 1;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 0.5rem;
 }
 
 .might-staged-info {
@@ -566,6 +574,38 @@
     font-size: 2rem;
     font-weight: 700;
     line-height: 1;
+}
+
+/* Drawn cards in shared area are clickable to disable/enable */
+.might-shared-drawn .might-drawn-card {
+    cursor: pointer;
+    transition: transform 0.15s ease, opacity 0.15s ease, filter 0.15s ease;
+}
+
+.might-shared-drawn .might-drawn-card.card-disabled {
+    opacity: 0.3;
+    filter: grayscale(0.85);
+    transform: scale(0.82);
+}
+
+.might-shared-drawn .might-drawn-card.card-disabled:hover {
+    opacity: 0.45;
+}
+
+/* Disabled overlay X mark */
+.might-card-disabled-x {
+    display: none;
+    position: absolute;
+    inset: 0;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.6rem;
+    color: rgba(255, 70, 70, 0.85);
+    pointer-events: none;
+}
+
+.might-drawn-card.card-disabled .might-card-disabled-x {
+    display: flex;
 }
 
 /* Chain dot: top-left corner - indicates drawn from a critical */
