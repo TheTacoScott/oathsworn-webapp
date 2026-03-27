@@ -512,12 +512,25 @@ function renderHistoryModal() {
 }
 
 function renderCurrentRound(key) {
-    // Cards move to history immediately on draw; the grid always shows empty slots.
-    const grid = document.getElementById(`might-grid-${key}`);
+    const deck  = mightDecks[key];
+    const grid  = document.getElementById(`might-grid-${key}`);
     if (!grid) return;
-    let html = '';
-    for (let i = 0; i < MIGHT_DISPLAY_SLOTS; i++) {
-        html += `<div class="might-card-slot-empty"></div>`;
+
+    const cfg   = MIGHT_COLOR_CFG[deck.color];
+    const round = deck.currentRound;
+    let html    = '';
+
+    if (round) {
+        for (const card of round.cards) {
+            html += buildDrawnCardHTML(card, cfg, 'full');
+        }
+        for (let i = round.cards.length; i < MIGHT_DISPLAY_SLOTS; i++) {
+            html += `<div class="might-card-slot-empty"></div>`;
+        }
+    } else {
+        for (let i = 0; i < MIGHT_DISPLAY_SLOTS; i++) {
+            html += `<div class="might-card-slot-empty"></div>`;
+        }
     }
     grid.innerHTML = html;
 }
@@ -601,8 +614,6 @@ function handleDraw() {
 
     updateStagingBar();
 
-    // Auto-open the history modal after every draw so the result is immediately visible
-    if (draws.length > 0) openHistoryModal();
 }
 
 function handleResetDeck(key) {
