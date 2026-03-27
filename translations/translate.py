@@ -230,6 +230,8 @@ def main():
                         help='Output path for translated strings.js')
     parser.add_argument('--model', '-m', default='translategemma:4b',
                         help='Ollama model to use (default: translategemma:4b)')
+    parser.add_argument('--retries', type=int, default=1, metavar='N',
+                        help='Number of times to retry a string after a sanity failure (default: 1)')
     parser.add_argument('--replace', default=True, action=argparse.BooleanOptionalAction,
                         help='Replace strings.js with the translated version once all keys '
                              'are complete with no skips. Backs up the original as '
@@ -279,18 +281,18 @@ def main():
             try:
                 result = translate_string(value, args.language, args.model)
                 warnings = check_translation(value, result)
+                for attempt in range(args.retries):
+                    if not warnings:
+                        break
+                    print(f"  SANITY FAIL [{key}]: {', '.join(warnings)}", flush=True)
+                    print(f"  Bad output: {result!r}", flush=True)
+                    print(f"  Retrying ({attempt + 1}/{args.retries})...", flush=True)
+                    result = translate_string(value, args.language, args.model)
+                    warnings = check_translation(value, result)
                 if warnings:
                     print(f"  SANITY FAIL [{key}]: {', '.join(warnings)}", flush=True)
                     print(f"  Bad output: {result!r}", flush=True)
-                    print(f"  Retrying once...", flush=True)
-                    result = translate_string(value, args.language, args.model)
-                    warnings = check_translation(value, result)
-                    if warnings:
-                        print(f"  SANITY FAIL (retry) [{key}]: {', '.join(warnings)}", flush=True)
-                        print(f"  Bad output: {result!r}", flush=True)
-                        print(f"  Skipping '{key}' - will retry on next run", flush=True)
-                    else:
-                        done_keys[key] = result
+                    print(f"  Skipping '{key}' - will retry on next run", flush=True)
                 else:
                     done_keys[key] = result
             except Exception as e:
