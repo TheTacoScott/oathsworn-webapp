@@ -252,13 +252,12 @@ def main():
                 if warnings:
                     for w in warnings:
                         print(f"  SANITY FAIL [{key}]: {w}", flush=True)
-                    print(f"  Keeping original for '{key}'", flush=True)
-                    done_keys[key] = value
+                    print(f"  Bad output: {result!r}", flush=True)
+                    print(f"  Skipping '{key}' - will retry on next run", flush=True)
                 else:
                     done_keys[key] = result
             except Exception as e:
-                print(f"  WARNING: failed on '{key}': {e} - keeping original", flush=True)
-                done_keys[key] = value
+                print(f"  WARNING: failed on '{key}': {e} - skipping", flush=True)
 
         # Write output file after each string - it is the checkpoint
         write_strings_js(done_keys, args.output, args.language, args.strings_js)
