@@ -339,7 +339,6 @@ function buildOverlayHTML() {
                     `</div>` +
                 `</div>` +
                 `<div class="d-flex gap-2 align-items-center">` +
-                    `<button id="btn-might-clear"   class="btn btn-ghost-game">Clear Staged</button>` +
                     `<button id="btn-might-history" class="btn btn-ghost-game">History</button>` +
                     `<button id="btn-might-draw"    class="btn btn-primary-game btn-draw-might" disabled>Draw</button>` +
                 `</div>` +
@@ -704,7 +703,6 @@ function initMightUI() {
     }, { passive: false });
 
     document.getElementById('btn-might-draw').addEventListener('click', handleDraw);
-    document.getElementById('btn-might-clear').addEventListener('click', handleClearAllStaged);
     document.getElementById('btn-might-history').addEventListener('click', openHistoryModal);
     document.getElementById('btn-might-hist-close').addEventListener('click', closeHistoryModal);
     document.getElementById('btn-might-hist-clear').addEventListener('click', function() {
