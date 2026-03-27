@@ -2,8 +2,6 @@
    Might Decks - overlay, card backs, drawn cards, staging bar
    ============================================================ */
 
-/* (floating trigger button removed - Might Decks button is now in the game header bar) */
-
 /* ------------------------------------------------------------------
    Full-screen overlay backdrop
    ------------------------------------------------------------------ */
@@ -19,7 +17,7 @@
 }
 
 /* ------------------------------------------------------------------
-   Panel: 90vw x 90vh, dark parchment themed
+   Panel: 90vw x 90vh, no internal scrolling - everything fits
    ------------------------------------------------------------------ */
 
 .might-panel {
@@ -31,18 +29,18 @@
     display: flex;
     flex-direction: column;
     overflow: hidden;
-    box-shadow: 0 12px 48px rgba(0, 0, 0, 0.9), 0 0 0 1px rgba(200, 150, 42, 0.15);
+    box-shadow: 0 12px 48px rgba(0, 0, 0, 0.9), 0 0 0 1px rgba(200, 150, 42, 0.12);
 }
 
 /* ------------------------------------------------------------------
-   Header
+   Header  (flex-shrink: 0 so it never collapses)
    ------------------------------------------------------------------ */
 
 .might-header {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 0.75rem 1.25rem;
+    padding: 0.6rem 1.1rem;
     background: var(--bg-header);
     border-bottom: 1px solid var(--color-border);
     flex-shrink: 0;
@@ -50,14 +48,14 @@
 
 .might-panel-title {
     font-family: var(--font-title);
-    font-size: 1.3rem;
+    font-size: 1.2rem;
     letter-spacing: 0.08em;
     color: var(--color-gold-light);
-    text-shadow: 0 0 12px rgba(224, 184, 74, 0.4);
+    text-shadow: 0 0 12px rgba(224, 184, 74, 0.35);
 }
 
 /* ------------------------------------------------------------------
-   Staging bar
+   Staging bar  (flex-shrink: 0)
    ------------------------------------------------------------------ */
 
 .might-staging-bar {
@@ -65,11 +63,11 @@
     align-items: center;
     justify-content: space-between;
     gap: 1rem;
-    padding: 0.65rem 1.25rem;
+    padding: 0.5rem 1.1rem;
     background: var(--bg-panel-alt);
     border-bottom: 1px solid var(--color-border);
     flex-shrink: 0;
-    min-height: 3rem;
+    min-height: 2.9rem;
 }
 
 .might-staged-info {
@@ -83,34 +81,70 @@
     white-space: nowrap;
 }
 
-/* Big, prominent Draw button */
+/* Result display spans inside .might-staged-info */
+.might-result-label {
+    font-family: var(--font-title);
+    font-size: 0.88rem;
+    color: var(--color-text-dim);
+    letter-spacing: 0.04em;
+}
+
+.might-result-total {
+    font-family: var(--font-title);
+    font-size: 1.35rem;
+    font-weight: 700;
+    color: var(--color-gold-light);
+    text-shadow: 0 0 10px rgba(224, 184, 74, 0.45);
+}
+
+.might-result-miss {
+    font-family: var(--font-title);
+    font-size: 1.35rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    color: #ff4040;
+    text-shadow: 0 0 10px rgba(255, 64, 64, 0.55);
+}
+
+.might-result-miss-score {
+    font-family: var(--font-body);
+    font-size: 1rem;
+    color: var(--color-text-dim);
+}
+
+/* Draw button - always visible, disabled when nothing staged */
 .btn-draw-might {
     font-family: var(--font-title);
-    font-size: 1.05rem;
+    font-size: 1rem;
     letter-spacing: 0.06em;
-    padding: 0.55rem 2rem;
+    padding: 0.45rem 1.75rem;
+}
+
+.btn-draw-might:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
 }
 
 /* ------------------------------------------------------------------
-   Decks area: two equal columns
+   Decks area: two equal columns, fills remaining height, no scroll
    ------------------------------------------------------------------ */
 
 .might-decks-area {
     display: flex;
     flex: 1;
-    overflow-y: auto;
-    min-height: 0;
-    scrollbar-width: thin;
-    scrollbar-color: var(--color-border) transparent;
+    min-height: 0; /* critical for flex children to respect parent height */
+    overflow: hidden;
 }
 
 .might-side {
     flex: 1;
     min-width: 0;
-    padding: 0.65rem 0.85rem;
+    min-height: 0;
+    padding: 0.45rem 0.7rem;
     display: flex;
     flex-direction: column;
-    gap: 0.55rem;
+    /* Distribute 4 deck rows evenly across the available height */
+    gap: 0;
 }
 
 .might-side + .might-side {
@@ -119,25 +153,35 @@
 
 .might-side-title {
     font-family: var(--font-title);
-    font-size: 0.95rem;
+    font-size: 0.85rem;
     letter-spacing: 0.1em;
     text-transform: uppercase;
-    padding-bottom: 0.35rem;
+    padding-bottom: 0.25rem;
+    margin-bottom: 0.25rem;
     border-bottom: 1px solid var(--color-border);
     flex-shrink: 0;
 }
 
-.might-side-player  { color: var(--color-gold-light); text-shadow: 0 0 10px rgba(224,184,74,0.3); }
-.might-side-monster { color: #d07878; text-shadow: 0 0 10px rgba(208,80,80,0.3); }
+.might-side-player  { color: var(--color-gold-light); text-shadow: 0 0 8px rgba(224,184,74,0.25); }
+.might-side-monster { color: #d07878; text-shadow: 0 0 8px rgba(208,80,80,0.25); }
 
 /* ------------------------------------------------------------------
    Deck row: card back column + drawn area column
+   Each of the 4 rows takes 1/4 of the side's flex space.
    ------------------------------------------------------------------ */
 
 .might-deck-row {
     display: flex;
-    align-items: flex-start;
-    gap: 0.6rem;
+    align-items: stretch;
+    gap: 0.5rem;
+    flex: 1;          /* equal share of the side's height */
+    min-height: 0;
+    padding: 0.2rem 0;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+}
+
+.might-deck-row:last-child {
+    border-bottom: none;
 }
 
 /* Left column: label, card back, controls */
@@ -145,45 +189,50 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 0.3rem;
+    justify-content: center;
+    gap: 0.2rem;
     flex-shrink: 0;
-    width: 96px;
+    width: 90px;
 }
 
 .might-deck-label {
     font-family: var(--font-title);
-    font-size: 0.8rem;
+    font-size: 0.72rem;
     letter-spacing: 0.07em;
     color: var(--color-text-dim);
     text-align: center;
+    line-height: 1;
 }
 
 .might-deck-ctrl {
     display: flex;
-    gap: 0.25rem;
+    gap: 0.2rem;
 }
 
 .might-deck-ctrl .btn {
-    font-size: 0.75rem;
-    padding: 0.22rem 0.45rem;
+    font-size: 0.7rem;
+    padding: 0.18rem 0.4rem;
     line-height: 1.2;
 }
 
 /* ------------------------------------------------------------------
-   Card back
+   Card back - size driven by the row's flex height
    ------------------------------------------------------------------ */
 
 .might-card-back {
     position: relative;
-    width: 84px;
-    height: 118px;
-    border-radius: 8px;
+    /* Width auto from aspect-ratio; height fills flex */
+    aspect-ratio: 7 / 10;
+    /* Clamp so it doesn't go tiny or huge */
+    height: clamp(60px, 100%, 110px);
+    width: auto;
+    border-radius: 7px;
     overflow: hidden;
     cursor: pointer;
     border: 1px solid rgba(255, 255, 255, 0.2);
     box-shadow:
-        0 5px 16px rgba(0, 0, 0, 0.75),
-        inset 0 0 0 3px rgba(255, 255, 255, 0.08),
+        0 4px 14px rgba(0, 0, 0, 0.75),
+        inset 0 0 0 3px rgba(255, 255, 255, 0.07),
         inset 0 0 0 6px rgba(0, 0, 0, 0.3);
     transition: transform 0.12s ease, box-shadow 0.12s ease;
     user-select: none;
@@ -192,10 +241,10 @@
 .might-card-back:hover,
 .might-card-back:focus {
     outline: none;
-    transform: translateY(-3px) scale(1.04);
+    transform: translateY(-2px) scale(1.04);
     box-shadow:
-        0 9px 24px rgba(0, 0, 0, 0.85),
-        inset 0 0 0 3px rgba(255, 255, 255, 0.18),
+        0 8px 22px rgba(0, 0, 0, 0.85),
+        inset 0 0 0 3px rgba(255, 255, 255, 0.16),
         inset 0 0 0 6px rgba(0, 0, 0, 0.25);
 }
 
@@ -203,7 +252,6 @@
     transform: translateY(0) scale(0.97);
 }
 
-/* Rotated background fills the card portrait area */
 .might-card-back-bg {
     position: absolute;
     top: 50%;
@@ -216,14 +264,12 @@
     transform: translate(-50%, -50%) rotate(90deg);
 }
 
-/* Darkening overlay so cube and count are readable */
 .might-card-back-overlay {
     position: absolute;
     inset: 0;
     background: rgba(0, 0, 0, 0.48);
 }
 
-/* Cube + count layer */
 .might-card-back-content {
     position: absolute;
     inset: 0;
@@ -231,276 +277,207 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 5px;
+    gap: 4px;
     pointer-events: none;
 }
 
 .might-remaining-count {
     font-family: var(--font-title);
-    font-size: 1.1rem;
+    font-size: 1rem;
     font-weight: 700;
     color: rgba(255, 255, 255, 0.9);
     line-height: 1;
     text-shadow: 0 1px 6px rgba(0, 0, 0, 0.9);
 }
 
-/* Staged-count badge: bottom-right corner */
 .might-staged-badge {
     position: absolute;
-    bottom: 5px;
-    right: 5px;
-    min-width: 22px;
-    height: 22px;
-    border-radius: 11px;
+    bottom: 4px;
+    right: 4px;
+    min-width: 20px;
+    height: 20px;
+    border-radius: 10px;
     background: var(--color-gold);
     color: #1a0e00;
     font-family: var(--font-title);
-    font-size: 0.75rem;
+    font-size: 0.72rem;
     font-weight: 700;
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 0 4px;
+    padding: 0 3px;
     line-height: 1;
     pointer-events: none;
     box-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
 }
 
-/* Fully depleted (all 18 drawn and discarded - edge case) */
 .might-card-back.might-cb-empty {
     opacity: 0.4;
     cursor: not-allowed;
 }
 
 /* ------------------------------------------------------------------
-   Right column: drawn area
+   Right column: history rows + current-round grid
    ------------------------------------------------------------------ */
 
 .might-drawn-area {
     flex: 1;
     min-width: 0;
+    min-height: 0;
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    justify-content: flex-end; /* grid anchored to bottom, history above */
+    gap: 2px;
     overflow: hidden;
 }
 
 /* ------------------------------------------------------------------
-   History rows (previous rounds, dimmed)
+   History rows (previous rounds, compact and dimmed)
    ------------------------------------------------------------------ */
 
 .might-history-area {
-    max-height: 78px;
-    overflow-y: auto;
-    overflow-x: hidden;
+    overflow: hidden; /* no scroll - old history drops off the top */
     display: flex;
     flex-direction: column;
-    gap: 2px;
-    scrollbar-width: thin;
-    scrollbar-color: var(--color-border) transparent;
+    justify-content: flex-end; /* newest history at bottom */
+    gap: 1px;
+    flex-shrink: 1;
+    min-height: 0;
 }
 
 .might-history-row {
     display: flex;
     align-items: center;
     gap: 3px;
-    opacity: 0.5;
-    padding: 1px 2px;
+    opacity: 0.45;
+    flex-shrink: 0;
 }
-
-.hist-row-miss { opacity: 0.55; }
 
 .might-hist-label {
     font-family: var(--font-title);
-    font-size: 0.68rem;
+    font-size: 0.64rem;
     color: var(--color-text-dim);
-    min-width: 20px;
+    min-width: 18px;
     flex-shrink: 0;
 }
 
 .might-hist-cards {
     display: flex;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
     gap: 2px;
     flex: 1;
     min-width: 0;
+    overflow: hidden;
 }
 
 .might-hist-score {
     font-family: var(--font-title);
-    font-size: 0.8rem;
+    font-size: 0.75rem;
     font-weight: 700;
     color: var(--color-gold-light);
     flex-shrink: 0;
-    min-width: 22px;
-    text-align: right;
-}
-
-.might-hist-miss {
-    font-family: var(--font-title);
-    font-size: 0.8rem;
-    font-weight: 700;
-    color: #ff5050;
-    flex-shrink: 0;
-    min-width: 30px;
+    min-width: 18px;
     text-align: right;
 }
 
 /* ------------------------------------------------------------------
-   Current-round grid area
+   Current-round grid: 10 columns, 1 row (+ overflow for chain draws)
    ------------------------------------------------------------------ */
-
-.might-grid-area {
-    display: flex;
-    flex-direction: column;
-    gap: 3px;
-    flex: 1;
-    min-width: 0;
-}
 
 .might-grid {
     display: grid;
-    grid-template-columns: repeat(9, 1fr);
+    grid-template-columns: repeat(10, 1fr);
     gap: 3px;
+    flex-shrink: 0;
 }
 
-/* Empty slot placeholder */
 .might-card-slot-empty {
     aspect-ratio: 3 / 4;
-    border-radius: 5px;
+    border-radius: 4px;
     background: rgba(255, 255, 255, 0.04);
-    border: 1px dashed rgba(255, 255, 255, 0.08);
+    border: 1px dashed rgba(255, 255, 255, 0.07);
 }
 
 /* ------------------------------------------------------------------
-   Drawn cards - current round (full size in grid)
+   Drawn cards (current round, full size)
    ------------------------------------------------------------------ */
 
 .might-drawn-card {
     position: relative;
     aspect-ratio: 3 / 4;
-    border-radius: 5px;
+    border-radius: 4px;
     border: 1px solid;
     display: flex;
     align-items: center;
     justify-content: center;
+    animation: might-card-in 0.22s ease-out both;
+}
+
+@keyframes might-card-in {
+    from { opacity: 0; transform: scale(0.82) translateY(-5px); }
+    to   { opacity: 1; transform: scale(1)    translateY(0);    }
 }
 
 .might-drawn-value {
     font-family: var(--font-title);
-    font-size: 1.3rem;
+    font-size: 1.6rem;
     font-weight: 700;
     line-height: 1;
 }
 
-/* Critical star: top-right */
+/* Critical star: top-right corner */
 .might-crit-star {
     position: absolute;
     top: 2px;
     right: 3px;
-    font-size: 0.6rem;
+    font-size: 0.55rem;
     line-height: 1;
     opacity: 0.9;
 }
 
-/* Chain dot: top-left, gold - indicates this card was drawn from a critical */
+/* Chain dot: top-left corner - indicates drawn from a critical */
 .might-chain-dot {
     position: absolute;
     top: 3px;
     left: 3px;
-    width: 7px;
-    height: 7px;
+    width: 6px;
+    height: 6px;
     border-radius: 50%;
-    background: rgba(255, 220, 80, 0.88);
+    background: rgba(255, 220, 80, 0.9);
     box-shadow: 0 0 4px rgba(255, 200, 50, 0.5);
 }
 
-/* Chain-drawn cards get a dashed border to distinguish from staged draws */
 .might-drawn-card.from-critical {
     border-style: dashed;
 }
 
-/* Critical cards pulse on entry */
 .might-drawn-card.is-critical {
-    animation: might-crit-pulse 1.4s ease-in-out 0.1s 3;
+    animation: might-card-in 0.22s ease-out both, might-crit-pulse 1.4s ease-in-out 0.2s 3;
 }
 
 @keyframes might-crit-pulse {
     0%   { filter: brightness(1);    }
-    50%  { filter: brightness(1.45); }
+    50%  { filter: brightness(1.5);  }
     100% { filter: brightness(1);    }
 }
 
-/* New-card entrance animation */
-@keyframes might-card-in {
-    from { opacity: 0; transform: scale(0.85) translateY(-4px); }
-    to   { opacity: 1; transform: scale(1)    translateY(0);    }
-}
-
-.might-drawn-card {
-    animation: might-card-in 0.25s ease-out forwards;
-}
-
 /* ------------------------------------------------------------------
-   Compact drawn cards (history rows)
+   Compact drawn cards (history rows only)
    ------------------------------------------------------------------ */
 
 .might-drawn-card.card-compact {
     aspect-ratio: unset;
-    width: 20px;
-    height: 28px;
+    width: 18px;
+    height: 24px;
     border-radius: 3px;
     animation: none;
 }
 
 .might-drawn-card.card-compact .might-drawn-value {
-    font-size: 0.75rem;
+    font-size: 0.68rem;
 }
 
 .might-drawn-card.card-compact .might-crit-star,
 .might-drawn-card.card-compact .might-chain-dot {
     display: none;
-}
-
-/* ------------------------------------------------------------------
-   Score row (below current-round grid)
-   ------------------------------------------------------------------ */
-
-.might-score-row {
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-    gap: 6px;
-    padding: 2px 2px;
-    min-height: 1.6rem;
-}
-
-.might-score-label {
-    font-family: var(--font-title);
-    font-size: 0.82rem;
-    letter-spacing: 0.05em;
-    color: var(--color-text-dim);
-}
-
-.might-score-miss-label {
-    font-family: var(--font-title);
-    font-size: 0.9rem;
-    font-weight: 700;
-    letter-spacing: 0.07em;
-    color: #ff4040;
-    text-shadow: 0 0 8px rgba(255, 64, 64, 0.5);
-}
-
-.might-score-total {
-    font-family: var(--font-title);
-    font-size: 1.15rem;
-    font-weight: 700;
-    color: var(--color-gold-light);
-}
-
-.might-score-total.might-score-miss {
-    color: #ff5050;
-    text-decoration: line-through;
-    text-decoration-color: #ff5050;
-    opacity: 0.7;
 }

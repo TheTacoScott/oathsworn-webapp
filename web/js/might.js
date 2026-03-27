@@ -8,7 +8,7 @@
  *
  *   [MIGHT_CONSTANTS]   deck defs, color configs, key helpers
  *   [MIGHT_DECK_CLASS]  MightDeck: shuffle, stage/unstage, reset
- *   [MIGHT_STATE]       8 global deck instances
+ *   [MIGHT_STATE]       8 global deck instances + session state
  *   [MIGHT_DRAW]        mightDrawRound(): full draw with auto-chain
  *   [MIGHT_SVG]         buildIsoCubeSVG()
  *   [MIGHT_RENDER]      HTML builders for overlay, deck rows, cards
@@ -33,34 +33,34 @@ const MIGHT_DECK_DEFS = {
 
 const MIGHT_COLOR_CFG = {
     white: {
-        label:      'White',
-        cubeTop:    '#c8c0b0', cubeRight: '#908880', cubeLeft: '#686058',
-        cardBg:     '#2c2820', cardBorder: '#706858', cardText: '#ddd8c8',
-        critGlow:   '#ffee88',
+        label:     'White',
+        cubeTop:   '#c8c0b0', cubeRight: '#908880', cubeLeft: '#686058',
+        cardBg:    '#2c2820', cardBorder: '#706858', cardText: '#ddd8c8',
+        critGlow:  '#ffee88',
     },
     yellow: {
-        label:      'Yellow',
-        cubeTop:    '#c8a028', cubeRight: '#906810', cubeLeft: '#604408',
-        cardBg:     '#282008', cardBorder: '#907828', cardText: '#e8d058',
-        critGlow:   '#ffe020',
+        label:     'Yellow',
+        cubeTop:   '#c8a028', cubeRight: '#906810', cubeLeft: '#604408',
+        cardBg:    '#282008', cardBorder: '#907828', cardText: '#e8d058',
+        critGlow:  '#ffe020',
     },
     red: {
-        label:      'Red',
-        cubeTop:    '#902020', cubeRight: '#5c0808', cubeLeft: '#3c0404',
-        cardBg:     '#240808', cardBorder: '#803030', cardText: '#e87070',
-        critGlow:   '#ff5050',
+        label:     'Red',
+        cubeTop:   '#902020', cubeRight: '#5c0808', cubeLeft: '#3c0404',
+        cardBg:    '#240808', cardBorder: '#803030', cardText: '#e87070',
+        critGlow:  '#ff5050',
     },
     black: {
-        label:      'Black',
-        cubeTop:    '#383858', cubeRight: '#181828', cubeLeft: '#0c0c18',
-        cardBg:     '#0e0e1c', cardBorder: '#484868', cardText: '#9088c0',
-        critGlow:   '#b080f8',
+        label:     'Black',
+        cubeTop:   '#383858', cubeRight: '#181828', cubeLeft: '#0c0c18',
+        cardBg:    '#0e0e1c', cardBorder: '#484868', cardText: '#9088c0',
+        critGlow:  '#b080f8',
     },
 };
 
-const MIGHT_SIDES  = ['player', 'monster'];
-const MIGHT_COLORS = ['white', 'yellow', 'red', 'black'];
-const MIGHT_DECK_SIZE = 18;
+const MIGHT_SIDES        = ['player', 'monster'];
+const MIGHT_COLORS       = ['white', 'yellow', 'red', 'black'];
+const MIGHT_DISPLAY_SLOTS = 10; // max draw is 10; extra chain draws overflow naturally
 
 function mightKey(side, color) { return `${side}_${color}`; }
 function isMightCritical(value) { return value.charAt(0) === '('; }
@@ -81,7 +81,7 @@ class MightDeck {
         this.remaining   = [...MIGHT_DECK_DEFS[color]];
         this.discarded   = [];
         this.staged      = 0;
-        // Each entry: { cards: [{value, isCritical, fromCritical}], score, isMiss }
+        // Each entry: { cards: [{value, isCritical, fromCritical}], score, sessionId }
         this.drawnRounds = [];
         this._shuffle(this.remaining);
     }
@@ -93,8 +93,6 @@ class MightDeck {
         }
     }
 
-    // Reshuffle discards into remaining when empty. Returns false only if
-    // truly nothing left (shouldn't normally occur with 18-card decks).
     _ensureAvailable() {
         if (this.remaining.length > 0) return true;
         if (this.discarded.length === 0) return false;
@@ -130,7 +128,6 @@ class MightDeck {
     get totalCount()     { return this.remaining.length + this.discarded.length; }
     get currentRound()   { return this.drawnRounds[this.drawnRounds.length - 1] || null; }
     get historyRounds()  { return this.drawnRounds.slice(0, -1); }
-    get hasAnyDraws()    { return this.drawnRounds.length > 0; }
 }
 
 //
@@ -146,7 +143,9 @@ for (const side of MIGHT_SIDES) {
     }
 }
 
-let mightUIBuilt = false;
+let mightUIBuilt    = false;
+let mightSessionId  = 0;  // increments on each Draw click
+let mightLastResult = null; // { total, isMiss } - cleared when new cards are staged
 
 function mightTotalStaged() {
     return Object.values(mightDecks).reduce((n, d) => n + d.staged, 0);
@@ -157,14 +156,16 @@ function mightTotalStaged() {
 //  [MIGHT_DRAW]
 // ============================================================================
 //
-// Draws all staged cards for a deck, auto-chaining on criticals for player
-// decks. Monster decks draw the face value of criticals without chaining.
-// Miss rule: 2 or more blank (0) cards in the INITIAL staged draw count as a
-// miss. Blanks drawn via critical chains never contribute to the miss count.
-// Monster decks never miss.
+// Draws all staged cards for one deck, auto-chaining on criticals for player
+// decks. Monster decks take the face value of criticals without chaining.
+//
+// Miss rule is session-level (across all decks, computed in handleDraw):
+//   2+ blank (0) cards from the INITIAL staged draw of player decks = miss.
+//   Blanks drawn via critical chains never count toward the miss threshold.
+//   Monster decks never miss.
 
-function mightDrawRound(deck) {
-    const round = { cards: [], score: 0, isMiss: false };
+function mightDrawRound(deck, sessionId) {
+    const round = { cards: [], score: 0, sessionId };
     const initialCount = deck.staged;
     deck.staged = 0;
 
@@ -174,17 +175,14 @@ function mightDrawRound(deck) {
         const isCritical = isMightCritical(value);
         deck.discarded.push(value);
         round.cards.push({ value, isCritical, fromCritical });
-        // Auto-chain: player decks only; monster decks never chain
         if (isCritical && deck.side !== 'monster') {
-            drawOne(true);
+            drawOne(true); // auto-chain for player decks only
         }
     }
 
     for (let i = 0; i < initialCount; i++) drawOne(false);
 
     round.score = round.cards.reduce((s, c) => s + parseMightValue(c.value), 0);
-    const initialBlanks = round.cards.filter(c => !c.fromCritical && c.value === '0').length;
-    round.isMiss = deck.side !== 'monster' && initialBlanks >= 2;
     deck.drawnRounds.push(round);
     return round;
 }
@@ -194,11 +192,9 @@ function mightDrawRound(deck) {
 //  [MIGHT_SVG]
 // ============================================================================
 //
-// Isometric cube with corrected proportions: bottom vertex at y=42, total
-// height 43. Three visible faces in light/dark/mid shades of the deck color.
 
 function buildIsoCubeSVG(color) {
-    const c   = MIGHT_COLOR_CFG[color];
+    const c     = MIGHT_COLOR_CFG[color];
     const top   = '20,2  39,12 20,22 1,12';
     const left  = '20,22  1,12  1,33 20,42';
     const right = '20,22 39,12 39,33 20,42';
@@ -238,7 +234,7 @@ function buildDeckRowHTML(side, color) {
     const key = mightKey(side, color);
     const cfg = MIGHT_COLOR_CFG[color];
     let emptySlots = '';
-    for (let i = 0; i < MIGHT_DECK_SIZE; i++) {
+    for (let i = 0; i < MIGHT_DISPLAY_SLOTS; i++) {
         emptySlots += `<div class="might-card-slot-empty"></div>`;
     }
     return (
@@ -253,10 +249,7 @@ function buildDeckRowHTML(side, color) {
             `</div>` +
             `<div class="might-drawn-area" id="might-drawn-${key}">` +
                 `<div class="might-history-area" id="might-hist-${key}"></div>` +
-                `<div class="might-grid-area">` +
-                    `<div class="might-grid" id="might-grid-${key}">${emptySlots}</div>` +
-                    `<div class="might-score-row d-none" id="might-score-${key}"></div>` +
-                `</div>` +
+                `<div class="might-grid" id="might-grid-${key}">${emptySlots}</div>` +
             `</div>` +
         `</div>`
     );
@@ -284,11 +277,11 @@ function buildOverlayHTML() {
                     `<button id="btn-might-close"     class="btn btn-ghost-game btn-sm">&#10005;</button>` +
                 `</div>` +
             `</div>` +
-            `<div class="might-staging-bar" id="might-staging-bar">` +
-                `<span class="might-staged-info" id="might-staged-info">Click a deck to stage / right-click or [-] to unstage</span>` +
+            `<div class="might-staging-bar">` +
+                `<span class="might-staged-info" id="might-staged-info">Click a deck to stage cards</span>` +
                 `<div class="d-flex gap-2 align-items-center">` +
-                    `<button id="btn-might-clear" class="btn btn-ghost-game" style="display:none">Clear</button>` +
-                    `<button id="btn-might-draw"  class="btn btn-primary-game btn-draw-might" style="display:none">Draw</button>` +
+                    `<button id="btn-might-clear" class="btn btn-ghost-game">Clear</button>` +
+                    `<button id="btn-might-draw"  class="btn btn-primary-game btn-draw-might" disabled>Draw</button>` +
                 `</div>` +
             `</div>` +
             `<div class="might-decks-area">` +
@@ -326,36 +319,48 @@ function updateDeckDisplay(key) {
     }
 }
 
+// Updates the staging bar text and Draw button enabled state.
+// Clear/Draw buttons are always visible; Draw is enabled only when staged > 0.
 function updateStagingBar() {
     const total    = mightTotalStaged();
     const infoEl   = document.getElementById('might-staged-info');
     const drawBtn  = document.getElementById('btn-might-draw');
-    const clearBtn = document.getElementById('btn-might-clear');
     if (!infoEl) return;
 
-    if (total === 0) {
-        infoEl.textContent = 'Click a deck to stage / right-click or [-] to unstage';
-        if (drawBtn)  drawBtn.style.display  = 'none';
-        if (clearBtn) clearBtn.style.display = 'none';
-        return;
-    }
-
-    const parts = [];
-    for (const side of MIGHT_SIDES) {
-        for (const color of MIGHT_COLORS) {
-            const deck = mightDecks[mightKey(side, color)];
-            if (deck.staged > 0) {
-                const sl = side === 'player' ? 'P' : 'M';
-                parts.push(`${MIGHT_COLOR_CFG[color].label} (${sl}) x${deck.staged}`);
+    if (total > 0) {
+        // New staging clears the previous draw result
+        mightLastResult = null;
+        const parts = [];
+        for (const side of MIGHT_SIDES) {
+            for (const color of MIGHT_COLORS) {
+                const deck = mightDecks[mightKey(side, color)];
+                if (deck.staged > 0) {
+                    const sl = side === 'player' ? 'P' : 'M';
+                    parts.push(`${MIGHT_COLOR_CFG[color].label} (${sl}) x${deck.staged}`);
+                }
             }
         }
+        infoEl.textContent = `Staged: ${parts.join(', ')}`;
+        if (drawBtn) drawBtn.disabled = false;
+    } else if (mightLastResult) {
+        // Show the combined draw result
+        if (mightLastResult.isMiss) {
+            infoEl.innerHTML =
+                `<span class="might-result-miss">MISS</span>` +
+                `<span class="might-result-miss-score"> (${mightLastResult.total})</span>`;
+        } else {
+            infoEl.innerHTML =
+                `<span class="might-result-label">Total: </span>` +
+                `<span class="might-result-total">${mightLastResult.total}</span>`;
+        }
+        if (drawBtn) drawBtn.disabled = true;
+    } else {
+        infoEl.textContent = 'Click a deck to stage cards';
+        if (drawBtn) drawBtn.disabled = true;
     }
-    infoEl.textContent = `Staged: ${parts.join(', ')}`;
-    if (drawBtn)  drawBtn.style.display  = '';
-    if (clearBtn) clearBtn.style.display = '';
 }
 
-// Build one drawn-card div. compact=true produces history-row sized cards.
+// Build one drawn-card div. compact=true -> history-row size.
 function buildDrawnCardHTML(cardEntry, cfg, compact) {
     const { value, isCritical, fromCritical } = cardEntry;
     const display    = isCritical   ? value.slice(1, -1) : value;
@@ -393,23 +398,16 @@ function renderHistoryArea(key) {
     const cfg = MIGHT_COLOR_CFG[deck.color];
     let html = '';
     history.forEach((round, idx) => {
-        const cardsHtml = round.cards
-            .map(c => buildDrawnCardHTML(c, cfg, true))
-            .join('');
-        const scoreHtml = round.isMiss
-            ? `<span class="might-hist-miss">MISS</span>`
-            : `<span class="might-hist-score">${round.score}</span>`;
-        const rowMissClass = round.isMiss ? ' hist-row-miss' : '';
+        const cardsHtml = round.cards.map(c => buildDrawnCardHTML(c, cfg, true)).join('');
         html += (
-            `<div class="might-history-row${rowMissClass}">` +
+            `<div class="might-history-row">` +
                 `<span class="might-hist-label">R${idx + 1}</span>` +
                 `<span class="might-hist-cards">${cardsHtml}</span>` +
-                scoreHtml +
+                `<span class="might-hist-score">${round.score}</span>` +
             `</div>`
         );
     });
     histEl.innerHTML = html;
-    // Keep the most-recent history entry visible
     histEl.scrollTop = histEl.scrollHeight;
 }
 
@@ -420,41 +418,27 @@ function renderCurrentRound(key) {
 
     const cfg   = MIGHT_COLOR_CFG[deck.color];
     const round = deck.currentRound;
-    let html = '';
-    for (let i = 0; i < MIGHT_DECK_SIZE; i++) {
-        if (round && round.cards[i]) {
-            html += buildDrawnCardHTML(round.cards[i], cfg, false);
-        } else {
+    let html    = '';
+
+    if (round) {
+        for (const card of round.cards) {
+            html += buildDrawnCardHTML(card, cfg, false);
+        }
+        // Pad with empty slots up to the minimum display size
+        for (let i = round.cards.length; i < MIGHT_DISPLAY_SLOTS; i++) {
+            html += `<div class="might-card-slot-empty"></div>`;
+        }
+    } else {
+        for (let i = 0; i < MIGHT_DISPLAY_SLOTS; i++) {
             html += `<div class="might-card-slot-empty"></div>`;
         }
     }
     grid.innerHTML = html;
 }
 
-function updateDeckScoreDisplay(key) {
-    const deck     = mightDecks[key];
-    const scoreRow = document.getElementById(`might-score-${key}`);
-    if (!scoreRow) return;
-
-    const round = deck.currentRound;
-    if (!round) { scoreRow.classList.add('d-none'); return; }
-
-    scoreRow.classList.remove('d-none');
-    if (round.isMiss) {
-        scoreRow.innerHTML =
-            `<span class="might-score-miss-label">MISS</span>` +
-            `<span class="might-score-total might-score-miss">${round.score}</span>`;
-    } else {
-        scoreRow.innerHTML =
-            `<span class="might-score-label">Total</span>` +
-            `<span class="might-score-total">${round.score}</span>`;
-    }
-}
-
 function renderDeckDrawnArea(key) {
     renderHistoryArea(key);
     renderCurrentRound(key);
-    updateDeckScoreDisplay(key);
 }
 
 //
@@ -486,12 +470,29 @@ function handleClearAllStaged() {
 }
 
 function handleDraw() {
+    mightSessionId++;
+    const draws = [];
+
     for (const [key, deck] of Object.entries(mightDecks)) {
         if (deck.staged === 0) continue;
-        mightDrawRound(deck);
+        const round = mightDrawRound(deck, mightSessionId);
+        draws.push({ round, side: deck.side });
         renderDeckDrawnArea(key);
         updateDeckDisplay(key);
     }
+
+    if (draws.length > 0) {
+        const total = draws.reduce((s, { round }) => s + round.score, 0);
+        // Miss: 2+ blank ('0') cards in the INITIAL draw of player decks only.
+        // Blanks from critical chains are exempt.
+        const playerInitialBlanks = draws
+            .filter(({ side }) => side !== 'monster')
+            .flatMap(({ round }) => round.cards)
+            .filter(c => !c.fromCritical && c.value === '0')
+            .length;
+        mightLastResult = { total, isMiss: playerInitialBlanks >= 2 };
+    }
+
     updateStagingBar();
 }
 
@@ -510,6 +511,7 @@ function handleResetAll() {
         renderDeckDrawnArea(key);
         updateDeckDisplay(key);
     }
+    mightLastResult = null;
     updateStagingBar();
 }
 
@@ -526,7 +528,6 @@ function initMightUI() {
     overlay.innerHTML = buildOverlayHTML();
     mightUIBuilt = true;
 
-    // Left-click card back: stage one
     overlay.addEventListener('click', function(e) {
         const cb = e.target.closest('.might-card-back');
         if (cb) { handleStage(cb.dataset.key); return; }
@@ -538,13 +539,11 @@ function initMightUI() {
         if (resetBtn) { handleResetDeck(resetBtn.dataset.key); return; }
     });
 
-    // Right-click card back: unstage one
     overlay.addEventListener('contextmenu', function(e) {
         const cb = e.target.closest('.might-card-back');
         if (cb) { e.preventDefault(); handleUnstage(cb.dataset.key); }
     });
 
-    // Keyboard: Enter/Space on focused card back stages one
     overlay.addEventListener('keydown', function(e) {
         if (e.key !== 'Enter' && e.key !== ' ') return;
         const cb = e.target.closest('.might-card-back');
