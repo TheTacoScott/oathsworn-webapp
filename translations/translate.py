@@ -24,6 +24,7 @@ Arguments:
 
 import argparse
 import json
+import math
 import os
 import re
 import shutil
@@ -88,8 +89,8 @@ def check_translation(original, translated):
     orig_nl = original.count('\n')
     trans_nl = translated.count('\n')
     if orig_nl > 0:
-        min_nl = orig_nl - int(orig_nl * 0.2)
-        max_nl = orig_nl + int(orig_nl * 0.2)
+        min_nl = int(orig_nl * 0.8)
+        max_nl = math.ceil(orig_nl * 1.2)
         if trans_nl < min_nl or trans_nl > max_nl:
             warnings.append(f"newline count {trans_nl} outside [{min_nl}, {max_nl}]")
 
