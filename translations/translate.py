@@ -280,10 +280,17 @@ def main():
                 result = translate_string(value, args.language, args.model)
                 warnings = check_translation(value, result)
                 if warnings:
-                    for w in warnings:
-                        print(f"  SANITY FAIL [{key}]: {w}", flush=True)
+                    print(f"  SANITY FAIL [{key}]: {', '.join(warnings)}", flush=True)
                     print(f"  Bad output: {result!r}", flush=True)
-                    print(f"  Skipping '{key}' - will retry on next run", flush=True)
+                    print(f"  Retrying once...", flush=True)
+                    result = translate_string(value, args.language, args.model)
+                    warnings = check_translation(value, result)
+                    if warnings:
+                        print(f"  SANITY FAIL (retry) [{key}]: {', '.join(warnings)}", flush=True)
+                        print(f"  Bad output: {result!r}", flush=True)
+                        print(f"  Skipping '{key}' - will retry on next run", flush=True)
+                    else:
+                        done_keys[key] = result
                 else:
                     done_keys[key] = result
             except Exception as e:
