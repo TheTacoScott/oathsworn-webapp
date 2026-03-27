@@ -60,7 +60,9 @@ const MIGHT_COLOR_CFG = {
 
 const MIGHT_SIDES        = ['player', 'monster'];
 const MIGHT_COLORS       = ['white', 'yellow', 'red', 'black'];
-const MIGHT_DISPLAY_SLOTS = 10; // max draw is 10; extra chain draws overflow naturally
+const MIGHT_DISPLAY_SLOTS = 10;  // max draw is 10; extra chain draws overflow naturally
+const MIGHT_MAX_STAGED    = 20;  // combined cap across all decks
+const MIGHT_COLOR_ORDER   = { white: 0, yellow: 1, red: 2, black: 3 };
 
 function mightKey(side, color) { return `${side}_${color}`; }
 function isMightCritical(value) { return value.charAt(0) === '('; }
@@ -259,7 +261,6 @@ function buildDeckRowHTML(side, color) {
                 `</div>` +
             `</div>` +
             `<div class="might-drawn-area" id="might-drawn-${key}">` +
-                `<div class="might-history-area" id="might-hist-${key}"></div>` +
                 `<div class="might-grid" id="might-grid-${key}">${emptySlots}</div>` +
             `</div>` +
         `</div>`
@@ -272,8 +273,24 @@ function buildSideHTML(side) {
     for (const color of MIGHT_COLORS) rows += buildDeckRowHTML(side, color);
     return (
         `<div class="might-side">` +
-            `<div class="might-side-title might-side-${side}">${title}</div>` +
+            `<div class="might-side-title-row">` +
+                `<span class="might-side-title might-side-${side}">${title}</span>` +
+                `<button class="btn btn-ghost-game btn-sm might-btn-hist-open" data-side="${side}">History</button>` +
+            `</div>` +
             rows +
+        `</div>`
+    );
+}
+
+function buildHistoryPanelHTML(side) {
+    const titleText = side === 'player' ? 'Player History' : 'Monster History';
+    return (
+        `<div class="might-hist-panel might-hist-panel-${side}" id="might-hist-panel-${side}">` +
+            `<div class="might-hist-panel-header">` +
+                `<span class="might-hist-panel-title">${titleText}</span>` +
+                `<button class="btn btn-ghost-game btn-sm might-btn-hist-close" data-side="${side}">&#10005;</button>` +
+            `</div>` +
+            `<div class="might-hist-panel-body" id="might-hist-body-${side}"></div>` +
         `</div>`
     );
 }
@@ -298,6 +315,8 @@ function buildOverlayHTML() {
             `<div class="might-decks-area">` +
                 buildSideHTML('player') +
                 buildSideHTML('monster') +
+                buildHistoryPanelHTML('player') +
+                buildHistoryPanelHTML('monster') +
             `</div>` +
         `</div>`
     );
@@ -384,13 +403,13 @@ function updateStagingBar() {
     updateLockStates();
 }
 
-// Build one drawn-card div. compact=true -> history-row size.
-function buildDrawnCardHTML(cardEntry, cfg, compact) {
+// Build one drawn-card div. size: 'full' | 'compact' | 'hist'
+function buildDrawnCardHTML(cardEntry, cfg, size) {
     const { value, isCritical, fromCritical } = cardEntry;
     const display    = isCritical   ? value.slice(1, -1) : value;
     const critClass  = isCritical   ? ' is-critical'  : '';
     const chainClass = fromCritical ? ' from-critical' : '';
-    const sizeClass  = compact      ? ' card-compact'  : '';
+    const sizeClass  = size === 'compact' ? ' card-compact' : size === 'hist' ? ' card-hist' : '';
     const shadowStyle = isCritical
         ? `box-shadow:0 0 14px ${cfg.critGlow},inset 0 0 6px rgba(255,255,255,0.1)`
         : '';
@@ -411,32 +430,33 @@ function buildDrawnCardHTML(cardEntry, cfg, compact) {
     );
 }
 
-function renderHistoryArea(key) {
-    const deck   = mightDecks[key];
-    const histEl = document.getElementById(`might-hist-${key}`);
-    if (!histEl) return;
+function renderHistoryPanel(side) {
+    const bodyEl = document.getElementById(`might-hist-body-${side}`);
+    if (!bodyEl) return;
 
-    // Show combined side history: all sessions for this side except the current (last) one
-    const sideHistory = mightSessionHistory.filter(s => s.side === deck.side);
-    const history     = sideHistory.slice(0, -1);
-
-    if (history.length === 0) { histEl.innerHTML = ''; return; }
+    const entries = mightSessionHistory.filter(s => s.side === side);
+    if (entries.length === 0) {
+        bodyEl.innerHTML = `<p class="might-hist-empty">No draws yet.</p>`;
+        return;
+    }
 
     let html = '';
-    history.forEach((session, idx) => {
-        const cardsHtml  = session.cards.map(c => buildDrawnCardHTML(c, c.cfg, true)).join('');
-        const scoreLabel = session.isMiss
-            ? `<span class="might-hist-miss">MISS</span>`
-            : session.total;
+    entries.forEach((session, idx) => {
+        const cardsHtml = session.cards.map(c => buildDrawnCardHTML(c, c.cfg, 'hist')).join('');
+        const scoreHtml = session.isMiss
+            ? `<span class="might-result-miss">MISS</span><span class="might-result-miss-score"> (${session.total})</span>`
+            : `<span class="might-result-total">${session.total}</span>`;
         html += (
-            `<div class="might-history-row">` +
-                `<span class="might-hist-label">R${idx + 1}</span>` +
-                `<span class="might-hist-cards">${cardsHtml}</span>` +
-                `<span class="might-hist-score">${scoreLabel}</span>` +
+            `<div class="might-hist-entry">` +
+                `<div class="might-hist-entry-header">` +
+                    `<span class="might-hist-entry-label">Draw ${idx + 1}</span>` +
+                    scoreHtml +
+                `</div>` +
+                `<div class="might-hist-entry-cards">${cardsHtml}</div>` +
             `</div>`
         );
     });
-    histEl.innerHTML = html;
+    bodyEl.innerHTML = html;
 }
 
 function renderCurrentRound(key) {
@@ -450,7 +470,7 @@ function renderCurrentRound(key) {
 
     if (round) {
         for (const card of round.cards) {
-            html += buildDrawnCardHTML(card, cfg, false);
+            html += buildDrawnCardHTML(card, cfg, 'full');
         }
         // Pad with empty slots up to the minimum display size
         for (let i = round.cards.length; i < MIGHT_DISPLAY_SLOTS; i++) {
@@ -465,7 +485,6 @@ function renderCurrentRound(key) {
 }
 
 function renderDeckDrawnArea(key) {
-    renderHistoryArea(key);
     renderCurrentRound(key);
 }
 
@@ -480,6 +499,7 @@ function handleStage(key) {
     if (!deck) return;
     const activeSide = mightActiveSide();
     if (activeSide !== null && activeSide !== deck.side) return;
+    if (mightTotalStaged() >= MIGHT_MAX_STAGED) return;
     deck.stageOne();
     updateDeckDisplay(key);
     updateStagingBar();
@@ -523,14 +543,15 @@ function handleDraw() {
         const isMiss = playerInitialBlanks >= 2;
         mightLastResult = { total, isMiss, side: draws[0].side };
 
-        // Build a flat card list (with color cfg embedded) for the combined history row
+        // Build a flat card list sorted by color order (white, yellow, red, black)
         const sessionCards = [];
         for (const { round, color } of draws) {
             const cfg = MIGHT_COLOR_CFG[color];
             for (const card of round.cards) {
-                sessionCards.push({ ...card, cfg });
+                sessionCards.push({ ...card, cfg, color });
             }
         }
+        sessionCards.sort((a, b) => MIGHT_COLOR_ORDER[a.color] - MIGHT_COLOR_ORDER[b.color]);
         mightSessionHistory.push({
             sessionId: mightSessionId,
             side: draws[0].side,
@@ -541,6 +562,12 @@ function handleDraw() {
     }
 
     updateStagingBar();
+
+    // Keep any open history panels up to date
+    for (const side of MIGHT_SIDES) {
+        const panel = document.getElementById(`might-hist-panel-${side}`);
+        if (panel && panel.classList.contains('open')) renderHistoryPanel(side);
+    }
 }
 
 function handleResetDeck(key) {
@@ -558,8 +585,7 @@ function handleResetAll() {
         renderDeckDrawnArea(key);
         updateDeckDisplay(key);
     }
-    mightLastResult     = null;
-    mightSessionHistory = [];
+    mightLastResult = null;
     updateStagingBar();
 }
 
@@ -585,6 +611,12 @@ function initMightUI() {
 
         const stageBtn = e.target.closest('.might-btn-stage');
         if (stageBtn) { handleStage(stageBtn.dataset.key); return; }
+
+        const histOpenBtn = e.target.closest('.might-btn-hist-open');
+        if (histOpenBtn) { openHistoryPanel(histOpenBtn.dataset.side); return; }
+
+        const histCloseBtn = e.target.closest('.might-btn-hist-close');
+        if (histCloseBtn) { closeHistoryPanel(histCloseBtn.dataset.side); return; }
     });
 
     overlay.addEventListener('contextmenu', function(e) {
@@ -631,6 +663,17 @@ function initMightUI() {
             handleClearAllStaged();
         }
     });
+}
+
+function openHistoryPanel(side) {
+    renderHistoryPanel(side);
+    const panel = document.getElementById(`might-hist-panel-${side}`);
+    if (panel) panel.classList.add('open');
+}
+
+function closeHistoryPanel(side) {
+    const panel = document.getElementById(`might-hist-panel-${side}`);
+    if (panel) panel.classList.remove('open');
 }
 
 //

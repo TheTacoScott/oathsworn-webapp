@@ -134,6 +134,7 @@
     flex: 1;
     min-height: 0; /* critical for flex children to respect parent height */
     overflow: hidden;
+    position: relative; /* anchors the history slide-out panels */
 }
 
 .might-side {
@@ -151,15 +152,21 @@
     border-left: 1px solid var(--color-border);
 }
 
+.might-side-title-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-bottom: 0.25rem;
+    margin-bottom: 0.25rem;
+    border-bottom: 1px solid var(--color-border);
+    flex-shrink: 0;
+}
+
 .might-side-title {
     font-family: var(--font-title);
     font-size: 0.85rem;
     letter-spacing: 0.1em;
     text-transform: uppercase;
-    padding-bottom: 0.25rem;
-    margin-bottom: 0.25rem;
-    border-bottom: 1px solid var(--color-border);
-    flex-shrink: 0;
 }
 
 .might-side-player  { color: var(--color-gold-light); text-shadow: 0 0 8px rgba(224,184,74,0.25); }
@@ -337,56 +344,104 @@
 }
 
 /* ------------------------------------------------------------------
-   History rows (previous rounds, compact and dimmed)
+   History slide-out panels (player from left, monster from right)
    ------------------------------------------------------------------ */
 
-.might-history-area {
-    overflow: hidden; /* no scroll - old history drops off the top */
+.might-hist-panel {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 58%;
+    background: var(--bg-panel);
     display: flex;
     flex-direction: column;
-    justify-content: flex-end; /* newest history at bottom */
-    gap: 1px;
-    flex-shrink: 1;
-    min-height: 0;
-}
-
-.might-history-row {
-    display: flex;
-    align-items: center;
-    gap: 3px;
-    opacity: 0.45;
-    flex-shrink: 0;
-}
-
-.might-hist-label {
-    font-family: var(--font-title);
-    font-size: 0.64rem;
-    color: var(--color-text-dim);
-    min-width: 18px;
-    flex-shrink: 0;
-}
-
-.might-hist-cards {
-    display: flex;
-    flex-wrap: nowrap;
-    gap: 2px;
-    flex: 1;
-    min-width: 0;
+    z-index: 20;
+    transition: transform 0.25s ease;
     overflow: hidden;
 }
 
-.might-hist-score {
-    font-family: var(--font-title);
-    font-size: 0.75rem;
-    font-weight: 700;
-    color: var(--color-gold-light);
-    flex-shrink: 0;
-    min-width: 18px;
-    text-align: right;
+.might-hist-panel-player {
+    left: 0;
+    transform: translateX(-100%);
+    border-right: 1px solid var(--color-border);
+    box-shadow: 4px 0 24px rgba(0, 0, 0, 0.75);
 }
 
-.might-hist-miss {
-    color: #ff4040;
+.might-hist-panel-player.open {
+    transform: translateX(0);
+}
+
+.might-hist-panel-monster {
+    right: 0;
+    transform: translateX(100%);
+    border-left: 1px solid var(--color-border);
+    box-shadow: -4px 0 24px rgba(0, 0, 0, 0.75);
+}
+
+.might-hist-panel-monster.open {
+    transform: translateX(0);
+}
+
+.might-hist-panel-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.5rem 0.8rem;
+    background: var(--bg-header);
+    border-bottom: 1px solid var(--color-border);
+    flex-shrink: 0;
+}
+
+.might-hist-panel-title {
+    font-family: var(--font-title);
+    font-size: 0.95rem;
+    letter-spacing: 0.08em;
+    color: var(--color-gold-light);
+}
+
+.might-hist-panel-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 0.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+}
+
+.might-hist-empty {
+    font-family: var(--font-body);
+    font-style: italic;
+    font-size: 0.9rem;
+    color: var(--color-text-dim);
+    text-align: center;
+    margin-top: 1rem;
+}
+
+.might-hist-entry {
+    border: 1px solid var(--color-border);
+    border-radius: 5px;
+    padding: 0.4rem 0.6rem;
+    background: var(--bg-panel-alt);
+}
+
+.might-hist-entry-header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.3rem;
+}
+
+.might-hist-entry-label {
+    font-family: var(--font-title);
+    font-size: 0.85rem;
+    color: var(--color-text-dim);
+    flex-shrink: 0;
+}
+
+.might-hist-entry-cards {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 3px;
 }
 
 /* ------------------------------------------------------------------
@@ -491,5 +546,23 @@
 
 .might-drawn-card.card-compact .might-crit-star,
 .might-drawn-card.card-compact .might-chain-dot {
+    display: none;
+}
+
+/* History panel cards - slightly larger than compact */
+.might-drawn-card.card-hist {
+    aspect-ratio: unset;
+    width: 28px;
+    height: 36px;
+    border-radius: 3px;
+    animation: none;
+}
+
+.might-drawn-card.card-hist .might-drawn-value {
+    font-size: 0.82rem;
+}
+
+.might-drawn-card.card-hist .might-crit-star,
+.might-drawn-card.card-hist .might-chain-dot {
     display: none;
 }
