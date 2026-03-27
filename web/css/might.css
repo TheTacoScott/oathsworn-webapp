@@ -1,0 +1,368 @@
+/* ============================================================
+   Might Decks - overlay, card backs, drawn cards, staging bar
+   ============================================================ */
+
+/* ------------------------------------------------------------------
+   Floating trigger button (visible only on the game screen)
+   ------------------------------------------------------------------ */
+
+.might-float-btn {
+    position: fixed;
+    bottom: 1.2rem;
+    right: 1.2rem;
+    z-index: 400;
+    font-family: var(--font-title);
+    font-size: 0.85rem;
+    letter-spacing: 0.04em;
+    padding: 0.5rem 0.9rem;
+    background: #3a2a10;
+    color: var(--color-gold-light);
+    border: 1px solid var(--color-gold);
+    border-radius: 6px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.7);
+    cursor: pointer;
+    transition: background 0.15s;
+}
+.might-float-btn:hover {
+    background: #5a4018;
+    color: var(--color-gold-light);
+}
+
+/* ------------------------------------------------------------------
+   Full-screen overlay
+   ------------------------------------------------------------------ */
+
+.might-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 500;
+    background: rgba(0,0,0,0.82);
+    align-items: center;
+    justify-content: center;
+    padding: 0.75rem;
+}
+
+/* ------------------------------------------------------------------
+   Panel (the white-framed content area)
+   ------------------------------------------------------------------ */
+
+.might-panel {
+    background: var(--bg-panel);
+    border: 1px solid var(--color-border);
+    border-radius: 10px;
+    width: 100%;
+    max-width: 1200px;
+    max-height: calc(100vh - 1.5rem);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.8);
+}
+
+/* ------------------------------------------------------------------
+   Header
+   ------------------------------------------------------------------ */
+
+.might-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.7rem 1rem;
+    background: var(--bg-header);
+    border-bottom: 1px solid var(--color-border);
+    flex-shrink: 0;
+}
+
+.might-panel-title {
+    font-family: var(--font-title);
+    font-size: 1.1rem;
+    color: var(--color-gold-light);
+    letter-spacing: 0.06em;
+}
+
+/* ------------------------------------------------------------------
+   Staging bar
+   ------------------------------------------------------------------ */
+
+.might-staging-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    padding: 0.55rem 1rem;
+    background: var(--bg-panel-alt);
+    border-bottom: 1px solid var(--color-border);
+    flex-shrink: 0;
+    min-height: 2.6rem;
+}
+
+.might-staged-info {
+    font-family: var(--font-body);
+    font-size: 0.95rem;
+    color: var(--color-text);
+    flex: 1;
+    min-width: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* ------------------------------------------------------------------
+   Main decks area (two equal-width sides)
+   ------------------------------------------------------------------ */
+
+.might-decks-area {
+    display: flex;
+    flex: 1;
+    overflow-y: auto;
+    min-height: 0;
+}
+
+.might-side {
+    flex: 1;
+    min-width: 0;
+    padding: 0.6rem 0.7rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.might-side + .might-side {
+    border-left: 1px solid var(--color-border);
+}
+
+.might-side-title {
+    font-family: var(--font-title);
+    font-size: 0.85rem;
+    letter-spacing: 0.08em;
+    color: var(--color-text-dim);
+    text-transform: uppercase;
+    padding-bottom: 0.3rem;
+    border-bottom: 1px solid var(--color-border);
+    flex-shrink: 0;
+}
+
+/* ------------------------------------------------------------------
+   Deck row (card back + drawn area)
+   ------------------------------------------------------------------ */
+
+.might-deck-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
+    min-height: 102px;
+}
+
+.might-deck-left {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.3rem;
+    flex-shrink: 0;
+}
+
+.might-deck-label {
+    font-family: var(--font-title);
+    font-size: 0.78rem;
+    letter-spacing: 0.06em;
+    color: var(--color-text-dim);
+    text-align: center;
+}
+
+.might-deck-ctrl {
+    display: flex;
+    gap: 0.25rem;
+}
+
+.might-deck-ctrl .btn {
+    font-size: 0.72rem;
+    padding: 0.2rem 0.4rem;
+    line-height: 1.2;
+}
+
+/* ------------------------------------------------------------------
+   Card back
+   ------------------------------------------------------------------ */
+
+.might-card-back {
+    position: relative;
+    width: 68px;
+    height: 96px;
+    border-radius: 7px;
+    overflow: hidden;
+    cursor: pointer;
+    border: 1px solid rgba(255,255,255,0.18);
+    box-shadow:
+        0 4px 12px rgba(0,0,0,0.7),
+        inset 0 0 0 2px rgba(255,255,255,0.10),
+        inset 0 0 0 4px rgba(0,0,0,0.35);
+    transition: transform 0.1s, box-shadow 0.1s;
+    user-select: none;
+}
+
+.might-card-back:hover,
+.might-card-back:focus {
+    outline: none;
+    transform: translateY(-2px) scale(1.03);
+    box-shadow:
+        0 7px 18px rgba(0,0,0,0.8),
+        inset 0 0 0 2px rgba(255,255,255,0.18),
+        inset 0 0 0 4px rgba(0,0,0,0.3);
+}
+
+.might-card-back:active {
+    transform: translateY(0) scale(0.98);
+}
+
+/* Rotated background image fills the card */
+.might-card-back-bg {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 180px;
+    height: 180px;
+    background-image: url('../data/ui/oathsworn_background.jpg');
+    background-size: cover;
+    background-position: center;
+    transform: translate(-50%, -50%) rotate(90deg);
+}
+
+/* Semi-transparent dark overlay for readability of content on top */
+.might-card-back-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,0.45);
+}
+
+/* Content layer: cube SVG + remaining count */
+.might-card-back-content {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    pointer-events: none;
+}
+
+.might-remaining-count {
+    font-family: var(--font-title);
+    font-size: 1.0rem;
+    font-weight: 700;
+    color: rgba(255,255,255,0.85);
+    line-height: 1;
+    text-shadow: 0 1px 4px rgba(0,0,0,0.8);
+}
+
+/* Staged-count badge (bottom-right corner of card back) */
+.might-staged-badge {
+    position: absolute;
+    bottom: 4px;
+    right: 4px;
+    min-width: 20px;
+    height: 20px;
+    border-radius: 10px;
+    background: var(--color-gold);
+    color: #1a0e00;
+    font-family: var(--font-title);
+    font-size: 0.72rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 4px;
+    line-height: 1;
+    pointer-events: none;
+}
+
+/* Fully depleted deck (shouldn't normally occur, but adds a visual hint) */
+.might-card-back.might-cb-empty {
+    opacity: 0.45;
+    cursor: not-allowed;
+}
+
+/* ------------------------------------------------------------------
+   Drawn cards area
+   ------------------------------------------------------------------ */
+
+.might-drawn-area {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding: 4px 2px;
+    min-height: 88px;
+    /* thin custom scrollbar */
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-border) transparent;
+}
+
+.might-drawn-area::-webkit-scrollbar {
+    height: 4px;
+}
+.might-drawn-area::-webkit-scrollbar-track {
+    background: transparent;
+}
+.might-drawn-area::-webkit-scrollbar-thumb {
+    background: var(--color-border);
+    border-radius: 2px;
+}
+
+/* ------------------------------------------------------------------
+   Individual drawn card
+   ------------------------------------------------------------------ */
+
+.might-drawn-card {
+    flex-shrink: 0;
+    width: 56px;
+    height: 80px;
+    border-radius: 6px;
+    border: 1px solid;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+
+.might-drawn-value {
+    font-family: var(--font-title);
+    font-size: 1.6rem;
+    font-weight: 700;
+    line-height: 1;
+}
+
+.might-crit-star {
+    position: absolute;
+    top: 3px;
+    right: 4px;
+    font-size: 0.65rem;
+    opacity: 0.9;
+    line-height: 1;
+    /* star color inherited from parent color */
+}
+
+/* Entrance animation for newly drawn cards */
+@keyframes might-card-in {
+    from { opacity: 0; transform: translateY(-8px) scale(0.9); }
+    to   { opacity: 1; transform: translateY(0)   scale(1);   }
+}
+
+.might-drawn-new {
+    animation: might-card-in 0.3s ease-out forwards;
+}
+
+/* Critical glow pulse */
+.might-drawn-card.is-critical {
+    animation: might-card-in 0.3s ease-out forwards, might-crit-pulse 1.2s ease-in-out 0.3s 3;
+}
+
+@keyframes might-crit-pulse {
+    0%   { filter: brightness(1);   }
+    50%  { filter: brightness(1.35); }
+    100% { filter: brightness(1);   }
+}
