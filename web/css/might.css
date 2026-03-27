@@ -385,6 +385,10 @@
     text-align: right;
 }
 
+.might-hist-miss {
+    color: #ff4040;
+}
+
 /* ------------------------------------------------------------------
    Current-round grid: 10 columns, 1 row (+ overflow for chain draws)
    ------------------------------------------------------------------ */
