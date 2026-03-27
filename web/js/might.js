@@ -406,7 +406,9 @@ function updateStagingBar() {
 
     if (mightLastResult) {
         const sideLabel = mightLastResult.side === 'player' ? 'Player' : 'Monster';
-        const damage    = Math.floor(mightLastResult.total / Math.max(mightDefense, 1));
+        const damage    = mightLastResult.isMiss
+            ? 0
+            : Math.floor(mightLastResult.total / Math.max(mightDefense, 1));
         const dmgHtml   =
             `<span class="might-damage-sep"> &nbsp;/&nbsp; </span>` +
             `<span class="might-damage-label">Dmg: </span>` +
