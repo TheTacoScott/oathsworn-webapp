@@ -143,9 +143,12 @@ for (const side of MIGHT_SIDES) {
     }
 }
 
-let mightUIBuilt    = false;
-let mightSessionId  = 0;  // increments on each Draw click
-let mightLastResult = null; // { total, isMiss } - cleared when new cards are staged
+let mightUIBuilt      = false;
+let mightSessionId    = 0;   // increments on each Draw click
+let mightLastResult   = null; // { total, isMiss, side } - cleared when new cards are staged
+// Combined side-level history. One entry per Draw click:
+//   { sessionId, side, cards: [{...card, cfg}], total, isMiss }
+let mightSessionHistory = [];
 
 function mightTotalStaged() {
     return Object.values(mightDecks).reduce((n, d) => n + d.staged, 0);
@@ -413,23 +416,27 @@ function renderHistoryArea(key) {
     const histEl = document.getElementById(`might-hist-${key}`);
     if (!histEl) return;
 
-    const history = deck.historyRounds;
+    // Show combined side history: all sessions for this side except the current (last) one
+    const sideHistory = mightSessionHistory.filter(s => s.side === deck.side);
+    const history     = sideHistory.slice(0, -1);
+
     if (history.length === 0) { histEl.innerHTML = ''; return; }
 
-    const cfg = MIGHT_COLOR_CFG[deck.color];
     let html = '';
-    history.forEach((round, idx) => {
-        const cardsHtml = round.cards.map(c => buildDrawnCardHTML(c, cfg, true)).join('');
+    history.forEach((session, idx) => {
+        const cardsHtml  = session.cards.map(c => buildDrawnCardHTML(c, c.cfg, true)).join('');
+        const scoreLabel = session.isMiss
+            ? `<span class="might-hist-miss">MISS</span>`
+            : session.total;
         html += (
             `<div class="might-history-row">` +
                 `<span class="might-hist-label">R${idx + 1}</span>` +
                 `<span class="might-hist-cards">${cardsHtml}</span>` +
-                `<span class="might-hist-score">${round.score}</span>` +
+                `<span class="might-hist-score">${scoreLabel}</span>` +
             `</div>`
         );
     });
     histEl.innerHTML = html;
-    histEl.scrollTop = histEl.scrollHeight;
 }
 
 function renderCurrentRound(key) {
@@ -499,7 +506,7 @@ function handleDraw() {
     for (const [key, deck] of Object.entries(mightDecks)) {
         if (deck.staged === 0) continue;
         const round = mightDrawRound(deck, mightSessionId);
-        draws.push({ round, side: deck.side });
+        draws.push({ round, side: deck.side, color: deck.color });
         renderDeckDrawnArea(key);
         updateDeckDisplay(key);
     }
@@ -513,7 +520,24 @@ function handleDraw() {
             .flatMap(({ round }) => round.cards)
             .filter(c => !c.fromCritical && c.value === '0')
             .length;
-        mightLastResult = { total, isMiss: playerInitialBlanks >= 2, side: draws[0].side };
+        const isMiss = playerInitialBlanks >= 2;
+        mightLastResult = { total, isMiss, side: draws[0].side };
+
+        // Build a flat card list (with color cfg embedded) for the combined history row
+        const sessionCards = [];
+        for (const { round, color } of draws) {
+            const cfg = MIGHT_COLOR_CFG[color];
+            for (const card of round.cards) {
+                sessionCards.push({ ...card, cfg });
+            }
+        }
+        mightSessionHistory.push({
+            sessionId: mightSessionId,
+            side: draws[0].side,
+            cards: sessionCards,
+            total,
+            isMiss,
+        });
     }
 
     updateStagingBar();
@@ -534,7 +558,8 @@ function handleResetAll() {
         renderDeckDrawnArea(key);
         updateDeckDisplay(key);
     }
-    mightLastResult = null;
+    mightLastResult     = null;
+    mightSessionHistory = [];
     updateStagingBar();
 }
 
