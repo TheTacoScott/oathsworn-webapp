@@ -21,8 +21,8 @@
    ------------------------------------------------------------------ */
 
 .might-panel {
-    width: 90vw;
-    height: 90vh;
+    width: calc(100vw - 1.5rem);
+    height: calc(100vh - 1.5rem);
     background: var(--bg-panel);
     border: 1px solid var(--color-border);
     border-radius: 10px;
@@ -413,7 +413,8 @@
     inset: 0;
     background: rgba(0, 0, 0, 0.55);
     display: flex;
-    align-items: stretch;
+    align-items: center;
+    justify-content: center;
     z-index: 30;
 }
 
@@ -423,8 +424,8 @@
     background: var(--bg-panel);
     border: 1px solid var(--color-border);
     border-radius: 6px;
-    margin: 0.75rem;
-    flex: 1;
+    width: 90vw;
+    height: 90vh;
     overflow: hidden;
 }
 
