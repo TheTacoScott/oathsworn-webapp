@@ -104,6 +104,7 @@ ENGLISH_FINGERPRINT = {
     'abc_action_bar_home_description': 'Navigate home',
     'abc_action_bar_up_description': 'Navigate up',
     'abc_action_menu_overflow_description': 'More options',
+    'add_time': 'ADD A TIME TOKEN TO THE TIME TRACK.',
 }
 
 
