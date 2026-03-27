@@ -107,21 +107,21 @@ def parse_strings_js(path):
 
 
 def replace_strings_js(strings_js_path, translated_path):
-    """Swap translated_path into strings_js_path, backing up the original as strings_en.js.
+    """Swap translated_path into strings_js_path, backing up the original as strings_original.js.
 
-    The backup is only written once - if strings_en.js already exists it is
+    The backup is only written once - if strings_original.js already exists it is
     left untouched. This means re-running setup.sh (which regenerates strings.js
     from the APK) followed by this script will re-swap correctly without
     clobbering the English backup with a previously-translated strings.js.
     """
     dirpath = os.path.dirname(os.path.abspath(strings_js_path))
-    backup_path = os.path.join(dirpath, 'strings_en.js')
+    backup_path = os.path.join(dirpath, 'strings_original.js')
 
     if not os.path.exists(backup_path):
         shutil.copy2(strings_js_path, backup_path)
-        print(f"  Backed up original English strings to {backup_path}")
+        print(f"  Backed up original strings to {backup_path}")
     else:
-        print(f"  English backup already exists at {backup_path}, leaving it alone")
+        print(f"  Backup already exists at {backup_path}, leaving it alone")
 
     shutil.copy2(translated_path, strings_js_path)
     print(f"  Replaced {strings_js_path} with translated version")
@@ -232,7 +232,7 @@ def main():
     parser.add_argument('--replace', default=True, action=argparse.BooleanOptionalAction,
                         help='Replace strings.js with the translated version once all keys '
                              'are complete with no skips. Backs up the original as '
-                             'strings_en.js (only on first run). Default: on.')
+                             'strings_original.js (only on first run). Default: on.')
     args = parser.parse_args()
 
     # Resolve output path

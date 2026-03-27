@@ -9,10 +9,18 @@ The only host dependency is Docker.
 
 1. `setup.sh` creates a Docker network, starts an Ollama container on it, builds a small Python container on the same network, and runs `translate.py` inside it.
 2. `translate.py` iterates every key in the source `strings.js`, sends each value to the Ollama API for translation, and writes the output file incrementally.
-3. When all keys are complete with no failures, the translated file replaces `strings.js` and the original English version is backed up as `strings_en.js`.
+3. When all keys are complete with no failures, the translated file replaces `strings.js` and the original English version is backed up as `strings_original.js`.
 4. On exit (success, failure, or Ctrl-C) the Ollama container and network are torn down automatically.
 
 The output file doubles as a checkpoint. Interrupted runs resume exactly where they left off on the next invocation.
+
+---
+
+## German is different
+
+German is the one language that does **not** use this pipeline. The official Oathsworn app has a separate German APK that ships a complete, human-authored German `strings.xml`. The main setup process handles German natively: set `OATHSWORN_GERMAN=true` before running `./setup.sh` and it will download the German APK, extract its strings, and use them in place of the English ones automatically. No translation model is involved.
+
+This pipeline is for languages that have no official translation and must be machine-translated.
 
 ---
 
@@ -22,7 +30,7 @@ The output file doubles as a checkpoint. Interrupted runs resume exactly where t
 ./translations/setup.sh web/data/strings.js --language French
 ```
 
-That's it. When it finishes, `web/data/strings.js` contains the French translation and `web/data/strings_en.js` holds the original English backup.
+That's it. When it finishes, `web/data/strings.js` contains the French translation and `web/data/strings_original.js` holds the original English backup.
 
 ---
 
@@ -48,7 +56,7 @@ Just re-run the same command. Keys already present in the output file are skippe
 
 Running `./setup.sh` overwrites `web/data/strings.js` with fresh English content from the APK. To restore the translation, re-run the same translation command. Since the translated output file (e.g. `strings_french.js`) still exists and is fully complete, no re-translation occurs - it just does the swap immediately.
 
-The English backup (`strings_en.js`) is never overwritten once created, so it always reflects the original APK content.
+The English backup (`strings_original.js`) is never overwritten once created, so it always reflects the original APK content.
 
 ---
 
