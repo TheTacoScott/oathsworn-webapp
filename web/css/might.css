@@ -209,9 +209,11 @@
 
 .might-deck-group-label {
     font-family: var(--font-title);
-    font-size: 0.9rem;
+    font-size: 1.05rem;
     letter-spacing: 0.1em;
     text-transform: uppercase;
+    text-align: center;
+    width: 100%;
 }
 
 .might-deck-group-inner {
@@ -561,31 +563,37 @@
 
 .might-drawn-value {
     font-family: var(--font-title);
-    font-size: 1.6rem;
+    font-size: 2rem;
     font-weight: 700;
     line-height: 1;
-}
-
-/* Critical star: top-right corner */
-.might-crit-star {
-    position: absolute;
-    top: 2px;
-    right: 3px;
-    font-size: 0.55rem;
-    line-height: 1;
-    opacity: 0.9;
 }
 
 /* Chain dot: top-left corner - indicates drawn from a critical */
 .might-chain-dot {
     position: absolute;
-    top: 3px;
-    left: 3px;
-    width: 6px;
-    height: 6px;
+    top: 5px;
+    left: 5px;
+    width: 14px;
+    height: 14px;
     border-radius: 50%;
-    background: rgba(255, 220, 80, 0.9);
-    box-shadow: 0 0 4px rgba(255, 200, 50, 0.5);
+    background: rgba(255, 220, 80, 0.95);
+    box-shadow: 0 0 10px rgba(255, 200, 50, 0.8), 0 0 4px rgba(255, 220, 80, 0.6);
+}
+
+/* Side label: player/monster attribution near bottom of full-size drawn card */
+.might-card-side-label {
+    position: absolute;
+    bottom: 4px;
+    left: 0;
+    right: 0;
+    text-align: center;
+    font-family: var(--font-title);
+    font-size: 0.6rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    opacity: 0.4;
+    pointer-events: none;
+    line-height: 1;
 }
 
 .might-drawn-card.from-critical {
@@ -618,7 +626,6 @@
     font-size: 0.68rem;
 }
 
-.might-drawn-card.card-compact .might-crit-star,
 .might-drawn-card.card-compact .might-chain-dot {
     display: none;
 }
@@ -636,7 +643,6 @@
     font-size: 0.82rem;
 }
 
-.might-drawn-card.card-hist .might-crit-star,
 .might-drawn-card.card-hist .might-chain-dot {
     display: none;
 }

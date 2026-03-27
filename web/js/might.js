@@ -441,7 +441,8 @@ function updateStagingBar() {
 // Build one drawn-card div. size: 'full' | 'compact' | 'hist'
 function buildDrawnCardHTML(cardEntry, cfg, size) {
     const { value, isCritical, fromCritical } = cardEntry;
-    const display    = isCritical   ? value.slice(1, -1) : value;
+    // Criticals keep their parentheses in the display value; no separate star needed.
+    const display    = value;
     const critClass  = isCritical   ? ' is-critical'  : '';
     const chainClass = fromCritical ? ' from-critical' : '';
     const sizeClass  = size === 'compact' ? ' card-compact' : size === 'hist' ? ' card-hist' : '';
@@ -454,13 +455,15 @@ function buildDrawnCardHTML(cardEntry, cfg, size) {
         `color:${cfg.cardText}`,
         shadowStyle,
     ].filter(Boolean).join(';');
-    const critStar = isCritical   ? `<span class="might-crit-star">&#9733;</span>` : '';
-    const chainDot = fromCritical ? `<span class="might-chain-dot"></span>`        : '';
+    const chainDot = fromCritical ? `<span class="might-chain-dot"></span>` : '';
+    const sideLabel = (size === 'full' && cardEntry.side)
+        ? `<span class="might-card-side-label">${cardEntry.side === 'player' ? 'Player' : 'Monster'}</span>`
+        : '';
     return (
         `<div class="might-drawn-card${critClass}${chainClass}${sizeClass}" style="${style}">` +
             chainDot +
-            critStar +
             `<span class="might-drawn-value">${display}</span>` +
+            sideLabel +
         `</div>`
     );
 }
@@ -573,10 +576,10 @@ function handleDraw() {
 
         // Build a flat card list sorted by color order (white, yellow, red, black)
         const sessionCards = [];
-        for (const { round, color } of draws) {
+        for (const { round, color, side } of draws) {
             const cfg = MIGHT_COLOR_CFG[color];
             for (const card of round.cards) {
-                sessionCards.push({ ...card, cfg, color });
+                sessionCards.push({ ...card, cfg, color, side });
             }
         }
         sessionCards.sort((a, b) => MIGHT_COLOR_ORDER[a.color] - MIGHT_COLOR_ORDER[b.color]);
