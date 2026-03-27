@@ -316,6 +316,12 @@
     cursor: not-allowed;
 }
 
+.might-card-back.might-cb-locked {
+    opacity: 0.2;
+    cursor: not-allowed;
+    filter: grayscale(0.6);
+}
+
 /* ------------------------------------------------------------------
    Right column: history rows + current-round grid
    ------------------------------------------------------------------ */
