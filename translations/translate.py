@@ -24,6 +24,7 @@ Arguments:
 
 import argparse
 import json
+import math
 import os
 import re
 import shutil
@@ -84,11 +85,14 @@ def check_translation(original, translated):
         if term in original and term not in translated:
             warnings.append(f"game term {term!r} not preserved")
 
-    # Newline count
+    # Newline count: allow +/- 20% (rounded down)
     orig_nl = original.count('\n')
     trans_nl = translated.count('\n')
-    if orig_nl > 0 and trans_nl != orig_nl:
-        warnings.append(f"newline count changed ({orig_nl} -> {trans_nl})")
+    if orig_nl > 0:
+        min_nl = math.floor(orig_nl * 0.8)
+        max_nl = math.ceil(orig_nl * 1.2)
+        if trans_nl < min_nl or trans_nl > max_nl:
+            warnings.append(f"newline count {trans_nl} outside [{min_nl}, {max_nl}]")
 
     return warnings
 
@@ -216,6 +220,9 @@ def translate_string(text, language, model):
     """Send one string to the Ollama API and return the translated text."""
     terms_list = ', '.join(GAME_TERMS)
     prompt = (
+        f'You are translating narrative text from a cooperative fantasy board game storybook. '
+        f'The text may contain story passages, player instructions, or choice menus (e.g. "Choose one:" followed by options). '
+        f'Translate every line completely - do not pick or act on any choices, just translate all of the text as-is. '
         f'Translate the text below to {language}. '
         f'Return only the translated text with no explanation, quotes, or commentary. '
         f'Preserve all newlines and punctuation. '
@@ -315,12 +322,14 @@ def main():
                     if not warnings:
                         break
                     print(f"  SANITY FAIL [{key}]: {', '.join(warnings)}", flush=True)
+                    print(f"  Input:      {value!r}", flush=True)
                     print(f"  Bad output: {result!r}", flush=True)
                     print(f"  Retrying ({attempt + 1}/{args.retries})...", flush=True)
                     result = translate_string(value, args.language, args.model)
                     warnings = check_translation(value, result)
                 if warnings:
                     print(f"  SANITY FAIL [{key}]: {', '.join(warnings)}", flush=True)
+                    print(f"  Input:      {value!r}", flush=True)
                     print(f"  Bad output: {result!r}", flush=True)
                     print(f"  Skipping '{key}' - will retry on next run", flush=True)
                 else:

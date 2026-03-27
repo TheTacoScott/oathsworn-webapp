@@ -1077,6 +1077,8 @@ $(function() {
     // Settings modal
     $('#btn-settings, #btn-settings-game').on('click', openSettingsModal);
 
+    $('#btn-might-home, #btn-might-open').on('click', openMightOverlay);
+
     $('#btn-settings-close').on('click', function() { $('#settings-modal').hide(); });
 
     $('#image-lightbox').on('click', function() { $(this).hide(); });
