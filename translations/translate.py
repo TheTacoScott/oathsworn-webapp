@@ -318,12 +318,14 @@ def main():
                     if not warnings:
                         break
                     print(f"  SANITY FAIL [{key}]: {', '.join(warnings)}", flush=True)
+                    print(f"  Input:      {value!r}", flush=True)
                     print(f"  Bad output: {result!r}", flush=True)
                     print(f"  Retrying ({attempt + 1}/{args.retries})...", flush=True)
                     result = translate_string(value, args.language, args.model)
                     warnings = check_translation(value, result)
                 if warnings:
                     print(f"  SANITY FAIL [{key}]: {', '.join(warnings)}", flush=True)
+                    print(f"  Input:      {value!r}", flush=True)
                     print(f"  Bad output: {result!r}", flush=True)
                     print(f"  Skipping '{key}' - will retry on next run", flush=True)
                 else:
