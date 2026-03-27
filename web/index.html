@@ -14,6 +14,7 @@
     <link rel="stylesheet" href="css/chapters.css">
     <link rel="stylesheet" href="css/game.css">
     <link rel="stylesheet" href="css/save-data.css">
+    <link rel="stylesheet" href="css/might.css">
 </head>
 <body>
 
@@ -28,6 +29,7 @@
         <div class="d-flex flex-column gap-3 home-button-col">
             <button id="btn-new-campaign" class="btn btn-primary-game">New Campaign</button>
             <button id="btn-continue-campaign" class="btn btn-primary-game d-none">Continue Campaign</button>
+            <button id="btn-might-home" class="btn btn-ghost-game">Might Decks</button>
             <button id="btn-view-save" class="btn btn-ghost-game">View Saved Data</button>
             <button id="btn-settings" class="btn btn-ghost-game">Settings</button>
         </div>
@@ -102,6 +104,7 @@
             <span id="game-time" class="game-time-display">TIME: 0</span>
             <div class="d-flex gap-2">
                 <button id="btn-settings-game" class="btn btn-ghost-game" title="Settings"><img src="data/ui/settings.png" class="settings-icon" alt="Settings"></button>
+                <button id="btn-might-open" class="btn btn-ghost-game">Might Decks</button>
                 <button id="btn-bug-report" class="btn btn-ghost-game">Bug Report</button>
                 <button id="btn-game-menu" class="btn btn-ghost-game">Exit to Chapter Select</button>
             </div>
@@ -196,6 +199,12 @@
 
 
 <!-- ============================================================
+     MIGHT DECKS - overlay (global, populated by might.js)
+     ============================================================ -->
+<div id="might-overlay" class="might-overlay" style="display:none"></div>
+
+
+<!-- ============================================================
      BUG REPORT MODAL
      ============================================================ -->
 <div id="bug-report-modal" class="bug-modal-overlay" style="display:none">
@@ -248,6 +257,7 @@
 <script src="js/game.js"></script>
 <script src="js/patch_util.js"></script>
 <script src="js/patches.js"></script>
+<script src="js/might.js"></script>
 <script src="js/jquery-3.7.1.min.js"></script>
 <script src="js/main.js"></script>
 
