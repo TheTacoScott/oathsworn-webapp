@@ -358,20 +358,20 @@
 
 .might-staged-badge {
     position: absolute;
-    bottom: 4px;
-    right: 4px;
-    min-width: 20px;
-    height: 20px;
-    border-radius: 10px;
+    bottom: 5px;
+    right: 5px;
+    min-width: 28px;
+    height: 28px;
+    border-radius: 14px;
     background: var(--color-gold);
     color: #1a0e00;
     font-family: var(--font-title);
-    font-size: 0.72rem;
+    font-size: 1rem;
     font-weight: 700;
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 0 3px;
+    padding: 0 5px;
     line-height: 1;
     pointer-events: none;
     box-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
