@@ -151,6 +151,14 @@ function mightTotalStaged() {
     return Object.values(mightDecks).reduce((n, d) => n + d.staged, 0);
 }
 
+// Returns 'player', 'monster', or null depending on which side has staged cards.
+function mightActiveSide() {
+    for (const deck of Object.values(mightDecks)) {
+        if (deck.staged > 0) return deck.side;
+    }
+    return null;
+}
+
 //
 // ============================================================================
 //  [MIGHT_DRAW]
@@ -319,6 +327,17 @@ function updateDeckDisplay(key) {
     }
 }
 
+// Locks card backs on the side opposite to the currently staged side.
+// When nothing is staged, all card backs are unlocked.
+function updateLockStates() {
+    const activeSide = mightActiveSide();
+    for (const [key, deck] of Object.entries(mightDecks)) {
+        const cb = document.getElementById(`might-cb-${key}`);
+        if (!cb) continue;
+        cb.classList.toggle('might-cb-locked', activeSide !== null && deck.side !== activeSide);
+    }
+}
+
 // Updates the staging bar text and Draw button enabled state.
 // Clear/Draw buttons are always visible; Draw is enabled only when staged > 0.
 function updateStagingBar() {
@@ -343,14 +362,15 @@ function updateStagingBar() {
         infoEl.textContent = `Staged: ${parts.join(', ')}`;
         if (drawBtn) drawBtn.disabled = false;
     } else if (mightLastResult) {
-        // Show the combined draw result
+        // Show the combined draw result, labelled by which side drew
+        const sideLabel = mightLastResult.side === 'player' ? 'Player' : 'Monster';
         if (mightLastResult.isMiss) {
             infoEl.innerHTML =
-                `<span class="might-result-miss">MISS</span>` +
+                `<span class="might-result-miss">${sideLabel} MISS</span>` +
                 `<span class="might-result-miss-score"> (${mightLastResult.total})</span>`;
         } else {
             infoEl.innerHTML =
-                `<span class="might-result-label">Total: </span>` +
+                `<span class="might-result-label">${sideLabel} Total: </span>` +
                 `<span class="might-result-total">${mightLastResult.total}</span>`;
         }
         if (drawBtn) drawBtn.disabled = true;
@@ -358,6 +378,7 @@ function updateStagingBar() {
         infoEl.textContent = 'Click a deck to stage cards';
         if (drawBtn) drawBtn.disabled = true;
     }
+    updateLockStates();
 }
 
 // Build one drawn-card div. compact=true -> history-row size.
@@ -450,6 +471,8 @@ function renderDeckDrawnArea(key) {
 function handleStage(key) {
     const deck = mightDecks[key];
     if (!deck) return;
+    const activeSide = mightActiveSide();
+    if (activeSide !== null && activeSide !== deck.side) return;
     deck.stageOne();
     updateDeckDisplay(key);
     updateStagingBar();
@@ -490,7 +513,7 @@ function handleDraw() {
             .flatMap(({ round }) => round.cards)
             .filter(c => !c.fromCritical && c.value === '0')
             .length;
-        mightLastResult = { total, isMiss: playerInitialBlanks >= 2 };
+        mightLastResult = { total, isMiss: playerInitialBlanks >= 2, side: draws[0].side };
     }
 
     updateStagingBar();
