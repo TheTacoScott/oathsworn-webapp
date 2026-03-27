@@ -60,7 +60,7 @@ const MIGHT_COLOR_CFG = {
 
 const MIGHT_SIDES        = ['player', 'monster'];
 const MIGHT_COLORS       = ['white', 'yellow', 'red', 'black'];
-const MIGHT_DISPLAY_SLOTS = 10;  // max draw is 10; extra chain draws overflow naturally
+const MIGHT_DISPLAY_SLOTS = 20;  // 2 rows of 10; cards wrap to row 2 when > 10 are drawn
 const MIGHT_MAX_STAGED    = 20;  // combined cap across all decks
 const MIGHT_COLOR_ORDER   = { white: 0, yellow: 1, red: 2, black: 3 };
 
