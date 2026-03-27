@@ -193,6 +193,8 @@ function showScreen(id) {
     document.querySelectorAll('.screen').forEach(el => el.classList.remove('active'));
     const el = document.getElementById(id);
     if (el) el.classList.add('active');
+    const mightBtn = document.getElementById('btn-might-open');
+    if (mightBtn) mightBtn.style.display = (id === 'screen-game') ? '' : 'none';
 }
 
 //
@@ -1076,6 +1078,8 @@ $(function() {
 
     // Settings modal
     $('#btn-settings, #btn-settings-game').on('click', openSettingsModal);
+
+    $('#btn-might-home, #btn-might-open').on('click', openMightOverlay);
 
     $('#btn-settings-close').on('click', function() { $('#settings-modal').hide(); });
 
