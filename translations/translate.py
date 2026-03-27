@@ -196,7 +196,7 @@ def main():
         # Write output file after each string - it is the checkpoint
         write_strings_js(done_keys, args.output, args.language, args.strings_js)
 
-        print(f"  [{len(done_keys)}/{total} {len(done_keys)/total*100:.1f}%] {key}")
+        print(f"  [{len(done_keys)}/{total} {len(done_keys)/total*100:.1f}%] {key}", flush=True)
 
     # Re-write with keys in original source order
     translated = {k: done_keys[k] for k in strings if k in done_keys}

@@ -31,8 +31,10 @@ trap cleanup EXIT
 # Clean up any leftover containers/networks from a previous interrupted run
 cleanup
 
+echo "Creating local network thing..."
 docker network create "$NETWORK"
 
+echo "Running ollama..."
 docker run -d \
     --name "$OLLAMA_CONTAINER" \
     --network "$NETWORK" \
@@ -49,8 +51,9 @@ STRINGS_JS_DIR="$(dirname "$STRINGS_JS_HOST")"
 STRINGS_JS_FILE="$(basename "$STRINGS_JS_HOST")"
 shift
 
+echo "Translating ${STRINGS_JS_HOST}"
 docker run --rm \
     --network "$NETWORK" \
     -e OLLAMA_URL="http://$OLLAMA_CONTAINER:11434" \
     -v "$STRINGS_JS_DIR:/data" \
-    oathsworn-translation python3 /app/translate.py "/data/$STRINGS_JS_FILE" "$@"
+    oathsworn-translation python3 -u /app/translate.py "/data/$STRINGS_JS_FILE" "$@"
