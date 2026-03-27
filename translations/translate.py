@@ -113,11 +113,11 @@ def ensure_model(model):
 def translate_string(text, language, model):
     """Send one string to the Ollama API and return the translated text."""
     prompt = (
-        f'Translate the following text to {language}. '
+        f'Translate the text below to {language}. '
         f'Return only the translated text with no explanation, quotes, or commentary. '
-        f'Preserve all newlines, punctuation, and do not translate proper nouns or character names.'
-        f'Examples of things not to translate: Oathsworn, Deepwood.\n\n'
-        f'{text}'
+        f'Preserve all newlines and punctuation. '
+        f'Do not translate proper nouns or game-specific terms such as Oathsworn and Deepwood.\n\n'
+        f'Text to translate:\n{text}'
     )
     payload = json.dumps({
         'model': model,
