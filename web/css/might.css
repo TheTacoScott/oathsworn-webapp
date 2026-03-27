@@ -395,6 +395,7 @@
     grid-template-columns: repeat(10, 1fr);
     gap: 3px;
     flex-shrink: 0;
+    align-items: center;
 }
 
 .might-card-slot-empty {

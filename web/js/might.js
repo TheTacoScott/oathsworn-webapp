@@ -252,7 +252,7 @@ function buildDeckRowHTML(side, color) {
                 buildCardBackHTML(side, color) +
                 `<div class="might-deck-ctrl">` +
                     `<button class="btn btn-ghost-game btn-sm might-btn-unstage" data-key="${key}" title="Unstage one">&#8722;</button>` +
-                    `<button class="btn btn-ghost-game btn-sm might-btn-reset"   data-key="${key}" title="Reset deck">Reset</button>` +
+                    `<button class="btn btn-ghost-game btn-sm might-btn-stage"   data-key="${key}" title="Stage one">&#43;</button>` +
                 `</div>` +
             `</div>` +
             `<div class="might-drawn-area" id="might-drawn-${key}">` +
@@ -281,14 +281,14 @@ function buildOverlayHTML() {
             `<div class="might-header">` +
                 `<span class="might-panel-title">Might Decks</span>` +
                 `<div class="d-flex gap-2 align-items-center">` +
-                    `<button id="btn-might-reset-all" class="btn btn-ghost-game btn-sm">Reset All</button>` +
+                    `<button id="btn-might-reset-all" class="btn btn-ghost-game btn-sm">Reshuffle All</button>` +
                     `<button id="btn-might-close"     class="btn btn-ghost-game btn-sm">&#10005;</button>` +
                 `</div>` +
             `</div>` +
             `<div class="might-staging-bar">` +
                 `<span class="might-staged-info" id="might-staged-info">Click a deck to stage cards</span>` +
                 `<div class="d-flex gap-2 align-items-center">` +
-                    `<button id="btn-might-clear" class="btn btn-ghost-game">Clear</button>` +
+                    `<button id="btn-might-clear" class="btn btn-ghost-game">Clear Staged</button>` +
                     `<button id="btn-might-draw"  class="btn btn-primary-game btn-draw-might" disabled>Draw</button>` +
                 `</div>` +
             `</div>` +
@@ -558,8 +558,8 @@ function initMightUI() {
         const unstageBtn = e.target.closest('.might-btn-unstage');
         if (unstageBtn) { handleUnstage(unstageBtn.dataset.key); return; }
 
-        const resetBtn = e.target.closest('.might-btn-reset');
-        if (resetBtn) { handleResetDeck(resetBtn.dataset.key); return; }
+        const stageBtn = e.target.closest('.might-btn-stage');
+        if (stageBtn) { handleStage(stageBtn.dataset.key); return; }
     });
 
     overlay.addEventListener('contextmenu', function(e) {
@@ -573,6 +573,17 @@ function initMightUI() {
         if (cb) { e.preventDefault(); handleStage(cb.dataset.key); }
     });
 
+    overlay.addEventListener('wheel', function(e) {
+        const cb = e.target.closest('.might-card-back');
+        if (!cb) return;
+        e.preventDefault();
+        if (e.deltaY < 0) {
+            handleStage(cb.dataset.key);
+        } else {
+            handleUnstage(cb.dataset.key);
+        }
+    }, { passive: false });
+
     document.getElementById('btn-might-draw').addEventListener('click', handleDraw);
     document.getElementById('btn-might-clear').addEventListener('click', handleClearAllStaged);
     document.getElementById('btn-might-reset-all').addEventListener('click', handleResetAll);
@@ -583,7 +594,17 @@ function initMightUI() {
     });
 
     document.addEventListener('keydown', function(e) {
-        if (e.key === 'Escape' && overlay.style.display !== 'none') closeMightOverlay();
+        if (overlay.style.display === 'none') return;
+        if (e.key === 'Escape') { closeMightOverlay(); return; }
+        if (e.key === 'Enter') {
+            const drawBtn = document.getElementById('btn-might-draw');
+            if (drawBtn && !drawBtn.disabled) { e.preventDefault(); drawBtn.click(); }
+            return;
+        }
+        if (e.key === 'Backspace') {
+            e.preventDefault();
+            handleClearAllStaged();
+        }
     });
 }
 
