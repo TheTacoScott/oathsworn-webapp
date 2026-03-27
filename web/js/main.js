@@ -193,8 +193,6 @@ function showScreen(id) {
     document.querySelectorAll('.screen').forEach(el => el.classList.remove('active'));
     const el = document.getElementById(id);
     if (el) el.classList.add('active');
-    const mightBtn = document.getElementById('btn-might-open');
-    if (mightBtn) mightBtn.style.display = (id === 'screen-game') ? '' : 'none';
 }
 
 //
