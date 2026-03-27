@@ -30,7 +30,7 @@ This pipeline is for languages that have no official translation and must be mac
 ./translations/setup.sh web/data/strings.js --language French
 ```
 
-That's it. When it finishes, `web/data/strings.js` contains the French translation and `web/data/strings_original.js` holds the original English backup.
+That's it. When it finishes, `web/data/strings.js` contains the French translation and `web/data/strings_original.js` holds the original (English or possibly German) backup.
 
 ---
 
