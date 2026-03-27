@@ -3,8 +3,9 @@
 Translate a strings.js file to another language using a local Ollama model.
 
 The Ollama container is started once, all strings are translated, then it
-is stopped. Progress is saved to a checkpoint file after each string so an
-interrupted run can resume without starting over.
+is stopped. The output file itself acts as the checkpoint: keys present in
+the output but missing from the source are skipped on resume. Re-running
+the same command continues from where it left off.
 
 Usage:
     python3 translations/translate.py <strings.js> --language German [options]
@@ -14,7 +15,6 @@ Arguments:
     --language LANG      Target language name, e.g. "German", "French", "Spanish"
     --output PATH        Output path (default: <input>_<lang>.js next to input)
     --model MODEL        Ollama model to use (default: translategemma:4b)
-    --checkpoint PATH    Checkpoint file (default: <output>.checkpoint.json)
 """
 
 import argparse
@@ -47,6 +47,7 @@ def parse_strings_js(path):
 
 
 def write_strings_js(strings, path, language, source_path):
+    """Write a (partial or complete) STRINGS dict to a strings.js file."""
     with open(path, 'w', encoding='utf-8') as f:
         f.write(f'// Auto-generated: {language} translation of {os.path.basename(source_path)}\n')
         f.write('const STRINGS = ')
@@ -153,17 +154,13 @@ def main():
                         help='Output path for translated strings.js')
     parser.add_argument('--model', '-m', default='translategemma:4b',
                         help='Ollama model to use (default: translategemma:4b)')
-    parser.add_argument('--checkpoint',
-                        help='Checkpoint file path (default: <output>.checkpoint.json)')
     args = parser.parse_args()
 
-    # Resolve output and checkpoint paths
+    # Resolve output path
     lang_slug = args.language.lower().replace(' ', '_')
     if args.output is None:
         base, _ = os.path.splitext(args.strings_js)
         args.output = f'{base}_{lang_slug}.js'
-    if args.checkpoint is None:
-        args.checkpoint = args.output + '.checkpoint.json'
 
     # Parse source strings
     print(f"Reading {args.strings_js}...")
@@ -171,19 +168,16 @@ def main():
     total = len(strings)
     print(f"  {total} strings found")
 
-    # Load checkpoint
-    checkpoint = {}
-    if os.path.isfile(args.checkpoint):
-        with open(args.checkpoint, 'r', encoding='utf-8') as f:
-            checkpoint = json.load(f)
-        print(f"  Resuming: {len(checkpoint)}/{total} already translated")
+    # Load existing output as checkpoint: keys present there are already done
+    done_keys = {}
+    if os.path.isfile(args.output):
+        done_keys = parse_strings_js(args.output)
+        print(f"  Resuming: {len(done_keys)}/{total} already translated")
 
-    remaining = [(k, v) for k, v in strings.items() if k not in checkpoint]
+    remaining = [(k, v) for k, v in strings.items() if k not in done_keys]
     if not remaining:
-        print("  Nothing left to translate - writing output.")
-        translated = {k: checkpoint.get(k, v) for k, v in strings.items()}
-        write_strings_js(translated, args.output, args.language, args.strings_js)
-        print(f"Done. Written to {args.output}")
+        print("  Nothing left to translate.")
+        print(f"Done. Output is at {args.output}")
         return
 
     # Start container
@@ -198,27 +192,25 @@ def main():
         ensure_model(args.model)
 
         print(f"\nTranslating {len(remaining)} strings to {args.language} using {args.model}...")
-        print(f"  Output:     {args.output}")
-        print(f"  Checkpoint: {args.checkpoint}\n")
+        print(f"  Output: {args.output}\n")
 
         for key, value in remaining:
             if not value or not value.strip():
-                checkpoint[key] = value
+                done_keys[key] = value
             else:
                 try:
-                    checkpoint[key] = translate_string(value, args.language, args.model)
+                    done_keys[key] = translate_string(value, args.language, args.model)
                 except Exception as e:
                     print(f"  WARNING: failed on '{key}': {e} - keeping original")
-                    checkpoint[key] = value
+                    done_keys[key] = value
 
-            with open(args.checkpoint, 'w', encoding='utf-8') as f:
-                json.dump(checkpoint, f, ensure_ascii=False)
+            # Write output file after each string - it is the checkpoint
+            write_strings_js(done_keys, args.output, args.language, args.strings_js)
 
-            done = len(checkpoint)
-            print(f"  [{done}/{total} {done/total*100:.1f}%] {key}")
+            print(f"  [{len(done_keys)}/{total} {len(done_keys)/total*100:.1f}%] {key}")
 
-        # Write final output preserving original key order
-        translated = {k: checkpoint.get(k, v) for k, v in strings.items()}
+        # Re-write with keys in original source order
+        translated = {k: done_keys[k] for k in strings if k in done_keys}
         write_strings_js(translated, args.output, args.language, args.strings_js)
         print(f"\nDone. Written to {args.output}")
 
