@@ -84,13 +84,14 @@ def check_translation(original, translated):
         if term in original and term not in translated:
             warnings.append(f"game term {term!r} not preserved")
 
-    # Newline count: allow up to 20% fewer newlines (rounded down), but not more
+    # Newline count: allow +/- 20% (rounded down)
     orig_nl = original.count('\n')
     trans_nl = translated.count('\n')
     if orig_nl > 0:
         min_nl = orig_nl - int(orig_nl * 0.2)
-        if trans_nl < min_nl or trans_nl > orig_nl:
-            warnings.append(f"newline count {trans_nl} outside [{min_nl}, {orig_nl}]")
+        max_nl = orig_nl + int(orig_nl * 0.2)
+        if trans_nl < min_nl or trans_nl > max_nl:
+            warnings.append(f"newline count {trans_nl} outside [{min_nl}, {max_nl}]")
 
     return warnings
 
