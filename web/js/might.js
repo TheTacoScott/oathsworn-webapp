@@ -470,8 +470,10 @@ function renderHistorySide(side) {
     }
 
     let html = '';
-    entries.forEach((session, idx) => {
-        const isLatest  = idx === entries.length - 1;
+    const reversed = [...entries].reverse();
+    reversed.forEach((session, idx) => {
+        const isLatest  = idx === 0;
+        const drawNum   = entries.length - idx;
         const cardsHtml = session.cards.map(c => buildDrawnCardHTML(c, c.cfg, 'hist')).join('');
         const scoreHtml = session.isMiss
             ? `<span class="might-result-miss">MISS</span><span class="might-result-miss-score"> (${session.total})</span>`
@@ -479,7 +481,7 @@ function renderHistorySide(side) {
         html += (
             `<div class="might-hist-entry${isLatest ? ' latest' : ''}">` +
                 `<div class="might-hist-entry-header">` +
-                    `<span class="might-hist-entry-label">Draw ${idx + 1}</span>` +
+                    `<span class="might-hist-entry-label">Draw ${drawNum}</span>` +
                     scoreHtml +
                 `</div>` +
                 `<div class="might-hist-entry-cards">${cardsHtml}</div>` +
@@ -487,7 +489,7 @@ function renderHistorySide(side) {
         );
     });
     bodyEl.innerHTML = html;
-    bodyEl.scrollTop = bodyEl.scrollHeight;
+    bodyEl.scrollTop = 0;
 }
 
 function renderHistoryModal() {
