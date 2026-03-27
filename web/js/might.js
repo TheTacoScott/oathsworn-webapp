@@ -384,7 +384,7 @@ function setMightDefense(value) {
     mightDefense = Math.max(0, Math.min(20, value));
     const el = document.getElementById('might-defense-value');
     if (el) el.textContent = mightDefense;
-    if (mightLastResult) updateStagingBar(); // refresh damage if result is showing
+    updateStagingBar();
 }
 
 // Locks card backs on the side opposite to the currently staged side.
