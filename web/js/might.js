@@ -148,6 +148,7 @@ for (const side of MIGHT_SIDES) {
 let mightUIBuilt      = false;
 let mightSessionId    = 0;   // increments on each Draw click
 let mightLastResult   = null; // { total, isMiss, side } - cleared when new cards are staged
+let mightDefense      = 2;   // defense value for damage calc; range 0-20, 0 acts like 1
 // Combined side-level history. One entry per Draw click:
 //   { sessionId, side, cards: [{...card, cfg}], total, isMiss }
 let mightSessionHistory = [];
@@ -205,6 +206,14 @@ function mightDrawRound(deck, sessionId) {
 //  [MIGHT_SVG]
 // ============================================================================
 //
+
+function buildShieldSVG() {
+    return (
+        `<svg viewBox="0 0 24 28" width="22" height="26" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" style="display:block;flex-shrink:0">` +
+        `<path d="M12 2 L22 6.5 L22 15 Q22 23 12 27 Q2 23 2 15 L2 6.5 Z" fill="#3a6acc" stroke="#2255bb" stroke-width="1"/>` +
+        `</svg>`
+    );
+}
 
 function buildIsoCubeSVG(color) {
     const c     = MIGHT_COLOR_CFG[color];
@@ -275,22 +284,34 @@ function buildSideHTML(side) {
         `<div class="might-side">` +
             `<div class="might-side-title-row">` +
                 `<span class="might-side-title might-side-${side}">${title}</span>` +
-                `<button class="btn btn-ghost-game btn-sm might-btn-hist-open" data-side="${side}">History</button>` +
             `</div>` +
             rows +
         `</div>`
     );
 }
 
-function buildHistoryPanelHTML(side) {
-    const titleText = side === 'player' ? 'Player History' : 'Monster History';
+function buildHistoryModalHTML() {
     return (
-        `<div class="might-hist-panel might-hist-panel-${side}" id="might-hist-panel-${side}">` +
-            `<div class="might-hist-panel-header">` +
-                `<span class="might-hist-panel-title">${titleText}</span>` +
-                `<button class="btn btn-ghost-game btn-sm might-btn-hist-close" data-side="${side}">&#10005;</button>` +
+        `<div class="might-hist-modal" id="might-hist-modal" style="display:none">` +
+            `<div class="might-hist-modal-inner">` +
+                `<div class="might-hist-modal-header">` +
+                    `<span class="might-hist-panel-title">Draw History</span>` +
+                    `<div class="d-flex gap-2 align-items-center">` +
+                        `<button class="btn btn-ghost-game btn-sm" id="btn-might-hist-clear">Clear History</button>` +
+                        `<button class="btn btn-ghost-game btn-sm" id="btn-might-hist-close">&#10005;</button>` +
+                    `</div>` +
+                `</div>` +
+                `<div class="might-hist-modal-body">` +
+                    `<div class="might-hist-modal-col">` +
+                        `<div class="might-hist-col-title might-side-player">Players</div>` +
+                        `<div class="might-hist-panel-body" id="might-hist-body-player"></div>` +
+                    `</div>` +
+                    `<div class="might-hist-modal-col">` +
+                        `<div class="might-hist-col-title might-side-monster">Monsters</div>` +
+                        `<div class="might-hist-panel-body" id="might-hist-body-monster"></div>` +
+                    `</div>` +
+                `</div>` +
             `</div>` +
-            `<div class="might-hist-panel-body" id="might-hist-body-${side}"></div>` +
         `</div>`
     );
 }
@@ -307,17 +328,27 @@ function buildOverlayHTML() {
             `</div>` +
             `<div class="might-staging-bar">` +
                 `<span class="might-staged-info" id="might-staged-info">Click a deck to stage cards</span>` +
+                `<div class="might-defense-widget" id="might-defense-widget" title="Defense — left-click or scroll up to increase, right-click or scroll down to decrease">` +
+                    `<div class="might-defense-display">` +
+                        buildShieldSVG() +
+                        `<span class="might-defense-value" id="might-defense-value">2</span>` +
+                    `</div>` +
+                    `<div class="might-defense-ctrl">` +
+                        `<button class="btn btn-ghost-game btn-sm might-btn-def-dec" title="Decrease defense">&#8722;</button>` +
+                        `<button class="btn btn-ghost-game btn-sm might-btn-def-inc" title="Increase defense">&#43;</button>` +
+                    `</div>` +
+                `</div>` +
                 `<div class="d-flex gap-2 align-items-center">` +
-                    `<button id="btn-might-clear" class="btn btn-ghost-game">Clear Staged</button>` +
-                    `<button id="btn-might-draw"  class="btn btn-primary-game btn-draw-might" disabled>Draw</button>` +
+                    `<button id="btn-might-clear"   class="btn btn-ghost-game">Clear Staged</button>` +
+                    `<button id="btn-might-history" class="btn btn-ghost-game">History</button>` +
+                    `<button id="btn-might-draw"    class="btn btn-primary-game btn-draw-might" disabled>Draw</button>` +
                 `</div>` +
             `</div>` +
             `<div class="might-decks-area">` +
                 buildSideHTML('player') +
                 buildSideHTML('monster') +
-                buildHistoryPanelHTML('player') +
-                buildHistoryPanelHTML('monster') +
             `</div>` +
+            buildHistoryModalHTML() +
         `</div>`
     );
 }
@@ -347,6 +378,13 @@ function updateDeckDisplay(key) {
     if (cb) {
         cb.classList.toggle('might-cb-empty', deck.remainingCount === 0 && deck.totalCount === 0);
     }
+}
+
+function setMightDefense(value) {
+    mightDefense = Math.max(0, Math.min(20, value));
+    const el = document.getElementById('might-defense-value');
+    if (el) el.textContent = mightDefense;
+    if (mightLastResult) updateStagingBar(); // refresh damage if result is showing
 }
 
 // Locks card backs on the side opposite to the currently staged side.
@@ -384,16 +422,23 @@ function updateStagingBar() {
         infoEl.textContent = `Staged: ${parts.join(', ')}`;
         if (drawBtn) drawBtn.disabled = false;
     } else if (mightLastResult) {
-        // Show the combined draw result, labelled by which side drew
+        // Show the combined draw result, labelled by which side drew, with damage
         const sideLabel = mightLastResult.side === 'player' ? 'Player' : 'Monster';
+        const damage    = Math.floor(mightLastResult.total / Math.max(mightDefense, 1));
+        const dmgHtml   =
+            `<span class="might-damage-sep"> &nbsp;/&nbsp; </span>` +
+            `<span class="might-damage-label">Dmg: </span>` +
+            `<span class="might-damage-value">${damage}</span>`;
         if (mightLastResult.isMiss) {
             infoEl.innerHTML =
                 `<span class="might-result-miss">${sideLabel} MISS</span>` +
-                `<span class="might-result-miss-score"> (${mightLastResult.total})</span>`;
+                `<span class="might-result-miss-score"> (${mightLastResult.total})</span>` +
+                dmgHtml;
         } else {
             infoEl.innerHTML =
                 `<span class="might-result-label">${sideLabel} Total: </span>` +
-                `<span class="might-result-total">${mightLastResult.total}</span>`;
+                `<span class="might-result-total">${mightLastResult.total}</span>` +
+                dmgHtml;
         }
         if (drawBtn) drawBtn.disabled = true;
     } else {
@@ -430,7 +475,7 @@ function buildDrawnCardHTML(cardEntry, cfg, size) {
     );
 }
 
-function renderHistoryPanel(side) {
+function renderHistorySide(side) {
     const bodyEl = document.getElementById(`might-hist-body-${side}`);
     if (!bodyEl) return;
 
@@ -442,12 +487,13 @@ function renderHistoryPanel(side) {
 
     let html = '';
     entries.forEach((session, idx) => {
+        const isLatest  = idx === entries.length - 1;
         const cardsHtml = session.cards.map(c => buildDrawnCardHTML(c, c.cfg, 'hist')).join('');
         const scoreHtml = session.isMiss
             ? `<span class="might-result-miss">MISS</span><span class="might-result-miss-score"> (${session.total})</span>`
             : `<span class="might-result-total">${session.total}</span>`;
         html += (
-            `<div class="might-hist-entry">` +
+            `<div class="might-hist-entry${isLatest ? ' latest' : ''}">` +
                 `<div class="might-hist-entry-header">` +
                     `<span class="might-hist-entry-label">Draw ${idx + 1}</span>` +
                     scoreHtml +
@@ -457,29 +503,21 @@ function renderHistoryPanel(side) {
         );
     });
     bodyEl.innerHTML = html;
+    bodyEl.scrollTop = bodyEl.scrollHeight;
+}
+
+function renderHistoryModal() {
+    renderHistorySide('player');
+    renderHistorySide('monster');
 }
 
 function renderCurrentRound(key) {
-    const deck  = mightDecks[key];
-    const grid  = document.getElementById(`might-grid-${key}`);
+    // Cards move to history immediately on draw; the grid always shows empty slots.
+    const grid = document.getElementById(`might-grid-${key}`);
     if (!grid) return;
-
-    const cfg   = MIGHT_COLOR_CFG[deck.color];
-    const round = deck.currentRound;
-    let html    = '';
-
-    if (round) {
-        for (const card of round.cards) {
-            html += buildDrawnCardHTML(card, cfg, 'full');
-        }
-        // Pad with empty slots up to the minimum display size
-        for (let i = round.cards.length; i < MIGHT_DISPLAY_SLOTS; i++) {
-            html += `<div class="might-card-slot-empty"></div>`;
-        }
-    } else {
-        for (let i = 0; i < MIGHT_DISPLAY_SLOTS; i++) {
-            html += `<div class="might-card-slot-empty"></div>`;
-        }
+    let html = '';
+    for (let i = 0; i < MIGHT_DISPLAY_SLOTS; i++) {
+        html += `<div class="might-card-slot-empty"></div>`;
     }
     grid.innerHTML = html;
 }
@@ -563,11 +601,8 @@ function handleDraw() {
 
     updateStagingBar();
 
-    // Keep any open history panels up to date
-    for (const side of MIGHT_SIDES) {
-        const panel = document.getElementById(`might-hist-panel-${side}`);
-        if (panel && panel.classList.contains('open')) renderHistoryPanel(side);
-    }
+    // Auto-open the history modal after every draw so the result is immediately visible
+    if (draws.length > 0) openHistoryModal();
 }
 
 function handleResetDeck(key) {
@@ -612,14 +647,21 @@ function initMightUI() {
         const stageBtn = e.target.closest('.might-btn-stage');
         if (stageBtn) { handleStage(stageBtn.dataset.key); return; }
 
-        const histOpenBtn = e.target.closest('.might-btn-hist-open');
-        if (histOpenBtn) { openHistoryPanel(histOpenBtn.dataset.side); return; }
+        // Defense widget: +/- buttons handled first, then bare widget click = increase
+        const defIncBtn = e.target.closest('.might-btn-def-inc');
+        if (defIncBtn) { setMightDefense(mightDefense + 1); return; }
 
-        const histCloseBtn = e.target.closest('.might-btn-hist-close');
-        if (histCloseBtn) { closeHistoryPanel(histCloseBtn.dataset.side); return; }
+        const defDecBtn = e.target.closest('.might-btn-def-dec');
+        if (defDecBtn) { setMightDefense(mightDefense - 1); return; }
+
+        const defWidget = e.target.closest('.might-defense-widget');
+        if (defWidget) { setMightDefense(mightDefense + 1); return; }
     });
 
     overlay.addEventListener('contextmenu', function(e) {
+        const defWidget = e.target.closest('.might-defense-widget');
+        if (defWidget) { e.preventDefault(); setMightDefense(mightDefense - 1); return; }
+
         const cb = e.target.closest('.might-card-back');
         if (cb) { e.preventDefault(); handleUnstage(cb.dataset.key); }
     });
@@ -632,22 +674,37 @@ function initMightUI() {
 
     overlay.addEventListener('wheel', function(e) {
         const cb = e.target.closest('.might-card-back');
-        if (!cb) return;
-        e.preventDefault();
-        if (e.deltaY < 0) {
-            handleStage(cb.dataset.key);
-        } else {
-            handleUnstage(cb.dataset.key);
+        if (cb) {
+            e.preventDefault();
+            if (e.deltaY < 0) { handleStage(cb.dataset.key); }
+            else { handleUnstage(cb.dataset.key); }
+            return;
+        }
+        const defWidget = e.target.closest('.might-defense-widget');
+        if (defWidget) {
+            e.preventDefault();
+            if (e.deltaY < 0) { setMightDefense(mightDefense + 1); }
+            else { setMightDefense(mightDefense - 1); }
         }
     }, { passive: false });
 
     document.getElementById('btn-might-draw').addEventListener('click', handleDraw);
     document.getElementById('btn-might-clear').addEventListener('click', handleClearAllStaged);
+    document.getElementById('btn-might-history').addEventListener('click', openHistoryModal);
+    document.getElementById('btn-might-hist-close').addEventListener('click', closeHistoryModal);
+    document.getElementById('btn-might-hist-clear').addEventListener('click', function() {
+        mightSessionHistory = [];
+        mightLastResult = null;
+        updateStagingBar();
+        closeHistoryModal();
+    });
     document.getElementById('btn-might-reset-all').addEventListener('click', handleResetAll);
     document.getElementById('btn-might-close').addEventListener('click', closeMightOverlay);
 
     overlay.addEventListener('click', function(e) {
         if (e.target === overlay) closeMightOverlay();
+        const modal = document.getElementById('might-hist-modal');
+        if (modal && e.target === modal) closeHistoryModal();
     });
 
     document.addEventListener('keydown', function(e) {
@@ -665,15 +722,15 @@ function initMightUI() {
     });
 }
 
-function openHistoryPanel(side) {
-    renderHistoryPanel(side);
-    const panel = document.getElementById(`might-hist-panel-${side}`);
-    if (panel) panel.classList.add('open');
+function openHistoryModal() {
+    renderHistoryModal();
+    const modal = document.getElementById('might-hist-modal');
+    if (modal) modal.style.display = 'flex';
 }
 
-function closeHistoryPanel(side) {
-    const panel = document.getElementById(`might-hist-panel-${side}`);
-    if (panel) panel.classList.remove('open');
+function closeHistoryModal() {
+    const modal = document.getElementById('might-hist-modal');
+    if (modal) modal.style.display = 'none';
 }
 
 //
