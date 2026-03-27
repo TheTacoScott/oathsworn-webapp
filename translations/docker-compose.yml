@@ -1,0 +1,15 @@
+services:
+  ollama:
+    image: ollama/ollama:latest
+    volumes:
+      - oathsworn-ollama-models:/root/.ollama
+
+  translate:
+    build: .
+    depends_on:
+      - ollama
+    environment:
+      - OLLAMA_URL=http://ollama:11434
+
+volumes:
+  oathsworn-ollama-models:

@@ -2,13 +2,18 @@
 """
 Translate a strings.js file to another language using a local Ollama model.
 
-The Ollama container is started once, all strings are translated, then it
-is stopped. The output file itself acts as the checkpoint: keys present in
-the output but missing from the source are skipped on resume. Re-running
-the same command continues from where it left off.
+Intended to run inside the Docker Compose environment defined alongside this
+script. The only host dependency is Docker - setup.sh handles everything else.
 
-Usage:
-    python3 translations/translate.py <strings.js> --language German [options]
+The output file itself acts as the checkpoint: keys present in the output
+but absent from the source are already done. Re-running the same command
+resumes from where it left off.
+
+Usage (via setup.sh):
+    ./translations/setup.sh web/data/strings.js --language German [options]
+
+Direct usage (inside container):
+    python3 translate.py <strings.js> --language German [options]
 
 Arguments:
     strings_js           Path to the source strings.js file
@@ -23,14 +28,10 @@ import os
 import re
 import sys
 import time
-import subprocess
 import urllib.request
 import urllib.error
 
-OLLAMA_URL = 'http://localhost:11434'
-DOCKER_IMAGE = 'oathsworn-translation'
-CONTAINER_NAME = 'oathsworn-translate-runner'
-OLLAMA_VOLUME = 'oathsworn-ollama-models'
+OLLAMA_URL = os.environ.get('OLLAMA_URL', 'http://localhost:11434')
 
 
 # ---------------------------------------------------------------------------
@@ -56,31 +57,8 @@ def write_strings_js(strings, path, language, source_path):
 
 
 # ---------------------------------------------------------------------------
-# Docker / Ollama management
+# Ollama management
 # ---------------------------------------------------------------------------
-
-def build_image():
-    script_dir = os.path.dirname(os.path.abspath(__file__))
-    print("Building Docker image...")
-    subprocess.run(['docker', 'build', '-t', DOCKER_IMAGE, script_dir], check=True)
-
-
-def start_container():
-    # Clean up any leftover container from a previous interrupted run
-    subprocess.run(['docker', 'rm', '-f', CONTAINER_NAME], capture_output=True)
-    subprocess.run([
-        'docker', 'run', '-d',
-        '--name', CONTAINER_NAME,
-        '-p', '11434:11434',
-        '-v', f'{OLLAMA_VOLUME}:/root/.ollama',
-        DOCKER_IMAGE,
-    ], check=True)
-
-
-def stop_container():
-    subprocess.run(['docker', 'stop', CONTAINER_NAME], capture_output=True)
-    subprocess.run(['docker', 'rm', CONTAINER_NAME], capture_output=True)
-
 
 def wait_for_ollama(timeout=30):
     print("Waiting for Ollama to be ready...", end='', flush=True)
@@ -98,7 +76,7 @@ def wait_for_ollama(timeout=30):
 
 
 def ensure_model(model):
-    """Pull the model if not already present in the volume."""
+    """Pull the model via the Ollama HTTP API if not already present."""
     try:
         resp = urllib.request.urlopen(f'{OLLAMA_URL}/api/tags', timeout=5)
         data = json.loads(resp.read())
@@ -109,8 +87,23 @@ def ensure_model(model):
             return
     except Exception:
         pass
+
     print(f"Pulling model {model} (this may take a while on first run)...")
-    subprocess.run(['docker', 'exec', CONTAINER_NAME, 'ollama', 'pull', model], check=True)
+    payload = json.dumps({'name': model}).encode('utf-8')
+    req = urllib.request.Request(
+        f'{OLLAMA_URL}/api/pull',
+        data=payload,
+        headers={'Content-Type': 'application/json'},
+    )
+    with urllib.request.urlopen(req, timeout=600) as resp:
+        for line in resp:
+            if line.strip():
+                try:
+                    status = json.loads(line).get('status', '')
+                    if status:
+                        print(f"  {status}")
+                except Exception:
+                    pass
 
 
 # ---------------------------------------------------------------------------
@@ -122,7 +115,8 @@ def translate_string(text, language, model):
     prompt = (
         f'Translate the following text to {language}. '
         f'Return only the translated text with no explanation, quotes, or commentary. '
-        f'Preserve all newlines, punctuation, and do not translate proper nouns or character names.\n\n'
+        f'Preserve all newlines, punctuation, and do not translate proper nouns or character names.'
+        f'Examples of things not to translate: Oathsworn, Deepwood.\n\n'
         f'{text}'
     )
     payload = json.dumps({
@@ -180,43 +174,34 @@ def main():
         print(f"Done. Output is at {args.output}")
         return
 
-    # Start container
-    build_image()
-    print("Starting Ollama container...")
-    start_container()
-    try:
-        if not wait_for_ollama(timeout=30):
-            print("Error: Ollama did not become ready in time.")
-            sys.exit(1)
+    if not wait_for_ollama(timeout=30):
+        print("Error: Ollama did not become ready in time.")
+        sys.exit(1)
 
-        ensure_model(args.model)
+    ensure_model(args.model)
 
-        print(f"\nTranslating {len(remaining)} strings to {args.language} using {args.model}...")
-        print(f"  Output: {args.output}\n")
+    print(f"\nTranslating {len(remaining)} strings to {args.language} using {args.model}...")
+    print(f"  Output: {args.output}\n")
 
-        for key, value in remaining:
-            if not value or not value.strip():
+    for key, value in remaining:
+        if not value or not value.strip():
+            done_keys[key] = value
+        else:
+            try:
+                done_keys[key] = translate_string(value, args.language, args.model)
+            except Exception as e:
+                print(f"  WARNING: failed on '{key}': {e} - keeping original")
                 done_keys[key] = value
-            else:
-                try:
-                    done_keys[key] = translate_string(value, args.language, args.model)
-                except Exception as e:
-                    print(f"  WARNING: failed on '{key}': {e} - keeping original")
-                    done_keys[key] = value
 
-            # Write output file after each string - it is the checkpoint
-            write_strings_js(done_keys, args.output, args.language, args.strings_js)
+        # Write output file after each string - it is the checkpoint
+        write_strings_js(done_keys, args.output, args.language, args.strings_js)
 
-            print(f"  [{len(done_keys)}/{total} {len(done_keys)/total*100:.1f}%] {key}")
+        print(f"  [{len(done_keys)}/{total} {len(done_keys)/total*100:.1f}%] {key}")
 
-        # Re-write with keys in original source order
-        translated = {k: done_keys[k] for k in strings if k in done_keys}
-        write_strings_js(translated, args.output, args.language, args.strings_js)
-        print(f"\nDone. Written to {args.output}")
-
-    finally:
-        print("Stopping container...")
-        stop_container()
+    # Re-write with keys in original source order
+    translated = {k: done_keys[k] for k in strings if k in done_keys}
+    write_strings_js(translated, args.output, args.language, args.strings_js)
+    print(f"\nDone. Written to {args.output}")
 
 
 if __name__ == '__main__':
