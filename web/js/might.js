@@ -398,30 +398,13 @@ function updateLockStates() {
 }
 
 // Updates the staging bar text and Draw button enabled state.
-// Clear/Draw buttons are always visible; Draw is enabled only when staged > 0.
 function updateStagingBar() {
-    const total    = mightTotalStaged();
-    const infoEl   = document.getElementById('might-staged-info');
-    const drawBtn  = document.getElementById('btn-might-draw');
+    const total   = mightTotalStaged();
+    const infoEl  = document.getElementById('might-staged-info');
+    const drawBtn = document.getElementById('btn-might-draw');
     if (!infoEl) return;
 
-    if (total > 0) {
-        // New staging clears the previous draw result
-        mightLastResult = null;
-        const parts = [];
-        for (const side of MIGHT_SIDES) {
-            for (const color of MIGHT_COLORS) {
-                const deck = mightDecks[mightKey(side, color)];
-                if (deck.staged > 0) {
-                    const sl = side === 'player' ? 'P' : 'M';
-                    parts.push(`${MIGHT_COLOR_CFG[color].label} (${sl}) x${deck.staged}`);
-                }
-            }
-        }
-        infoEl.textContent = `Staged: ${parts.join(', ')}`;
-        if (drawBtn) drawBtn.disabled = false;
-    } else if (mightLastResult) {
-        // Show the combined draw result, labelled by which side drew, with damage
+    if (mightLastResult) {
         const sideLabel = mightLastResult.side === 'player' ? 'Player' : 'Monster';
         const damage    = Math.floor(mightLastResult.total / Math.max(mightDefense, 1));
         const dmgHtml   =
@@ -439,11 +422,11 @@ function updateStagingBar() {
                 `<span class="might-result-total">${mightLastResult.total}</span>` +
                 dmgHtml;
         }
-        if (drawBtn) drawBtn.disabled = true;
     } else {
         infoEl.textContent = 'Click a deck to stage cards';
-        if (drawBtn) drawBtn.disabled = true;
     }
+
+    if (drawBtn) drawBtn.disabled = total === 0;
     updateLockStates();
 }
 
