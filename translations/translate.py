@@ -219,6 +219,9 @@ def translate_string(text, language, model):
     """Send one string to the Ollama API and return the translated text."""
     terms_list = ', '.join(GAME_TERMS)
     prompt = (
+        f'You are translating narrative text from a cooperative fantasy board game storybook. '
+        f'The text may contain story passages, player instructions, or choice menus (e.g. "Choose one:" followed by options). '
+        f'Translate every line completely - do not pick or act on any choices, just translate all of the text as-is. '
         f'Translate the text below to {language}. '
         f'Return only the translated text with no explanation, quotes, or commentary. '
         f'Preserve all newlines and punctuation. '
