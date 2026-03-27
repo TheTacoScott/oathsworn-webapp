@@ -235,7 +235,7 @@ function buildIsoCubeSVG(color) {
     const left  = '20,22  1,12  1,33 20,42';
     const right = '20,22 39,12 39,33 20,42';
     return (
-        `<svg viewBox="0 0 40 43" width="40" height="42" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">` +
+        `<svg viewBox="0 0 40 43" width="58" height="62" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">` +
         `<polygon points="${top}"   fill="${c.cubeTop}"/>` +
         `<polygon points="${left}"  fill="${c.cubeLeft}"/>` +
         `<polygon points="${right}" fill="${c.cubeRight}"/>` +
