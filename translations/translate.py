@@ -26,6 +26,7 @@ import argparse
 import json
 import os
 import re
+import shutil
 import sys
 import time
 import urllib.request
@@ -93,7 +94,7 @@ def check_translation(original, translated):
 
 
 # ---------------------------------------------------------------------------
-# strings.js parsing / writing
+# strings.js parsing / writing / replacing
 # ---------------------------------------------------------------------------
 
 def parse_strings_js(path):
@@ -103,6 +104,27 @@ def parse_strings_js(path):
     if not m:
         raise ValueError(f"Could not find STRINGS object in {path}")
     return json.loads(m.group(1))
+
+
+def replace_strings_js(strings_js_path, translated_path):
+    """Swap translated_path into strings_js_path, backing up the original as strings_en.js.
+
+    The backup is only written once - if strings_en.js already exists it is
+    left untouched. This means re-running setup.sh (which regenerates strings.js
+    from the APK) followed by this script will re-swap correctly without
+    clobbering the English backup with a previously-translated strings.js.
+    """
+    dirpath = os.path.dirname(os.path.abspath(strings_js_path))
+    backup_path = os.path.join(dirpath, 'strings_en.js')
+
+    if not os.path.exists(backup_path):
+        shutil.copy2(strings_js_path, backup_path)
+        print(f"  Backed up original English strings to {backup_path}")
+    else:
+        print(f"  English backup already exists at {backup_path}, leaving it alone")
+
+    shutil.copy2(translated_path, strings_js_path)
+    print(f"  Replaced {strings_js_path} with translated version")
 
 
 def write_strings_js(strings, path, language, source_path):
@@ -207,6 +229,10 @@ def main():
                         help='Output path for translated strings.js')
     parser.add_argument('--model', '-m', default='translategemma:4b',
                         help='Ollama model to use (default: translategemma:4b)')
+    parser.add_argument('--replace', default=True, action=argparse.BooleanOptionalAction,
+                        help='Replace strings.js with the translated version once all keys '
+                             'are complete with no skips. Backs up the original as '
+                             'strings_en.js (only on first run). Default: on.')
     args = parser.parse_args()
 
     # Resolve output path
@@ -230,7 +256,10 @@ def main():
     remaining = [(k, v) for k, v in strings.items() if k not in done_keys]
     if not remaining:
         print("  Nothing left to translate.")
-        print(f"Done. Output is at {args.output}")
+        if args.replace:
+            print("\nAll keys complete - replacing strings.js...")
+            replace_strings_js(args.strings_js, args.output)
+        print(f"\nDone. Output is at {args.output}")
         return
 
     if not wait_for_ollama(timeout=30):
@@ -267,7 +296,17 @@ def main():
     # Re-write with keys in original source order
     translated = {k: done_keys[k] for k in strings if k in done_keys}
     write_strings_js(translated, args.output, args.language, args.strings_js)
-    print(f"\nDone. Written to {args.output}")
+
+    skipped = total - len(done_keys)
+    if skipped:
+        print(f"\n{skipped} key(s) skipped due to failures - run again to retry them.")
+        print(f"Output (partial) written to {args.output}")
+    else:
+        print(f"\nAll {total} keys translated successfully.")
+        if args.replace:
+            print("Replacing strings.js...")
+            replace_strings_js(args.strings_js, args.output)
+        print(f"Done. Output written to {args.output}")
 
 
 if __name__ == '__main__':
