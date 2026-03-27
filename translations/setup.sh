@@ -55,5 +55,5 @@ echo "Translating ${STRINGS_JS_HOST}"
 docker run --rm \
     --network "$NETWORK" \
     -e OLLAMA_URL="http://$OLLAMA_CONTAINER:11434" \
-    -v "$STRINGS_JS_DIR:/data" \
+    -v "$STRINGS_JS_DIR:/data:z" \
     oathsworn-translation python3 -u /app/translate.py "/data/$STRINGS_JS_FILE" "$@"
