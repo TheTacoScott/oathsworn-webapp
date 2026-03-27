@@ -26,11 +26,13 @@ This pipeline is for languages that have no official translation and must be mac
 
 ## Quick start
 
+> **The input `strings.js` MUST be the English one.** The script verifies this at startup and will refuse to run if the source file looks like it has already been translated. If `strings.js` has previously been replaced with a translation, restore the English original first (it is backed up as `strings_original.js` in the same directory).
+
 ```bash
 ./translations/setup.sh web/data/strings.js --language French
 ```
 
-That's it. When it finishes, `web/data/strings.js` contains the French translation and `web/data/strings_original.js` holds the original (English or possibly German) backup.
+That's it. When it finishes, `web/data/strings.js` contains the French translation and `web/data/strings_original.js` holds the original English backup.
 
 ---
 
