@@ -120,6 +120,14 @@ To write the web output to a different directory:
 - Gradient overlay on the story text area that fades with scroll position
 - Scroll indicators on the chapter list
 
+### Might Decks
+- Card draw assistant for combat encounters
+- Tracks drawn cards, criticals, and critical chains across all four deck colors (White, Yellow, Red, Black)
+- Left-click or right-click a deck card back to increase or decrease the draw count; mouse wheel also works
+- Left-click or right-click the defense widget to adjust defense value; mouse wheel also works
+- Draw More to add cards to the current result without clearing; disable individual cards to exclude them from the total
+- Draw history tracks all draws for the session
+
 ### Bug reporting
 - Built-in bug report button that captures current section, chapter, and full save state
 - Pre-fills a report ready to copy and paste into a GitHub issue
