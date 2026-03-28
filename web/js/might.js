@@ -485,13 +485,9 @@ function updateStagingBar() {
     if (mightLastResult) {
         const sideLabel = mightLastResult.side === 'player' ? 'Player' : 'Monster';
         if (mightLastResult.isMiss) {
-            infoEl.innerHTML =
-                `<span class="might-result-miss">${sideLabel} MISS</span>` +
-                `<span class="might-result-miss-score"> (${mightLastResult.total})</span>`;
+            infoEl.innerHTML = `<span class="might-result-miss">${sideLabel} MISS</span>`;
         } else {
-            infoEl.innerHTML =
-                `<span class="might-result-label">${sideLabel} Total: </span>` +
-                `<span class="might-result-total">${mightLastResult.total}</span>`;
+            infoEl.innerHTML = `<span class="might-result-label">${sideLabel}</span>`;
         }
     } else {
         infoEl.textContent = 'Click a deck to stage cards';
