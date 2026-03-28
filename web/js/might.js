@@ -384,7 +384,7 @@ function buildOverlayHTML() {
                 `</div>` +
                 `<div class="might-damage-result" id="might-damage-result">` +
                     `<span class="might-damage-eq">=</span>` +
-                    `<span class="might-damage-out" id="might-damage-out">0</span>` +
+                    `<span class="might-damage-out" id="might-damage-out">0 damage</span>` +
                 `</div>` +
                 `<div class="might-staging-bar-actions">` +
                     `<button id="btn-might-clear-draw" class="btn btn-ghost-game btn-draw-might" disabled>Clear</button>` +
