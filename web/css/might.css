@@ -126,6 +126,7 @@
     gap: 0.75rem;
     flex-shrink: 0;
     padding: 0 0.5rem;
+    min-width: 10rem;
 }
 
 .might-damage-eq {
@@ -141,7 +142,7 @@
     font-weight: 700;
     color: #6699dd;
     text-shadow: 0 0 10px rgba(100, 150, 255, 0.4);
-    min-width: 2ch;
+    min-width: 8rem;
     text-align: left;
     line-height: 1;
 }
@@ -164,6 +165,7 @@
     cursor: pointer;
     user-select: none;
     padding: 0 0.4rem;
+    min-width: 7rem;
 }
 
 .might-attack-display {
@@ -177,7 +179,7 @@
     font-size: 1.1rem;
     font-weight: 700;
     color: var(--color-text-dim);
-    min-width: 2ch;
+    min-width: 2.5rem;
     text-align: center;
     line-height: 1;
     display: none;
@@ -188,7 +190,7 @@
     font-size: 1.1rem;
     font-weight: 700;
     color: #e05555;
-    min-width: 2ch;
+    min-width: 2.5rem;
     text-align: center;
     line-height: 1;
 }
@@ -215,6 +217,7 @@
     cursor: pointer;
     user-select: none;
     padding: 0 0.4rem;
+    min-width: 5.5rem;
 }
 
 .might-defense-display {
@@ -228,7 +231,7 @@
     font-size: 1.1rem;
     font-weight: 700;
     color: #6699dd;
-    min-width: 1.5ch;
+    min-width: 2rem;
     text-align: center;
     line-height: 1;
 }
