@@ -188,7 +188,7 @@ const HELP_CONTENT = {
         body: `
             <div class="help-section">
                 <h5 class="help-heading">The Decks</h5>
-                <p>There are four deck colors per side (Players and Monsters). Use <strong>+</strong> and <strong>-</strong> to set the size of each deck before drawing.</p>
+                <p>There are four deck colors per side (Players and Monsters). Use <strong>+</strong> and <strong>-</strong> to set the size of each deck before drawing. You can also left-click or right-click the card back to increase or decrease the count, or scroll the mouse wheel over it.</p>
             </div>
             <div class="help-section">
                 <h5 class="help-heading">Drawing Cards</h5>
