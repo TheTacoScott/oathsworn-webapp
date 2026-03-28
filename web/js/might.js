@@ -148,7 +148,9 @@ for (const side of MIGHT_SIDES) {
 let mightUIBuilt      = false;
 let mightSessionId    = 0;   // increments on each Draw click
 let mightLastResult   = null; // { total, isMiss, side } - cleared when new cards are staged
-let mightDefense      = 2;   // defense value for damage calc; range 0-20, 0 acts like 1
+let mightDefense        = 2;   // defense value for damage calc; range 0-20, 0 acts like 1
+let mightAttack         = 0;   // manually-adjustable attack value; seeded from draw result; range 0-100
+let mightAttackNatural  = 0;   // natural attack value from most recent draw (before manual adjustment)
 // Combined side-level history. One entry per Draw click:
 //   { sessionId, side, cards: [{...card, cfg}], total, isMiss }
 let mightSessionHistory = [];
@@ -220,6 +222,14 @@ function mightDrawRound(deck, sessionId) {
 //  [MIGHT_SVG]
 // ============================================================================
 //
+
+function buildBloodDropSVG() {
+    return (
+        `<svg viewBox="0 0 24 28" width="20" height="24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" style="display:block;flex-shrink:0">` +
+        `<path d="M12 3 C12 3 5 13 5 18 A7 7 0 0 0 19 18 C19 13 12 3 12 3 Z" fill="#cc2222" stroke="#991111" stroke-width="1"/>` +
+        `</svg>`
+    );
+}
 
 function buildShieldSVG() {
     return (
@@ -350,6 +360,17 @@ function buildOverlayHTML() {
             `</div>` +
             `<div class="might-staging-bar">` +
                 `<span class="might-staged-info" id="might-staged-info">Click a deck to stage cards</span>` +
+                `<div class="might-attack-widget" id="might-attack-widget" title="Attack — left-click or scroll up to increase, right-click or scroll down to decrease">` +
+                    `<div class="might-attack-display">` +
+                        buildBloodDropSVG() +
+                        `<span class="might-attack-value" id="might-attack-value">0</span>` +
+                        `<span class="might-attack-sync" id="might-attack-sync" title="Attack modified from drawn value">&#9679;</span>` +
+                    `</div>` +
+                    `<div class="might-defense-ctrl">` +
+                        `<button class="btn btn-ghost-game btn-sm might-btn-atk-dec" title="Decrease attack">&#8722;</button>` +
+                        `<button class="btn btn-ghost-game btn-sm might-btn-atk-inc" title="Increase attack">&#43;</button>` +
+                    `</div>` +
+                `</div>` +
                 `<div class="might-defense-widget" id="might-defense-widget" title="Defense — left-click or scroll up to increase, right-click or scroll down to decrease">` +
                     `<div class="might-defense-display">` +
                         buildShieldSVG() +
@@ -407,6 +428,19 @@ function setMightDefense(value) {
     updateStagingBar();
 }
 
+function setMightAttack(value) {
+    mightAttack = Math.max(0, Math.min(100, value));
+    updateAttackWidget();
+    updateStagingBar();
+}
+
+function updateAttackWidget() {
+    const valueEl = document.getElementById('might-attack-value');
+    if (valueEl) valueEl.textContent = mightAttack;
+    const syncEl = document.getElementById('might-attack-sync');
+    if (syncEl) syncEl.style.visibility = (mightLastResult && mightAttack !== mightAttackNatural) ? 'visible' : 'hidden';
+}
+
 // Locks card backs on the side opposite to the currently staged side.
 // When nothing is staged, all card backs are unlocked.
 function updateLockStates() {
@@ -420,6 +454,7 @@ function updateLockStates() {
 
 // Updates the staging bar text and Draw button enabled state.
 function updateStagingBar() {
+    updateAttackWidget();
     const total   = mightTotalStaged();
     const infoEl  = document.getElementById('might-staged-info');
     const drawBtn = document.getElementById('btn-might-draw');
@@ -429,7 +464,7 @@ function updateStagingBar() {
         const sideLabel = mightLastResult.side === 'player' ? 'Player' : 'Monster';
         const damage    = mightLastResult.isMiss
             ? 0
-            : Math.floor(mightLastResult.total / Math.max(mightDefense, 1));
+            : Math.floor(mightAttack / Math.max(mightDefense, 1));
         const dmgHtml   =
             `<span class="might-damage-sep"> &nbsp;/&nbsp; </span>` +
             `<span class="might-damage-label">Dmg: </span>` +
@@ -580,6 +615,8 @@ function handleClearAllStaged() {
 function handleClearDrawArea() {
     mightLastDrawCards = [];
     mightLastResult    = null;
+    mightAttack        = 0;
+    mightAttackNatural = 0;
     renderSharedDrawnArea();
     updateStagingBar();
 }
@@ -592,6 +629,10 @@ function handleToggleCard(index) {
     const el = document.querySelector(`.might-shared-drawn [data-card-index="${index}"]`);
     if (el) el.classList.toggle('card-disabled', card.disabled);
     mightLastResult = computeLiveResult();
+    const natural = mightLastResult ? (mightLastResult.isMiss ? 0 : mightLastResult.total) : 0;
+    // If attack was in sync with the old natural, keep it in sync with the new one.
+    if (mightAttack === mightAttackNatural) mightAttack = natural;
+    mightAttackNatural = natural;
     updateStagingBar();
 }
 
@@ -634,6 +675,9 @@ function handleDrawMore() {
     }
 
     mightLastResult = computeLiveResult();
+    const natural = mightLastResult ? (mightLastResult.isMiss ? 0 : mightLastResult.total) : 0;
+    if (mightAttack === mightAttackNatural) mightAttack = natural;
+    mightAttackNatural = natural;
     updateStagingBar();
 }
 
@@ -669,6 +713,9 @@ function handleDraw() {
         sessionCards.sort((a, b) => MIGHT_COLOR_ORDER[a.color] - MIGHT_COLOR_ORDER[b.color]);
         mightLastDrawCards = [...sessionCards];
         mightLastResult = computeLiveResult();
+        const natural = mightLastResult ? (mightLastResult.isMiss ? 0 : mightLastResult.total) : 0;
+        mightAttack = natural;
+        mightAttackNatural = natural;
         renderSharedDrawnArea();
         mightSessionHistory.push({
             sessionId: mightSessionId,
@@ -690,6 +737,8 @@ function handleResetAll() {
     }
     mightLastResult    = null;
     mightLastDrawCards = [];
+    mightAttack        = 0;
+    mightAttackNatural = 0;
     renderSharedDrawnArea();
     updateStagingBar();
 }
@@ -721,6 +770,16 @@ function initMightUI() {
         const stageBtn = e.target.closest('.might-btn-stage');
         if (stageBtn) { handleStage(stageBtn.dataset.key); return; }
 
+        // Attack widget: +/- buttons handled first, then bare widget click = increase
+        const atkIncBtn = e.target.closest('.might-btn-atk-inc');
+        if (atkIncBtn) { setMightAttack(mightAttack + 1); return; }
+
+        const atkDecBtn = e.target.closest('.might-btn-atk-dec');
+        if (atkDecBtn) { setMightAttack(mightAttack - 1); return; }
+
+        const atkWidget = e.target.closest('.might-attack-widget');
+        if (atkWidget) { setMightAttack(mightAttack + 1); return; }
+
         // Defense widget: +/- buttons handled first, then bare widget click = increase
         const defIncBtn = e.target.closest('.might-btn-def-inc');
         if (defIncBtn) { setMightDefense(mightDefense + 1); return; }
@@ -733,6 +792,9 @@ function initMightUI() {
     });
 
     overlay.addEventListener('contextmenu', function(e) {
+        const atkWidget = e.target.closest('.might-attack-widget');
+        if (atkWidget) { e.preventDefault(); setMightAttack(mightAttack - 1); return; }
+
         const defWidget = e.target.closest('.might-defense-widget');
         if (defWidget) { e.preventDefault(); setMightDefense(mightDefense - 1); return; }
 
@@ -752,6 +814,13 @@ function initMightUI() {
             e.preventDefault();
             if (e.deltaY < 0) { handleStage(cb.dataset.key); }
             else { handleUnstage(cb.dataset.key); }
+            return;
+        }
+        const atkWidget = e.target.closest('.might-attack-widget');
+        if (atkWidget) {
+            e.preventDefault();
+            if (e.deltaY < 0) { setMightAttack(mightAttack + 1); }
+            else { setMightAttack(mightAttack - 1); }
             return;
         }
         const defWidget = e.target.closest('.might-defense-widget');
