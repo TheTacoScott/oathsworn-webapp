@@ -172,6 +172,17 @@
     gap: 0.25rem;
 }
 
+.might-card-total {
+    font-family: var(--font-title);
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--color-text-dim);
+    min-width: 2ch;
+    text-align: center;
+    line-height: 1;
+    display: none;
+}
+
 .might-attack-value {
     font-family: var(--font-title);
     font-size: 1.1rem;

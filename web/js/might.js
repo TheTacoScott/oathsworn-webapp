@@ -362,6 +362,7 @@ function buildOverlayHTML() {
                 `<span class="might-staged-info" id="might-staged-info">Click a deck to stage cards</span>` +
                 `<div class="might-attack-widget" id="might-attack-widget" title="Attack — left-click or scroll up to increase, right-click or scroll down to decrease">` +
                     `<div class="might-attack-display">` +
+                        `<span class="might-card-total" id="might-card-total"></span>` +
                         buildBloodDropSVG() +
                         `<span class="might-attack-value" id="might-attack-value">0</span>` +
                         `<span class="might-attack-sync" id="might-attack-sync" title="Attack modified from drawn value">&#9679;</span>` +
@@ -443,6 +444,15 @@ function updateAttackWidget() {
     if (valueEl) valueEl.textContent = mightAttack;
     const syncEl = document.getElementById('might-attack-sync');
     if (syncEl) syncEl.style.visibility = (mightLastResult && mightAttack !== mightAttackNatural) ? 'visible' : 'hidden';
+    const cardTotalEl = document.getElementById('might-card-total');
+    if (cardTotalEl) {
+        if (mightLastResult) {
+            cardTotalEl.textContent = mightAttackNatural;
+            cardTotalEl.style.display = '';
+        } else {
+            cardTotalEl.style.display = 'none';
+        }
+    }
 }
 
 // Locks card backs on the side opposite to the currently staged side.
