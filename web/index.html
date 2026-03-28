@@ -104,6 +104,7 @@
             <span id="game-time" class="game-time-display">TIME: 0</span>
             <div class="d-flex gap-2">
                 <button id="btn-settings-game" class="btn btn-ghost-game" title="Settings"><img src="data/ui/settings.png" class="settings-icon" alt="Settings"></button>
+                <button id="btn-help-game" class="btn btn-ghost-game" title="Help">?</button>
                 <button id="btn-might-open" class="btn btn-ghost-game">Might Decks</button>
                 <button id="btn-bug-report" class="btn btn-ghost-game">Bug Report</button>
                 <button id="btn-game-menu" class="btn btn-ghost-game">Exit to Chapter Select</button>
@@ -184,6 +185,22 @@
                 </label>
                 <p class="settings-desc">Advance to the next audio track automatically when one finishes.</p>
             </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- ============================================================
+     HELP MODAL
+     ============================================================ -->
+<div id="help-modal" class="bug-modal-overlay" style="display:none">
+    <div class="help-modal">
+        <div class="bug-modal-header">
+            <span id="help-modal-title" class="bug-modal-title"></span>
+            <button id="btn-help-modal-close" class="btn btn-ghost-game btn-sm">&#10005;</button>
+        </div>
+        <div id="help-modal-body" class="help-modal-body">
+            <!-- populated by openHelpModal() -->
         </div>
     </div>
 </div>
