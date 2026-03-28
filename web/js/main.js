@@ -152,6 +152,85 @@ function openSettingsModal() {
     $('#settings-modal').css('display', 'flex');
 }
 
+const HELP_CONTENT = {
+    game: {
+        title: 'How to Play',
+        body: `
+            <div class="help-section">
+                <h5 class="help-heading">Navigating the Story</h5>
+                <p>Read the text on screen, then choose an option below:</p>
+                <ul>
+                    <li><span class="help-tag help-tag-choice">Green buttons</span> are story choices - they advance the narrative.</li>
+                    <li><span class="help-tag help-tag-location">Purple buttons</span> are locations - places you can revisit at any time.</li>
+                    <li><span class="help-tag help-tag-popup">Red buttons</span> are pop-up events triggered by the story.</li>
+                </ul>
+            </div>
+            <div class="help-section">
+                <h5 class="help-heading">Time</h5>
+                <p>The TIME counter in the header tracks your story time. At certain values the story will redirect you to a time-track section automatically.</p>
+            </div>
+            <div class="help-section">
+                <h5 class="help-heading">Narration &amp; Audio</h5>
+                <p>If narration is available, the audio player appears below the text. Use the prev/next arrows to step between tracks. Enable <em>Auto Start Narration</em> in Settings to have it begin automatically.</p>
+            </div>
+            <div class="help-section">
+                <h5 class="help-heading">Auto-Scroll</h5>
+                <p>When narration is playing, the page can scroll automatically to match. Scrolling manually pauses it; click the pause bar to resume. Toggle this in Settings.</p>
+            </div>
+            <div class="help-section">
+                <h5 class="help-heading">Might Decks</h5>
+                <p>The <em>Might Decks</em> button opens the card draw assistant. Use it during combat to draw and tally results from the might decks.</p>
+            </div>
+        `
+    },
+    might: {
+        title: 'Might Decks',
+        body: `
+            <div class="help-section">
+                <h5 class="help-heading">The Decks</h5>
+                <p>There are four deck colors per side (Players and Monsters). Use <strong>+</strong> and <strong>-</strong> to set the size of each deck before drawing.</p>
+            </div>
+            <div class="help-section">
+                <h5 class="help-heading">Drawing Cards</h5>
+                <ul>
+                    <li><strong>Clear &amp; Draw</strong> - resets the draw area and draws one card per active deck for the chosen side.</li>
+                    <li><strong>Draw More</strong> - adds another round of cards to the current result (for effects that grant extra draws).</li>
+                    <li><strong>Clear</strong> - wipes the drawn cards without drawing new ones.</li>
+                </ul>
+            </div>
+            <div class="help-section">
+                <h5 class="help-heading">Disabling Cards</h5>
+                <p>Click any drawn card to disable it. Disabled cards are crossed out and excluded from the total. Use this when a game effect lets you ignore a drawn card. Click again to re-enable.</p>
+            </div>
+            <div class="help-section">
+                <h5 class="help-heading">Miss</h5>
+                <p>If a player draw contains two or more blank (0) initial cards, the result is a <strong>Miss</strong> - no damage is dealt regardless of other cards.</p>
+            </div>
+            <div class="help-section">
+                <h5 class="help-heading">Defense &amp; Damage</h5>
+                <p>Enter the target's defense value in the center field. The app shows net damage after subtracting defense from the total.</p>
+            </div>
+            <div class="help-section">
+                <h5 class="help-heading">History</h5>
+                <p>The <em>History</em> button shows all draws from this session, newest first. Use <em>Clear History</em> to wipe it. History is not saved between visits.</p>
+            </div>
+            <div class="help-section">
+                <h5 class="help-heading">Reshuffle All</h5>
+                <p>Resets all decks to their full sizes and clears the drawn area. Use this at the start of a new combat round.</p>
+            </div>
+        `
+    }
+};
+
+function openHelpModal(contextId) {
+    const content = HELP_CONTENT[contextId];
+    if (!content) return;
+    document.getElementById('help-modal-title').textContent = content.title;
+    document.getElementById('help-modal-body').innerHTML = content.body;
+    $('#help-modal').css('display', 'flex');
+}
+window.openHelpModal = openHelpModal;
+
 let settings = loadSettings();
 
 //
@@ -1081,11 +1160,19 @@ $(function() {
 
     $('#btn-settings-close').on('click', function() { $('#settings-modal').hide(); });
 
+    // Help modal
+    $('#btn-help-game').on('click', function() { openHelpModal('game'); });
+    $('#btn-help-modal-close').on('click', function() { $('#help-modal').hide(); });
+    $('#help-modal').on('click', function(e) { if (e.target === this) $(this).hide(); });
+
     $('#image-lightbox').on('click', function() { $(this).hide(); });
 
     $(document).on('keydown', function(e) {
         if (e.key === 'Escape' && $('#image-lightbox').is(':visible')) {
             $('#image-lightbox').hide();
+        }
+        if (e.key === 'Escape' && $('#help-modal').is(':visible')) {
+            $('#help-modal').hide();
         }
     });
 
