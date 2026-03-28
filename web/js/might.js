@@ -381,6 +381,10 @@ function buildOverlayHTML() {
                         `<button class="btn btn-ghost-game btn-sm might-btn-def-inc" title="Increase defense">&#43;</button>` +
                     `</div>` +
                 `</div>` +
+                `<div class="might-damage-result" id="might-damage-result">` +
+                    `<span class="might-damage-eq">=</span>` +
+                    `<span class="might-damage-out" id="might-damage-out">0</span>` +
+                `</div>` +
                 `<div class="might-staging-bar-actions">` +
                     `<button id="btn-might-clear-draw" class="btn btn-ghost-game btn-draw-might" disabled>Clear</button>` +
                     `<button id="btn-might-draw-more"  class="btn btn-ghost-game btn-draw-might" disabled>Draw More</button>` +
@@ -460,25 +464,24 @@ function updateStagingBar() {
     const drawBtn = document.getElementById('btn-might-draw');
     if (!infoEl) return;
 
+    const isMiss = mightLastResult && mightLastResult.isMiss;
+    const damage = isMiss ? 0 : Math.floor(mightAttack / Math.max(mightDefense, 1));
+    const dmgEl  = document.getElementById('might-damage-out');
+    if (dmgEl) {
+        dmgEl.textContent = damage;
+        dmgEl.classList.toggle('might-damage-out-miss', !!isMiss);
+    }
+
     if (mightLastResult) {
         const sideLabel = mightLastResult.side === 'player' ? 'Player' : 'Monster';
-        const damage    = mightLastResult.isMiss
-            ? 0
-            : Math.floor(mightAttack / Math.max(mightDefense, 1));
-        const dmgHtml   =
-            `<span class="might-damage-sep"> &nbsp;/&nbsp; </span>` +
-            `<span class="might-damage-label">Dmg: </span>` +
-            `<span class="might-damage-value">${damage}</span>`;
         if (mightLastResult.isMiss) {
             infoEl.innerHTML =
                 `<span class="might-result-miss">${sideLabel} MISS</span>` +
-                `<span class="might-result-miss-score"> (${mightLastResult.total})</span>` +
-                dmgHtml;
+                `<span class="might-result-miss-score"> (${mightLastResult.total})</span>`;
         } else {
             infoEl.innerHTML =
                 `<span class="might-result-label">${sideLabel} Total: </span>` +
-                `<span class="might-result-total">${mightLastResult.total}</span>` +
-                dmgHtml;
+                `<span class="might-result-total">${mightLastResult.total}</span>`;
         }
     } else {
         infoEl.textContent = 'Click a deck to stage cards';
