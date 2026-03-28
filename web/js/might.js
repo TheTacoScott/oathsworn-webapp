@@ -478,7 +478,7 @@ function updateStagingBar() {
     const damage = isMiss ? 0 : Math.floor(mightAttack / Math.max(mightDefense, 1));
     const dmgEl  = document.getElementById('might-damage-out');
     if (dmgEl) {
-        dmgEl.textContent = damage;
+        dmgEl.textContent = `${damage} damage`;
         dmgEl.classList.toggle('might-damage-out-miss', !!isMiss);
     }
 
