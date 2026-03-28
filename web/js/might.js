@@ -345,7 +345,6 @@ function buildOverlayHTML() {
                 `<div class="d-flex gap-2 align-items-center">` +
                     `<button id="btn-might-history"   class="btn btn-ghost-game btn-sm">History</button>` +
                     `<button id="btn-might-reset-all" class="btn btn-ghost-game btn-sm">Reshuffle All</button>` +
-                    `<button id="btn-might-help"      class="btn btn-ghost-game btn-sm" title="Help">?</button>` +
                     `<button id="btn-might-close"     class="btn btn-ghost-game btn-sm">&#10005;</button>` +
                 `</div>` +
             `</div>` +
@@ -775,9 +774,6 @@ function initMightUI() {
         closeHistoryModal();
     });
     document.getElementById('btn-might-reset-all').addEventListener('click', handleResetAll);
-    document.getElementById('btn-might-help').addEventListener('click', function() {
-        if (window.openHelpModal) window.openHelpModal('might');
-    });
     document.getElementById('btn-might-close').addEventListener('click', closeMightOverlay);
 
     overlay.addEventListener('click', function(e) {
