@@ -140,6 +140,46 @@
 }
 
 /* ------------------------------------------------------------------
+   Attack widget (staging bar)
+   ------------------------------------------------------------------ */
+
+.might-attack-widget {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.2rem;
+    flex-shrink: 0;
+    cursor: pointer;
+    user-select: none;
+    padding: 0 0.4rem;
+}
+
+.might-attack-display {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.might-attack-value {
+    font-family: var(--font-title);
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #e05555;
+    min-width: 2ch;
+    text-align: center;
+    line-height: 1;
+}
+
+.might-attack-sync {
+    font-size: 0.55rem;
+    color: #e8a020;
+    visibility: hidden;
+    line-height: 1;
+    align-self: flex-start;
+    margin-top: 0.1rem;
+}
+
+/* ------------------------------------------------------------------
    Defense widget (staging bar)
    ------------------------------------------------------------------ */
 
