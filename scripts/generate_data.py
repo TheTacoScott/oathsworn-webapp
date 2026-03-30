@@ -609,7 +609,6 @@ def main():
     with open(strings_path, 'w', encoding='utf-8') as f:
         f.write('// Auto-generated from res/values/strings.xml\n')
         f.write('window.STRINGS = window.STRINGS || {};\n')
-        f.write('STRINGS.__namespaced = true;\n')
         f.write('STRINGS["en"] = ')
         f.write(json.dumps(strings, ensure_ascii=False, indent=2))
         f.write(';\n')
