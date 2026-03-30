@@ -126,10 +126,15 @@ def check_english_fingerprint(strings):
 def parse_strings_js(path):
     with open(path, 'r', encoding='utf-8') as f:
         content = f.read()
+    # New namespaced format: STRINGS["en"] = { ... }; or STRINGS['en'] = { ... };
+    m = re.search(r'STRINGS\[["\']\w+["\']\]\s*=\s*(?:Object\.assign\([^,]+,\s*)?(\{.*?\})\s*\)?;', content, re.DOTALL)
+    if m:
+        return json.loads(m.group(1))
+    # Old flat format: const STRINGS = { ... };
     m = re.search(r'const STRINGS\s*=\s*(\{.*\});', content, re.DOTALL)
-    if not m:
-        raise ValueError(f"Could not find STRINGS object in {path}")
-    return json.loads(m.group(1))
+    if m:
+        return json.loads(m.group(1))
+    raise ValueError(f"Could not find STRINGS object in {path}")
 
 
 def replace_strings_js(strings_js_path, translated_path):
@@ -153,11 +158,33 @@ def replace_strings_js(strings_js_path, translated_path):
     print(f"  Replaced {strings_js_path} with translated version")
 
 
+LANGUAGE_CODES = {
+    'german':     'de',
+    'french':     'fr',
+    'spanish':    'es',
+    'italian':    'it',
+    'portuguese': 'pt',
+    'polish':     'pl',
+    'dutch':      'nl',
+    'russian':    'ru',
+    'japanese':   'ja',
+    'chinese':    'zh',
+    'korean':     'ko',
+}
+
+
+def language_code(language_name):
+    """Return the ISO 639-1 code for a language name, or a slugified fallback."""
+    return LANGUAGE_CODES.get(language_name.lower().replace(' ', '_'), language_name.lower()[:2])
+
+
 def write_strings_js(strings, path, language, source_path):
     """Write a (partial or complete) STRINGS dict to a strings.js file."""
+    lang_code = language_code(language)
     with open(path, 'w', encoding='utf-8') as f:
         f.write(f'// Auto-generated: {language} translation of {os.path.basename(source_path)}\n')
-        f.write('const STRINGS = ')
+        f.write('window.STRINGS = window.STRINGS || {};\n')
+        f.write(f'STRINGS["{lang_code}"] = ')
         f.write(json.dumps(strings, ensure_ascii=False, indent=2, sort_keys=True))
         f.write(';\n')
 
@@ -267,10 +294,10 @@ def main():
     args = parser.parse_args()
 
     # Resolve output path
-    lang_slug = args.language.lower().replace(' ', '_')
+    lang_code = language_code(args.language)
     if args.output is None:
         base, _ = os.path.splitext(args.strings_js)
-        args.output = f'{base}_{lang_slug}.js'
+        args.output = f'{base}_{lang_code}.js'
 
     # Parse source strings
     print(f"Reading {args.strings_js}...")

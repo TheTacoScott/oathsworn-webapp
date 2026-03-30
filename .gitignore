@@ -5,7 +5,9 @@ app/
 cache/
 
 # Generated data files - run scripts/generate_data.py to generate
-web/data/
+# Note: uses glob (not trailing slash) so hand-authored files can be un-negated below
+web/data/*
+!web/data/ui_strings.js
 
 # Claude Code local config (machine-specific paths and permissions)
 .claude/
