@@ -29,6 +29,7 @@ import argparse
 import json
 import math
 import os
+import random
 import re
 import sys
 import time
@@ -347,7 +348,7 @@ def main():
     print(f"\nTranslating {len(remaining)} strings to {lang_name or lang_code} using {args.model}...")
     print(f"  Output: {args.output}\n")
 
-    for key, value in remaining:
+    for key, value in random.sample(remaining,k=len(remaining)):
         if not value or not value.strip():
             done_keys[key] = value
         else:
