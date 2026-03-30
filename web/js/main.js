@@ -1050,6 +1050,7 @@ function applyTranslations() {
     });
 }
 window.applyTranslations = applyTranslations;
+window.openSettingsModal = openSettingsModal;
 
 function setLanguage(lang) {
     activeLanguage = STRINGS[lang] ? lang : 'en';

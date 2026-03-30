@@ -355,6 +355,7 @@ function buildOverlayHTML() {
                 `<div class="d-flex gap-2 align-items-center">` +
                     `<button id="btn-might-history"   class="btn btn-ghost-game btn-sm" data-string-key="ui.history">${S('ui.history')}</button>` +
                     `<button id="btn-might-reset-all" class="btn btn-ghost-game btn-sm" data-string-key="ui.reshuffle_all">${S('ui.reshuffle_all')}</button>` +
+                    `<button id="btn-might-settings"  class="btn btn-ghost-game btn-sm" title="Settings"><img src="data/ui/settings.png" class="settings-icon" alt="Settings"></button>` +
                     `<button id="btn-might-close"     class="btn btn-ghost-game btn-sm">&#10005;</button>` +
                 `</div>` +
             `</div>` +
@@ -765,6 +766,7 @@ function initMightUI() {
     overlay.innerHTML = buildOverlayHTML();
     mightUIBuilt = true;
     if (window.applyTranslations) window.applyTranslations();
+    updateStagingBar();
 
     overlay.addEventListener('click', function(e) {
         // Drawn card in shared area: toggle disabled state
@@ -853,6 +855,9 @@ function initMightUI() {
         closeHistoryModal();
     });
     document.getElementById('btn-might-reset-all').addEventListener('click', handleResetAll);
+    document.getElementById('btn-might-settings').addEventListener('click', function() {
+        if (window.openSettingsModal) window.openSettingsModal();
+    });
     document.getElementById('btn-might-close').addEventListener('click', closeMightOverlay);
 
     overlay.addEventListener('click', function(e) {
