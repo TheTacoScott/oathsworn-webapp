@@ -100,6 +100,77 @@ def check_translation(original, translated):
 
 
 # ---------------------------------------------------------------------------
+# Language code -> human-readable name
+# ---------------------------------------------------------------------------
+
+LANGUAGE_NAMES = {
+    # Germanic
+    'af': 'Afrikaans',
+    'da': 'Danish',
+    'de': 'German',
+    'is': 'Icelandic',
+    'nl': 'Dutch',
+    'no': 'Norwegian',
+    'sv': 'Swedish',
+    # Romance
+    'ca': 'Catalan',
+    'es': 'Spanish',
+    'fr': 'French',
+    'gl': 'Galician',
+    'it': 'Italian',
+    'pt': 'Portuguese',
+    'ro': 'Romanian',
+    # Slavic
+    'bg': 'Bulgarian',
+    'bs': 'Bosnian',
+    'cs': 'Czech',
+    'hr': 'Croatian',
+    'mk': 'Macedonian',
+    'pl': 'Polish',
+    'ru': 'Russian',
+    'sk': 'Slovak',
+    'sl': 'Slovenian',
+    'sr': 'Serbian',
+    'uk': 'Ukrainian',
+    # Baltic / Finno-Ugric
+    'et': 'Estonian',
+    'fi': 'Finnish',
+    'hu': 'Hungarian',
+    'lt': 'Lithuanian',
+    'lv': 'Latvian',
+    # Other European
+    'el': 'Greek',
+    'sq': 'Albanian',
+    # Middle Eastern / South Asian
+    'ar': 'Arabic',
+    'bn': 'Bengali',
+    'fa': 'Persian',
+    'he': 'Hebrew',
+    'hi': 'Hindi',
+    'tr': 'Turkish',
+    'ur': 'Urdu',
+    # Caucasian / Central Asian
+    'hy': 'Armenian',
+    'ka': 'Georgian',
+    'kk': 'Kazakh',
+    'uz': 'Uzbek',
+    # East / Southeast Asian
+    'id': 'Indonesian',
+    'ja': 'Japanese',
+    'ko': 'Korean',
+    'ms': 'Malay',
+    'th': 'Thai',
+    'vi': 'Vietnamese',
+    'zh': 'Chinese',
+}
+
+
+def language_display_name(lang_code):
+    """Return the human-readable name for a language code, or None if unknown."""
+    return LANGUAGE_NAMES.get(lang_code.lower())
+
+
+# ---------------------------------------------------------------------------
 # strings.js parsing / writing
 # ---------------------------------------------------------------------------
 
@@ -185,11 +256,16 @@ def ensure_model(model):
 def translate_string(text, lang_code, model):
     """Send one string to the Ollama API and return the translated text."""
     terms_list = ', '.join(GAME_TERMS)
+    name = language_display_name(lang_code)
+    if name:
+        target_phrase = f'to {name}'
+    else:
+        target_phrase = f'to the language with ISO 639-1 code "{lang_code}"'
     prompt = (
         f'You are translating narrative text from a cooperative fantasy board game storybook. '
         f'The text may contain story passages, player instructions, or choice menus (e.g. "Choose one:" followed by options). '
         f'Translate every line completely - do not pick or act on any choices, just translate all of the text as-is. '
-        f'Translate the text below to {lang_code}. '
+        f'Translate the text below {target_phrase}. '
         f'Return only the translated text with no explanation, quotes, or commentary. '
         f'Preserve all newlines and punctuation. '
         f'Do not translate proper nouns or game-specific terms: {terms_list}.\n\n'
@@ -233,6 +309,12 @@ def main():
         print(f"Error: --lang must be an ISO 639-1 language code (e.g. fr, es, ja), got {args.lang!r}")
         sys.exit(1)
 
+    lang_name = language_display_name(lang_code)
+    if lang_name:
+        print(f"Language: {lang_name} ({lang_code})")
+    else:
+        print(f"Language: {lang_code} (unknown code, will pass code directly to model)")
+
     # Resolve output path
     if args.output is None:
         base, _ = os.path.splitext(args.strings_js)
@@ -262,7 +344,7 @@ def main():
 
     ensure_model(args.model)
 
-    print(f"\nTranslating {len(remaining)} strings to {lang_code} using {args.model}...")
+    print(f"\nTranslating {len(remaining)} strings to {lang_name or lang_code} using {args.model}...")
     print(f"  Output: {args.output}\n")
 
     for key, value in remaining:
