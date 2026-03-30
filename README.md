@@ -83,10 +83,10 @@ APK_CACHE=~/.cache/oathsworn ./setup.sh
 ```
 You can delete the APK after the process is finished.
 
-**Experimental: German language support.** Set `OATHSWORN_GERMAN=true` to download the German version of the app and use its story text instead of English. Story text and choices will be in German; interface labels and audio narration are not affected.
+**Experimental: German language support.** Set `INCLUDE_GERMAN_LANG=true` to also download the official German APK and generate `web/data/strings_de.js`. This makes German selectable in the in-app language settings and provides a complete human-authored translation for all story text.
 
 ```bash
-OATHSWORN_GERMAN=true ./setup.sh
+INCLUDE_GERMAN_LANG=true ./setup.sh
 ```
 
 To write the web output to a different directory:

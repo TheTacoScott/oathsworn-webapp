@@ -12,7 +12,9 @@ Options:
     --apk PATH    Use a local APK file instead of downloading
 """
 
+import json
 import os
+import re
 import sys
 import shutil
 import subprocess
@@ -180,11 +182,33 @@ def step_download_german():
     return False
 
 
-_DE_STRINGS_SRC = os.path.join('app', 'src', 'main', 'res', 'values', 'strings.xml')
+def _parse_android_string(text):
+    """Convert raw Android XML string value to plain text."""
+    if text is None:
+        return ''
+    text = text.strip()
+    text = re.sub(r'<xliff:g[^>]*>', '', text)
+    text = re.sub(r'</xliff:g>', '', text)
+    text = re.sub(r'<[^>]+>', '', text)
+    text = text.replace("\\'", "'")
+    text = text.replace('\\"', '"')
+    text = text.replace('\\n', '\n')
+    text = text.replace('\\t', '\t')
+    text = text.replace('\\\\', '\\')
+    return text
 
 
-def step_extract_german_strings(apk_path):
-    banner("Extract German Strings")
+def _parse_strings_xml(path):
+    strings = {}
+    with open(path, 'r', encoding='utf-8') as f:
+        content = f.read()
+    for m in re.finditer(r'<string name="([^"]+)"[^>]*>(.*?)</string>', content, re.DOTALL):
+        strings[m.group(1)] = _parse_android_string(m.group(2))
+    return strings
+
+
+def step_generate_german_strings_js(apk_path):
+    banner("Generate German strings_de.js")
     de_res_dir = '/tmp/oathsworn_de_res'
 
     if os.path.isdir(de_res_dir):
@@ -205,9 +229,17 @@ def step_extract_german_strings(apk_path):
         print(f"  Error: strings.xml not found at {de_strings_path}")
         sys.exit(1)
 
-    dest = os.path.join(REPO_ROOT, _DE_STRINGS_SRC)
-    shutil.copy2(de_strings_path, dest)
-    print(f"  Replaced {dest} with German strings.")
+    strings = _parse_strings_xml(de_strings_path)
+    print(f"  {len(strings)} strings parsed")
+
+    out_path = os.path.join(REPO_ROOT, 'web', 'data', 'strings_de.js')
+    with open(out_path, 'w', encoding='utf-8') as f:
+        f.write('// Auto-generated from German APK res/values/strings.xml\n')
+        f.write('window.STRINGS = window.STRINGS || {};\n')
+        f.write('STRINGS["de"] = Object.assign(STRINGS["de"] || {}, ')
+        f.write(json.dumps(strings, ensure_ascii=False, indent=2))
+        f.write(');\n')
+    print(f"  -> {out_path}")
 
     shutil.rmtree(de_res_dir)
 
@@ -259,8 +291,12 @@ def main():
     # Decompile
     step_decompile(apk_path)
 
-    # German strings: download German APK and swap in its strings.xml
-    if os.environ.get('OATHSWORN_GERMAN', '').lower() == 'true':
+    # Generate data
+    if not step_generate():
+        sys.exit(1)
+
+    # German: download German APK and produce web/data/strings_de.js
+    if os.environ.get('INCLUDE_GERMAN_LANG', '').lower() == 'true':
         if os.path.isfile(CACHED_APK_DE):
             banner("Download German APK")
             print(f"  Using cached German APK: {CACHED_APK_DE}")
@@ -271,11 +307,7 @@ def main():
         if not verify_sha256(CACHED_APK_DE, APK_DE_SHA256):
             sys.exit(1)
         print("  SHA256 OK.")
-        step_extract_german_strings(CACHED_APK_DE)
-
-    # Generate data
-    if not step_generate():
-        sys.exit(1)
+        step_generate_german_strings_js(CACHED_APK_DE)
 
     banner("Fixing File Ownership")
 
