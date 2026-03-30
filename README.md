@@ -26,6 +26,44 @@ You can also `git pull` at any time to update without re-cloning.
 
 ---
 
+## Updating to a new version
+
+### Patch and minor updates (e.g. v1.2.3 to v1.2.4, or v1.2.x to v1.3.0)
+
+Pull the latest code and re-open `web/index.html`. No regeneration needed; the generated data files in `web/data/` are compatible across patch and minor releases.
+
+**Git users:**
+```bash
+git pull
+```
+
+**Release download users:** download the new release zip and extract it over your existing folder, replacing all files.
+
+### Major version upgrades (e.g. v1.x.x to v2.0.0)
+
+A major version bump means the generated data format has changed in a way that is not backwards-compatible. Loading a new major version against old generated data will produce errors or incorrect behavior.
+
+**You must regenerate from scratch:**
+
+```bash
+# Git users: pull, then re-run setup
+git pull
+./setup.sh
+
+# Or with a cached APK:
+APK_CACHE=~/.cache/oathsworn ./setup.sh
+```
+
+**Release download users:** do not extract the new release over your old folder. Instead:
+1. Create a fresh directory
+2. Extract the new release into it
+3. Run `./setup.sh` inside the new directory
+4. Once confirmed working, delete the old directory
+
+Your save data (stored in browser localStorage) is tied to the domain or file path you use to open `index.html`. If you open the new folder from a different path than the old one, your saves will not carry over automatically. Open from the same path (or rename the new folder to match) to keep your save data intact.
+
+---
+
 ## Quick start (Docker)
 
 **Prerequisites:** Docker + Linux (Some kind of linux-ish environment like MacOS or maybe even Windows with WSL should™ work)
