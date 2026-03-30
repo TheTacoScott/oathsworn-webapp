@@ -9,10 +9,10 @@
 #   output-dir          Host path to write the full web app into (default: ./web)
 #
 # Environment:
-#   APK_CACHE        Host path used to cache the downloaded APK between runs
-#                    (default: ./cache). Bind-mounted to /cache in the container.
-#   OATHSWORN_GERMAN Set to "true" to download the German APK and use its
-#                    strings for all story text instead of the English strings.
+#   APK_CACHE           Host path used to cache the downloaded APK between runs
+#                       (default: ./cache). Bind-mounted to /cache in the container.
+#   INCLUDE_GERMAN_LANG Set to "true" to also download the German APK and produce
+#                       web/data/strings_de.js alongside the English strings.js.
 #
 # The output directory will mirror the repo's web/ layout:
 #   output-dir/
@@ -37,8 +37,8 @@ CACHE_DIR="$(realpath "$CACHE_DIR")"
 
 echo "Output:    $OUTPUT_DIR"
 echo "APK cache: $CACHE_DIR"
-if [[ "${OATHSWORN_GERMAN:-}" == "true" ]]; then
-    echo "Language:  German (OATHSWORN_GERMAN=true)"
+if [[ "${INCLUDE_GERMAN_LANG:-}" == "true" ]]; then
+    echo "German:    strings_de.js will be generated (INCLUDE_GERMAN_LANG=true)"
 fi
 echo ""
 
@@ -50,7 +50,7 @@ echo "Running setup..."
 docker run --rm \
     -e HOST_UID="$(id -u)" \
     -e HOST_GID="$(id -g)" \
-    -e OATHSWORN_GERMAN="${OATHSWORN_GERMAN:-}" \
+    -e INCLUDE_GERMAN_LANG="${INCLUDE_GERMAN_LANG:-}" \
     -v "$OUTPUT_DIR/data:/repo/web/data:z" \
     -v "$CACHE_DIR:/cache:z" \
     oathsworn-setup

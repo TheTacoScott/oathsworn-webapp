@@ -18,7 +18,7 @@ The output file doubles as a checkpoint. Interrupted runs resume exactly where t
 
 ## German is different
 
-German is the one language that does **not** use this pipeline. The official Oathsworn app has a separate German APK that ships a complete, human-authored German `strings.xml`. The main setup process handles German natively: set `OATHSWORN_GERMAN=true` before running `./setup.sh` and it will download the German APK, extract its strings, and write `web/data/strings_de.js` automatically. No translation model is involved.
+German is the one language that does **not** use this pipeline. The official Oathsworn app has a separate German APK that ships a complete, human-authored German `strings.xml`. The main setup process handles German natively: set `INCLUDE_GERMAN_LANG=true` before running `./setup.sh` and it will download the German APK, extract its strings, and write `web/data/strings_de.js` automatically. No translation model is involved.
 
 This pipeline is for languages that have no official translation and must be machine-translated.
 
