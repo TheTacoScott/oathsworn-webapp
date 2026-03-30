@@ -243,7 +243,7 @@ def step_generate_german_strings_js(apk_path):
         f.write('// Auto-generated from German APK res/values/strings.xml\n')
         f.write('window.STRINGS = window.STRINGS || {};\n')
         f.write('STRINGS["de"] = Object.assign(STRINGS["de"] || {}, ')
-        f.write(json.dumps(strings, ensure_ascii=False, indent=2))
+        f.write(json.dumps(strings, ensure_ascii=False, indent=2, sort_keys=True))
         f.write(');\n')
     print(f"  -> {out_path}")
 
