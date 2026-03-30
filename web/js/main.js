@@ -23,6 +23,7 @@
  *   [AUDIO]             playback, auto-scroll
  *   [SAVE_DATA]         save data viewer screen
  *   [BUG_REPORT]        bug report modal
+ *   [I18N]              applyTranslations(), setLanguage(), syncLanguageUI()
  *   [INIT]              document ready, event wiring
  */
 
@@ -44,31 +45,6 @@ const CHAPTER_LABELS = {
 };
 
 // Short tagline shown on chapter select; edit freely
-const CHAPTER_TAGLINES = {
-    1:  'The road winds into the dark wood...',
-    2:  'A gathering at the Broken Oak...',
-    3:  'Calm before the storm...',
-    4:  'Lost and hunted...',
-    5:  'A desperate retreat...',
-    6:  'Something stirs beneath the skin...',
-    7:  'A grim march...',
-    8:  'Victory that feels like defeat...',
-    9:  'Weary and scarred...',
-    10: 'Trapped...',
-    11: 'Old grudges...',
-    22: 'A special encounter...',
-    12: 'Racing through the dark...',
-    13: 'Fire and screams...',
-    14: 'Infection...',
-    15: 'The City of Masks...',
-    16: 'Blades sharpened in the shadows...',
-    17: 'A horrible task...',
-    18: 'Return through plague-barred gates...',
-    19: 'Halfway there...',
-    20: 'Under the light ...',
-    21: 'Unleashed...',
-};
-
 // Per-chapter art shown in the detail panel; edit freely
 const CHAPTER_ART = {
     1:  'data/ui/chapters/ch1_21_1__p4.jpg',
@@ -126,6 +102,7 @@ const SETTINGS_DEFAULTS = {
     autoScroll:         true,
     autoStartNarration: false,
     autoPlayNext:       false,
+    language:           'en',
 };
 
 function loadSettings() {
@@ -149,10 +126,12 @@ function syncSettingsUI() {
 
 function openSettingsModal() {
     syncSettingsUI();
+    populateLanguageSelect();
     $('#settings-modal').css('display', 'flex');
 }
 
 let settings = loadSettings();
+let activeLanguage = STRINGS[settings.language] ? settings.language : 'en';
 
 //
 // ============================================================================
@@ -160,10 +139,15 @@ let settings = loadSettings();
 // ============================================================================
 //
 
-function S(key) {
-    if (!key) return '';
-    if (typeof key === 'number') return '';
-    return STRINGS[key] || key;
+// S(key)          - look up a STRINGS key; returns key itself if not found
+// S(key, default) - look up a STRINGS key; returns default if not found
+function S(key, fallback) {
+    const def = arguments.length > 1 ? fallback : key;
+    if (!key) return def;
+    if (typeof key === 'number') return def;
+    const val = (STRINGS[activeLanguage] && STRINGS[activeLanguage][key])
+             || (STRINGS['en'] && STRINGS['en'][key]);
+    return val !== undefined ? val : def;
 }
 
 function locationLabel(locationId) {
@@ -225,7 +209,7 @@ function initHomeScreen() {
 
 $('#btn-new-campaign').on('click', function() {
     if (GameState.hasAnyProgress()) {
-        if (!confirm('Are you sure you want to start a new campaign? This will DELETE any saved progress.')) return;
+        if (!confirm(S('ui.confirm_new_campaign'))) return;
     }
     GameState.clearAll();
     loadChapterSelectScreen();
@@ -255,7 +239,7 @@ $('#btn-copy-save').on('click', function() {
     navigator.clipboard.writeText(raw).then(() => {
         const btn = document.getElementById('btn-copy-save');
         const orig = btn.textContent;
-        btn.textContent = 'Copied!';
+        btn.textContent = S('ui.copied');
         setTimeout(() => { btn.textContent = orig; }, 1500);
     });
 });
@@ -279,7 +263,7 @@ function loadChapterSelectScreen() {
         const label = CHAPTER_LABELS[chNum] || String(chNum);
         const completed = GameState.isChapterCompleted(chNum);
         const started = !completed && GameState.isChapterStarted(chNum);
-        const tagline = CHAPTER_TAGLINES[chNum] || '';
+        const tagline = S('ui.tagline_' + chNum, '');
 
         const item = document.createElement('button');
         let stateClass = completed ? ' chapter-completed' : (started ? ' chapter-in-progress' : '');
@@ -289,12 +273,15 @@ function loadChapterSelectScreen() {
 
         const numEl = document.createElement('span');
         numEl.className = 'chapter-list-num';
-        numEl.textContent = 'Chapter ' + label;
+        numEl.textContent = S('ui.chapter_prefix').replace('%s', label);
+        numEl.dataset.stringKey = 'ui.chapter_prefix';
+        numEl.dataset.stringParam = label;
         item.appendChild(numEl);
 
         const tagEl = document.createElement('span');
         tagEl.className = 'chapter-list-tagline';
         tagEl.textContent = tagline;
+        tagEl.dataset.stringKey = 'ui.tagline_' + chNum;
         item.appendChild(tagEl);
 
         list.appendChild(item);
@@ -331,24 +318,24 @@ function selectChapterDetail(chNum) {
     const label = CHAPTER_LABELS[chNum] || String(chNum);
     const completed = GameState.isChapterCompleted(chNum);
     const started = !completed && GameState.isChapterStarted(chNum);
-    const tagline = CHAPTER_TAGLINES[chNum] || '';
+    const tagline = S('ui.tagline_' + chNum, '');
     const artPath = CHAPTER_ART[chNum] || null;
     const artExtraStyle = CHAPTER_ART_STYLE[chNum] || '';
 
     let statusHtml = '';
     if (completed) {
-        statusHtml = '<div class="chapter-detail-status chapter-status-completed">Completed</div>';
+        statusHtml = `<div class="chapter-detail-status chapter-status-completed">${S('ui.chapter_completed')}</div>`;
     } else if (started) {
-        statusHtml = '<div class="chapter-detail-status chapter-status-inprogress">In Progress</div>';
+        statusHtml = `<div class="chapter-detail-status chapter-status-inprogress">${S('ui.chapter_inprogress')}</div>`;
     }
 
-    const btnLabel = started ? 'Resume Chapter' : completed ? 'Replay Chapter' : 'Start Chapter';
+    const btnLabel = started ? S('ui.chapter_resume') : completed ? S('ui.chapter_replay') : S('ui.chapter_start');
 
     const detail = document.getElementById('chapter-detail');
     detail.innerHTML = `
         <div class="chapter-detail-image" style="${artPath ? `background-image: url('${artPath}'); ` : ''}${artExtraStyle}"></div>
         <div class="chapter-detail-info">
-            <div class="chapter-detail-num">Chapter ${label}</div>
+            <div class="chapter-detail-num">${S('ui.chapter_prefix').replace('%s', label)}</div>
             <div class="chapter-detail-tagline">${tagline}</div>
             ${statusHtml}
             <button class="btn btn-primary-game chapter-detail-start" id="btn-chapter-start">${btnLabel}</button>
@@ -420,8 +407,12 @@ function loadSection(goingBack) {
     if (currentSectionNum === 0 && chapterData.num !== 22) {
         const titleKey = 'chapterText' + (chapterData.num === 22 ? '11_5' : chapterData.num);
         const authorKey = 'authorText' + (chapterData.num === 22 ? '11_5' : chapterData.num);
-        document.getElementById('chapter-title-text').textContent = S(titleKey) || ('Chapter ' + (CHAPTER_LABELS[chapterData.num] || chapterData.num));
-        document.getElementById('chapter-author-text').textContent = S(authorKey) || '';
+        const titleEl = document.getElementById('chapter-title-text');
+        const authorEl = document.getElementById('chapter-author-text');
+        titleEl.textContent = S(titleKey) || S('ui.chapter_prefix').replace('%s', CHAPTER_LABELS[chapterData.num] || chapterData.num);
+        titleEl.dataset.stringKey = titleKey;
+        authorEl.textContent = S(authorKey) || '';
+        authorEl.dataset.stringKey = authorKey;
         titleArea.classList.remove('d-none');
     } else {
         titleArea.classList.add('d-none');
@@ -483,6 +474,7 @@ function renderPlate() {
             const div = document.createElement('div');
             div.className = 'plate-text';
             div.textContent = S(item.key);
+            div.dataset.stringKey = item.key;
             content.appendChild(div);
         } else if (item.type === 'popup') {
             const box = document.createElement('div');
@@ -494,6 +486,7 @@ function renderPlate() {
             const text = document.createElement('span');
             text.className = 'popup-box-text';
             text.textContent = S(item.strKey);
+            text.dataset.stringKey = item.strKey;
             box.appendChild(icon);
             box.appendChild(text);
             content.appendChild(box);
@@ -510,6 +503,7 @@ function renderPlate() {
         }
     }
 
+    applyTranslations();
     requestAnimationFrame(updateContentFade);
 }
 
@@ -553,6 +547,7 @@ function renderButtons() {
         const btn = document.createElement('button');
         btn.className = 'btn btn-choice w-100';
         btn.textContent = S(choice.text);
+        btn.dataset.stringKey = choice.text;
         btn.dataset.next = choice.next;
         btn.addEventListener('click', () => handleChoiceClick(choice.next));
         container.appendChild(btn);
@@ -565,9 +560,13 @@ function renderButtons() {
             const nextSection = engine.chapterData.location[locId];
             if (nextSection === undefined) return;
 
+            const s = String(locId);
+            const locLabel = s.charAt(1) === '0' ? s.substring(2) : s.substring(1);
             const btn = document.createElement('button');
             btn.className = 'btn btn-location w-100';
             btn.textContent = locationLabel(locId);
+            btn.dataset.stringKey = 'location_starter';
+            btn.dataset.stringParam = locLabel;
             btn.dataset.locId = locId;
             btn.dataset.next = nextSection;
             btn.addEventListener('click', () => handleLocationClick(locId, nextSection));
@@ -575,6 +574,7 @@ function renderButtons() {
         });
     }
 
+    applyTranslations();
     requestAnimationFrame(updateScrollHint);
 }
 
@@ -693,7 +693,7 @@ function advanceAndGo(nextSectionNum) {
 //
 
 $('#btn-game-back').on('click', function() {
-    if (!confirm('Are you sure you want to go back?')) return;
+    if (!confirm(S('ui.confirm_go_back'))) return;
     stopAudio();
 
     engine.removeCurrentSectionNum(
@@ -850,7 +850,7 @@ function stopScrollAnimation() {
 
 function updateTrackLabel() {
     const total = audioTracks.length;
-    const label = total > 1 ? 'Track ' + (audioTrackIndex + 1) + ' / ' + total : 'Audio';
+    const label = total > 1 ? S('ui.audio_label').replace('%s', audioTrackIndex + 1).replace('%s', total) : S('ui.audio');
     const el = document.getElementById('audio-track-label');
     if (el) el.textContent = label;
 }
@@ -891,7 +891,7 @@ function loadSaveDataScreen() {
     if (chapterNums.length === 0) {
         const p = document.createElement('p');
         p.style.color = 'var(--color-text-dim)';
-        p.textContent = 'No saved progress found.';
+        p.textContent = S('ui.no_saved_progress');
         content.appendChild(p);
     } else {
         chapterNums.forEach(chNum => {
@@ -900,25 +900,28 @@ function loadSaveDataScreen() {
             const currentSection = cs.sectionsList[cs.sectionsList.length - 1];
 
             const rows = [
-                ['Section', currentSection],
-                ['History', cs.sectionsList.length + ' sections visited'],
+                [S('ui.save_section'), currentSection],
+                ['History', S('ui.save_history').replace('%s', cs.sectionsList.length)],
                 ['Time', cs.timeTrackList || 0],
-                ['Locations', cs.locationsList && cs.locationsList.length ? cs.locationsList.join(', ') : 'none'],
+                ['Locations', cs.locationsList && cs.locationsList.length ? cs.locationsList.join(', ') : S('ui.save_locations_none')],
             ];
 
             if (cs.clue1 || cs.clue2) {
-                const found = [cs.clue1 && 'Clue 1', cs.clue2 && 'Clue 2'].filter(Boolean).join(', ');
+                const found = [
+                    cs.clue1 && S('ui.save_clue_n').replace('%s', 1),
+                    cs.clue2 && S('ui.save_clue_n').replace('%s', 2),
+                ].filter(Boolean).join(', ');
                 rows.push(['Clues', found]);
             }
 
             if (cs.unvisitedDeepwoodTokens && cs.unvisitedDeepwoodTokens.length > 0) {
-                rows.push(['Unvisited Deepwood', cs.unvisitedDeepwoodTokens.join(', ')]);
+                rows.push([S('ui.save_unvisited_deepwood'), cs.unvisitedDeepwoodTokens.join(', ')]);
             }
 
             const panel = document.createElement('div');
             panel.className = 'save-data-panel mb-3';
 
-            let html = `<div class="save-data-chapter-label">Chapter ${label}</div>`;
+            let html = `<div class="save-data-chapter-label">${S('ui.chapter_prefix').replace('%s', label)}</div>`;
             html += '<table class="save-data-table">';
             rows.forEach(([k, v]) => {
                 html += `<tr><td class="save-data-key">${k}</td><td class="save-data-val">${v}</td></tr>`;
@@ -1023,10 +1026,90 @@ $('#btn-bug-copy').on('click', function() {
     navigator.clipboard.writeText(text).then(() => {
         const btn = document.getElementById('btn-bug-copy');
         const orig = btn.textContent;
-        btn.textContent = 'Copied!';
+        btn.textContent = S('ui.copied');
         setTimeout(() => { btn.textContent = orig; }, 1500);
     });
 });
+
+//
+// ============================================================================
+//  [I18N]
+// ============================================================================
+//
+
+function applyTranslations() {
+    const strings = STRINGS[activeLanguage] || STRINGS['en'];
+    const en = STRINGS['en'];
+
+    document.querySelectorAll('[data-string-key]').forEach(function(el) {
+        const key = el.dataset.stringKey;
+        const val = strings[key] || en[key];
+        if (!val) return;
+        if (el.dataset.stringParam !== undefined) {
+            el.textContent = val.replace('%s', el.dataset.stringParam);
+        } else {
+            el.textContent = val;
+        }
+    });
+}
+window.applyTranslations = applyTranslations;
+window.openSettingsModal = openSettingsModal;
+
+function setLanguage(lang) {
+    activeLanguage = STRINGS[lang] ? lang : 'en';
+    settings.language = activeLanguage;
+    saveSettings();
+    applyTranslations();
+    syncLanguageUI();
+    // Rebuild dynamic screens that use S() but aren't covered by data-string-key sweeps
+    if (selectedChapterNum !== null) selectChapterDetail(selectedChapterNum);
+}
+
+function syncLanguageUI() {
+    const sel = document.getElementById('setting-language');
+    if (sel) sel.value = activeLanguage;
+}
+
+function populateLanguageSelect() {
+    const sel = document.getElementById('setting-language');
+    if (!sel) return;
+    sel.innerHTML = '';
+    const langs = Object.keys(STRINGS);
+    const labels = {
+        en: 'English',     de: 'Deutsch',       nl: 'Nederlands',    sv: 'Svenska',
+        no: 'Norsk',       da: 'Dansk',          is: '\u00cdslenska', af: 'Afrikaans',
+        fr: 'Fran\u00e7ais', es: 'Espa\u00f1ol', it: 'Italiano',     pt: 'Portugu\u00eas',
+        ro: 'Rom\u00e2n\u0103', ca: 'Catal\u00e0', gl: 'Galego',
+        pl: 'Polski',      cs: '\u010ce\u0161tina', sk: 'Sloven\u010dina',
+        ru: '\u0420\u0443\u0441\u0441\u043a\u0438\u0439',
+        uk: '\u0423\u043a\u0440\u0430\u0457\u043d\u0441\u044c\u043a\u0430',
+        bg: '\u0411\u044a\u043b\u0433\u0430\u0440\u0441\u043a\u0438',
+        sr: '\u0421\u0440\u043f\u0441\u043a\u0438', hr: 'Hrvatski',  sl: 'Sloven\u0161\u010dina',
+        mk: '\u041c\u0430\u043a\u0435\u0434\u043e\u043d\u0441\u043a\u0438',
+        lt: 'Lietuvi\u0173', lv: 'Latvie\u0161u', et: 'Eesti',       fi: 'Suomi',
+        hu: 'Magyar',      el: '\u0395\u03bb\u03bb\u03b7\u03bd\u03b9\u03ba\u03ac', sq: 'Shqip',
+        tr: 'T\u00fcrk\u00e7e', he: '\u05e2\u05d1\u05e8\u05d9\u05ea',
+        ar: '\u0639\u0631\u0628\u064a',             fa: '\u0641\u0627\u0631\u0633\u06cc',
+        ur: '\u0627\u0631\u062f\u0648',             hi: '\u0939\u093f\u0928\u094d\u062f\u0940',
+        bn: '\u09ac\u09be\u0982\u09b2\u09be',
+        hy: '\u0540\u0561\u0575\u0565\u0580\u0565\u0576',
+        ka: '\u10e5\u10d0\u10e0\u10d7\u10e3\u10da\u10d8',
+        kk: '\u049a\u0430\u0437\u0430\u049b', uz: '\u040e\u0437\u0431\u0435\u043a\u0447\u0430',
+        ja: '\u65e5\u672c\u8a9e',             ko: '\ud55c\uad6d\uc5b4',
+        zh: '\u4e2d\u6587',                   vi: 'Ti\u1ebfng Vi\u1ec7t',
+        th: '\u0e44\u0e17\u0e22',             id: 'Bahasa Indonesia', ms: 'Melayu',
+    };
+    langs.forEach(function(lang) {
+        const opt = document.createElement('option');
+        opt.value = lang;
+        opt.textContent = labels[lang] || lang.toUpperCase();
+        sel.appendChild(opt);
+    });
+    sel.value = activeLanguage;
+    // Disable when only one language is available so the row is visible
+    // but it's clear there's nothing to switch to yet.
+    sel.disabled = langs.length <= 1;
+}
 
 //
 // ============================================================================
@@ -1036,8 +1119,17 @@ $('#btn-bug-copy').on('click', function() {
 
 $(function() {
     document.getElementById('app-version').textContent = VERSION;
+    applyTranslations();
     initHomeScreen();
     showScreen('screen-home');
+
+    // Load all language files asynchronously. When done, re-evaluate the
+    // active language (new files may now be registered) and re-apply so
+    // any saved non-English preference takes effect immediately.
+    loadLanguageFiles().then(function() {
+        activeLanguage = STRINGS[settings.language] ? settings.language : 'en';
+        applyTranslations();
+    });
 
     // Start/stop scroll animation based on native audio play/pause
     const audioEl = document.getElementById('audio-native');
@@ -1075,7 +1167,7 @@ $(function() {
     });
 
     // Settings modal
-    $('#btn-settings, #btn-settings-game').on('click', openSettingsModal);
+    $('#btn-settings, #btn-settings-game, #btn-settings-chapters').on('click', openSettingsModal);
 
     $('#btn-might-home, #btn-might-open').on('click', openMightOverlay);
 
@@ -1107,4 +1199,6 @@ $(function() {
         settings.autoPlayNext = this.checked;
         saveSettings();
     });
+
+    $('#setting-language').on('change', function() { setLanguage(this.value); });
 });
