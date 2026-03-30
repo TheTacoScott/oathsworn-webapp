@@ -230,9 +230,9 @@ def write_strings_js(strings, path, language, source_path):
     with open(path, 'w', encoding='utf-8') as f:
         f.write(f'// Auto-generated: {language} translation of {os.path.basename(source_path)}\n')
         f.write('window.STRINGS = window.STRINGS || {};\n')
-        f.write(f'STRINGS["{lang_code}"] = ')
+        f.write(f'STRINGS["{lang_code}"] = Object.assign(STRINGS["{lang_code}"] || {{}}, ')
         f.write(json.dumps(strings, ensure_ascii=False, indent=2, sort_keys=True))
-        f.write(';\n')
+        f.write(');\n')
 
 
 # ---------------------------------------------------------------------------

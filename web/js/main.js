@@ -131,7 +131,7 @@ function openSettingsModal() {
 }
 
 let settings = loadSettings();
-let activeLanguage = (STRINGS.__namespaced && STRINGS[settings.language]) ? settings.language : 'en';
+let activeLanguage = STRINGS[settings.language] ? settings.language : 'en';
 
 //
 // ============================================================================
@@ -145,14 +145,9 @@ function S(key, fallback) {
     const def = arguments.length > 1 ? fallback : key;
     if (!key) return def;
     if (typeof key === 'number') return def;
-    // New namespaced format (STRINGS.__namespaced set by generate_data.py)
-    if (STRINGS.__namespaced) {
-        const val = (STRINGS[activeLanguage] && STRINGS[activeLanguage][key])
-                 || (STRINGS['en'] && STRINGS['en'][key]);
-        return val !== undefined ? val : def;
-    }
-    // Old flat format fallback (pre-regeneration)
-    return STRINGS[key] || def;
+    const val = (STRINGS[activeLanguage] && STRINGS[activeLanguage][key])
+             || (STRINGS['en'] && STRINGS['en'][key]);
+    return val !== undefined ? val : def;
 }
 
 function locationLabel(locationId) {
@@ -1039,10 +1034,8 @@ $('#btn-bug-copy').on('click', function() {
 //
 
 function applyTranslations() {
-    const strings = STRINGS.__namespaced
-        ? (STRINGS[activeLanguage] || STRINGS['en'])
-        : STRINGS;
-    const en = STRINGS.__namespaced ? STRINGS['en'] : STRINGS;
+    const strings = STRINGS[activeLanguage] || STRINGS['en'];
+    const en = STRINGS['en'];
 
     document.querySelectorAll('[data-string-key]').forEach(function(el) {
         const key = el.dataset.stringKey;
@@ -1058,7 +1051,7 @@ function applyTranslations() {
 window.applyTranslations = applyTranslations;
 
 function setLanguage(lang) {
-    activeLanguage = STRINGS.__namespaced && STRINGS[lang] ? lang : 'en';
+    activeLanguage = STRINGS[lang] ? lang : 'en';
     settings.language = activeLanguage;
     saveSettings();
     applyTranslations();
@@ -1074,7 +1067,7 @@ function populateLanguageSelect() {
     const sel = document.getElementById('setting-language');
     if (!sel) return;
     sel.innerHTML = '';
-    const langs = STRINGS.__namespaced ? Object.keys(STRINGS).filter(k => k !== '__namespaced') : ['en'];
+    const langs = Object.keys(STRINGS);
     const labels = {
         en: 'English',     de: 'Deutsch',       nl: 'Nederlands',    sv: 'Svenska',
         no: 'Norsk',       da: 'Dansk',          is: '\u00cdslenska', af: 'Afrikaans',
@@ -1127,7 +1120,7 @@ $(function() {
     // active language (new files may now be registered) and re-apply so
     // any saved non-English preference takes effect immediately.
     loadLanguageFiles().then(function() {
-        activeLanguage = (STRINGS.__namespaced && STRINGS[settings.language]) ? settings.language : 'en';
+        activeLanguage = STRINGS[settings.language] ? settings.language : 'en';
         applyTranslations();
     });
 
