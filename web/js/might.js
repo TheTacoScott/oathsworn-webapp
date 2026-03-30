@@ -297,12 +297,12 @@ function buildDecksRowHTML() {
     return (
         `<div class="might-decks-row">` +
             `<div class="might-deck-group">` +
-                `<div class="might-deck-group-label might-side-player">Players</div>` +
+                `<div class="might-deck-group-label might-side-player" data-string-key="ui.might_players">${S('ui.might_players')}</div>` +
                 `<div class="might-deck-group-inner">${playerSlots}</div>` +
             `</div>` +
             `<div class="might-decks-divider"></div>` +
             `<div class="might-deck-group">` +
-                `<div class="might-deck-group-label might-side-monster">Monsters</div>` +
+                `<div class="might-deck-group-label might-side-monster" data-string-key="ui.might_monsters">${S('ui.might_monsters')}</div>` +
                 `<div class="might-deck-group-inner">${monsterSlots}</div>` +
             `</div>` +
         `</div>`
@@ -326,19 +326,19 @@ function buildHistoryModalHTML() {
         `<div class="might-hist-modal" id="might-hist-modal" style="display:none">` +
             `<div class="might-hist-modal-inner">` +
                 `<div class="might-hist-modal-header">` +
-                    `<span class="might-hist-panel-title">Draw History</span>` +
+                    `<span class="might-hist-panel-title" data-string-key="ui.draw_history">${S('ui.draw_history')}</span>` +
                     `<div class="d-flex gap-2 align-items-center">` +
-                        `<button class="btn btn-ghost-game btn-sm" id="btn-might-hist-clear">Clear History</button>` +
+                        `<button class="btn btn-ghost-game btn-sm" id="btn-might-hist-clear" data-string-key="ui.clear_history">${S('ui.clear_history')}</button>` +
                         `<button class="btn btn-ghost-game btn-sm" id="btn-might-hist-close">&#10005;</button>` +
                     `</div>` +
                 `</div>` +
                 `<div class="might-hist-modal-body">` +
                     `<div class="might-hist-modal-col">` +
-                        `<div class="might-hist-col-title might-side-player">Players</div>` +
+                        `<div class="might-hist-col-title might-side-player" data-string-key="ui.might_players">${S('ui.might_players')}</div>` +
                         `<div class="might-hist-panel-body" id="might-hist-body-player"></div>` +
                     `</div>` +
                     `<div class="might-hist-modal-col">` +
-                        `<div class="might-hist-col-title might-side-monster">Monsters</div>` +
+                        `<div class="might-hist-col-title might-side-monster" data-string-key="ui.might_monsters">${S('ui.might_monsters')}</div>` +
                         `<div class="might-hist-panel-body" id="might-hist-body-monster"></div>` +
                     `</div>` +
                 `</div>` +
@@ -351,15 +351,15 @@ function buildOverlayHTML() {
     return (
         `<div class="might-panel">` +
             `<div class="might-header">` +
-                `<span class="might-panel-title">Might Decks</span>` +
+                `<span class="might-panel-title" data-string-key="ui.might_decks">${S('ui.might_decks')}</span>` +
                 `<div class="d-flex gap-2 align-items-center">` +
-                    `<button id="btn-might-history"   class="btn btn-ghost-game btn-sm">History</button>` +
-                    `<button id="btn-might-reset-all" class="btn btn-ghost-game btn-sm">Reshuffle All</button>` +
+                    `<button id="btn-might-history"   class="btn btn-ghost-game btn-sm" data-string-key="ui.history">${S('ui.history')}</button>` +
+                    `<button id="btn-might-reset-all" class="btn btn-ghost-game btn-sm" data-string-key="ui.reshuffle_all">${S('ui.reshuffle_all')}</button>` +
                     `<button id="btn-might-close"     class="btn btn-ghost-game btn-sm">&#10005;</button>` +
                 `</div>` +
             `</div>` +
             `<div class="might-staging-bar">` +
-                `<span class="might-staged-info" id="might-staged-info">Click a deck to stage cards</span>` +
+                `<span class="might-staged-info" id="might-staged-info" data-string-key="ui.might_stage_prompt">${S('ui.might_stage_prompt')}</span>` +
                 `<div class="might-attack-widget" id="might-attack-widget" title="Attack — left-click or scroll up to increase, right-click or scroll down to decrease">` +
                     `<div class="might-attack-display">` +
                         `<span class="might-card-total" id="might-card-total"></span>` +
@@ -387,9 +387,9 @@ function buildOverlayHTML() {
                     `<span class="might-damage-out" id="might-damage-out">0 damage</span>` +
                 `</div>` +
                 `<div class="might-staging-bar-actions">` +
-                    `<button id="btn-might-clear-draw" class="btn btn-ghost-game btn-draw-might" disabled>Clear</button>` +
-                    `<button id="btn-might-draw-more"  class="btn btn-ghost-game btn-draw-might" disabled>Draw More</button>` +
-                    `<button id="btn-might-draw"       class="btn btn-primary-game btn-draw-might" disabled>Clear &amp; Draw</button>` +
+                    `<button id="btn-might-clear-draw" class="btn btn-ghost-game btn-draw-might" data-string-key="ui.clear" disabled>${S('ui.clear')}</button>` +
+                    `<button id="btn-might-draw-more"  class="btn btn-ghost-game btn-draw-might" data-string-key="ui.draw_more" disabled>${S('ui.draw_more')}</button>` +
+                    `<button id="btn-might-draw"       class="btn btn-primary-game btn-draw-might" data-string-key="ui.clear_and_draw" disabled>${S('ui.clear_and_draw')}</button>` +
                 `</div>` +
             `</div>` +
             buildDecksRowHTML() +
@@ -478,19 +478,19 @@ function updateStagingBar() {
     const damage = isMiss ? 0 : Math.floor(mightAttack / Math.max(mightDefense, 1));
     const dmgEl  = document.getElementById('might-damage-out');
     if (dmgEl) {
-        dmgEl.textContent = `${damage} damage`;
+        dmgEl.textContent = S('ui.might_damage').replace('%s', damage);
         dmgEl.classList.toggle('might-damage-out-miss', !!isMiss);
     }
 
     if (mightLastResult) {
-        const sideLabel = mightLastResult.side === 'player' ? 'Player' : 'Monster';
+        const sideLabel = mightLastResult.side === 'player' ? S('ui.might_player') : S('ui.might_monster');
         if (mightLastResult.isMiss) {
-            infoEl.innerHTML = `<span class="might-result-miss">${sideLabel} MISS</span>`;
+            infoEl.innerHTML = `<span class="might-result-miss">${sideLabel} ${S('ui.might_miss')}</span>`;
         } else {
             infoEl.innerHTML = `<span class="might-result-label">${sideLabel}</span>`;
         }
     } else {
-        infoEl.textContent = 'Click a deck to stage cards';
+        infoEl.textContent = S('ui.might_stage_prompt');
     }
 
     if (drawBtn) drawBtn.disabled = total === 0;
@@ -526,7 +526,7 @@ function buildDrawnCardHTML(cardEntry, cfg, size, index) {
     // Always render the X span for full-size cards; CSS show/hide via .card-disabled class.
     const disabledMark = (size === 'full') ? `<span class="might-card-disabled-x">&#10005;</span>` : '';
     const sideLabel    = (size === 'full' && cardEntry.side)
-        ? `<span class="might-card-side-label">${cardEntry.side === 'player' ? 'Player' : 'Monster'}</span>`
+        ? `<span class="might-card-side-label">${cardEntry.side === 'player' ? S('ui.might_player') : S('ui.might_monster')}</span>`
         : '';
     return (
         `<div${indexAttr} class="might-drawn-card${critClass}${chainClass}${disabledClass}${sizeClass}" style="${style}">` +
@@ -544,7 +544,7 @@ function renderHistorySide(side) {
 
     const entries = mightSessionHistory.filter(s => s.side === side);
     if (entries.length === 0) {
-        bodyEl.innerHTML = `<p class="might-hist-empty">No draws yet.</p>`;
+        bodyEl.innerHTML = `<p class="might-hist-empty">${S('ui.might_no_draws')}</p>`;
         return;
     }
 
@@ -560,7 +560,7 @@ function renderHistorySide(side) {
         html += (
             `<div class="might-hist-entry${isLatest ? ' latest' : ''}">` +
                 `<div class="might-hist-entry-header">` +
-                    `<span class="might-hist-entry-label">Draw ${drawNum}</span>` +
+                    `<span class="might-hist-entry-label">${S('ui.might_draw_n').replace('%s', drawNum)}</span>` +
                     scoreHtml +
                 `</div>` +
                 `<div class="might-hist-entry-cards">${cardsHtml}</div>` +
@@ -764,6 +764,7 @@ function initMightUI() {
 
     overlay.innerHTML = buildOverlayHTML();
     mightUIBuilt = true;
+    if (window.applyTranslations) window.applyTranslations();
 
     overlay.addEventListener('click', function(e) {
         // Drawn card in shared area: toggle disabled state
