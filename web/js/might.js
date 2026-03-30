@@ -385,7 +385,7 @@ function buildOverlayHTML() {
                 `</div>` +
                 `<div class="might-damage-result" id="might-damage-result">` +
                     `<span class="might-damage-eq">=</span>` +
-                    `<span class="might-damage-out" id="might-damage-out">${S('ui.might_damage').replace('%s', 0)}</span>` +
+                    `<span class="might-damage-out" id="might-damage-out">0</span>` +
                 `</div>` +
                 `<div class="might-staging-bar-actions">` +
                     `<button id="btn-might-clear-draw" class="btn btn-ghost-game btn-draw-might" data-string-key="ui.clear" disabled>${S('ui.clear')}</button>` +
@@ -479,7 +479,7 @@ function updateStagingBar() {
     const damage = isMiss ? 0 : Math.floor(mightAttack / Math.max(mightDefense, 1));
     const dmgEl  = document.getElementById('might-damage-out');
     if (dmgEl) {
-        dmgEl.textContent = S('ui.might_damage').replace('%s', damage);
+        dmgEl.textContent = damage;
         dmgEl.classList.toggle('might-damage-out-miss', !!isMiss);
     }
 
