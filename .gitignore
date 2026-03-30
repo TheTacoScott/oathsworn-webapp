@@ -7,7 +7,14 @@ cache/
 # Generated data files - run scripts/generate_data.py to generate
 # Note: uses glob (not trailing slash) so hand-authored files can be un-negated below
 web/data/*
+# Hand-authored files in web/data/ that should be tracked:
 !web/data/ui_strings.js
+# UI translation files (strings_XX.js) - tracked because they are hand-crafted
+# and small. Full game translations (if ever generated) should also be placed
+# here; they will be tracked too.
+!web/data/strings_de.js
+!web/data/strings_it.js
+!web/data/strings_fr.js
 
 # Claude Code local config (machine-specific paths and permissions)
 .claude/
