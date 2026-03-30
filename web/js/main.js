@@ -23,6 +23,7 @@
  *   [AUDIO]             playback, auto-scroll
  *   [SAVE_DATA]         save data viewer screen
  *   [BUG_REPORT]        bug report modal
+ *   [I18N]              applyTranslations(), setLanguage(), syncLanguageUI()
  *   [INIT]              document ready, event wiring
  */
 
@@ -126,6 +127,7 @@ const SETTINGS_DEFAULTS = {
     autoScroll:         true,
     autoStartNarration: false,
     autoPlayNext:       false,
+    language:           'en',
 };
 
 function loadSettings() {
@@ -149,10 +151,12 @@ function syncSettingsUI() {
 
 function openSettingsModal() {
     syncSettingsUI();
+    populateLanguageSelect();
     $('#settings-modal').css('display', 'flex');
 }
 
 let settings = loadSettings();
+let activeLanguage = (STRINGS.__namespaced && STRINGS[settings.language]) ? settings.language : 'en';
 
 //
 // ============================================================================
@@ -163,6 +167,13 @@ let settings = loadSettings();
 function S(key) {
     if (!key) return '';
     if (typeof key === 'number') return '';
+    // New namespaced format (STRINGS.__namespaced set by generate_data.py)
+    if (STRINGS.__namespaced) {
+        const val = (STRINGS[activeLanguage] && STRINGS[activeLanguage][key])
+                 || (STRINGS['en'] && STRINGS['en'][key]);
+        return val !== undefined ? val : key;
+    }
+    // Old flat format fallback (pre-regeneration)
     return STRINGS[key] || key;
 }
 
@@ -420,8 +431,14 @@ function loadSection(goingBack) {
     if (currentSectionNum === 0 && chapterData.num !== 22) {
         const titleKey = 'chapterText' + (chapterData.num === 22 ? '11_5' : chapterData.num);
         const authorKey = 'authorText' + (chapterData.num === 22 ? '11_5' : chapterData.num);
-        document.getElementById('chapter-title-text').textContent = S(titleKey) || ('Chapter ' + (CHAPTER_LABELS[chapterData.num] || chapterData.num));
-        document.getElementById('chapter-author-text').textContent = S(authorKey) || '';
+        const titleEl = document.getElementById('chapter-title-text');
+        const authorEl = document.getElementById('chapter-author-text');
+        titleEl.textContent = S(titleKey) || ('Chapter ' + (CHAPTER_LABELS[chapterData.num] || chapterData.num));
+        titleEl.dataset.stringKey = titleKey;
+        titleEl.classList.add('i18n');
+        authorEl.textContent = S(authorKey) || '';
+        authorEl.dataset.stringKey = authorKey;
+        authorEl.classList.add('i18n');
         titleArea.classList.remove('d-none');
     } else {
         titleArea.classList.add('d-none');
@@ -481,8 +498,9 @@ function renderPlate() {
     for (const [, item] of sorted) {
         if (item.type === 'text') {
             const div = document.createElement('div');
-            div.className = 'plate-text';
+            div.className = 'plate-text i18n';
             div.textContent = S(item.key);
+            div.dataset.stringKey = item.key;
             content.appendChild(div);
         } else if (item.type === 'popup') {
             const box = document.createElement('div');
@@ -492,8 +510,9 @@ function renderPlate() {
             icon.className = 'popup-box-icon';
             icon.alt = '';
             const text = document.createElement('span');
-            text.className = 'popup-box-text';
+            text.className = 'popup-box-text i18n';
             text.textContent = S(item.strKey);
+            text.dataset.stringKey = item.strKey;
             box.appendChild(icon);
             box.appendChild(text);
             content.appendChild(box);
@@ -510,6 +529,7 @@ function renderPlate() {
         }
     }
 
+    applyTranslations();
     requestAnimationFrame(updateContentFade);
 }
 
@@ -551,8 +571,9 @@ function renderButtons() {
     // Choice buttons
     choices.forEach(choice => {
         const btn = document.createElement('button');
-        btn.className = 'btn btn-choice w-100';
+        btn.className = 'btn btn-choice w-100 i18n';
         btn.textContent = S(choice.text);
+        btn.dataset.stringKey = choice.text;
         btn.dataset.next = choice.next;
         btn.addEventListener('click', () => handleChoiceClick(choice.next));
         container.appendChild(btn);
@@ -565,9 +586,13 @@ function renderButtons() {
             const nextSection = engine.chapterData.location[locId];
             if (nextSection === undefined) return;
 
+            const s = String(locId);
+            const locLabel = s.charAt(1) === '0' ? s.substring(2) : s.substring(1);
             const btn = document.createElement('button');
-            btn.className = 'btn btn-location w-100';
+            btn.className = 'btn btn-location w-100 i18n';
             btn.textContent = locationLabel(locId);
+            btn.dataset.stringKey = 'location_starter';
+            btn.dataset.stringParam = locLabel;
             btn.dataset.locId = locId;
             btn.dataset.next = nextSection;
             btn.addEventListener('click', () => handleLocationClick(locId, nextSection));
@@ -575,6 +600,7 @@ function renderButtons() {
         });
     }
 
+    applyTranslations();
     requestAnimationFrame(updateScrollHint);
 }
 
@@ -1030,12 +1056,73 @@ $('#btn-bug-copy').on('click', function() {
 
 //
 // ============================================================================
+//  [I18N]
+// ============================================================================
+//
+
+function applyTranslations() {
+    const strings = STRINGS.__namespaced
+        ? (STRINGS[activeLanguage] || STRINGS['en'])
+        : STRINGS;
+    const en = STRINGS.__namespaced ? STRINGS['en'] : STRINGS;
+
+    document.querySelectorAll('[data-string-key]').forEach(function(el) {
+        const key = el.dataset.stringKey;
+        const val = strings[key] || en[key];
+        if (!val) return;
+        if (el.dataset.stringParam !== undefined) {
+            el.textContent = val.replace('%s', el.dataset.stringParam);
+        } else {
+            el.textContent = val;
+        }
+    });
+}
+window.applyTranslations = applyTranslations;
+
+function setLanguage(lang) {
+    activeLanguage = STRINGS.__namespaced && STRINGS[lang] ? lang : 'en';
+    settings.language = activeLanguage;
+    saveSettings();
+    applyTranslations();
+    syncLanguageUI();
+}
+
+function syncLanguageUI() {
+    const sel = document.getElementById('setting-language');
+    if (sel) sel.value = activeLanguage;
+}
+
+function populateLanguageSelect() {
+    const sel = document.getElementById('setting-language');
+    if (!sel) return;
+    sel.innerHTML = '';
+    const langs = STRINGS.__namespaced ? Object.keys(STRINGS).filter(k => k !== '__namespaced') : ['en'];
+    const labels = {
+        en: 'English', de: 'Deutsch', fr: 'Fran\u00e7ais', es: 'Espa\u00f1ol',
+        it: 'Italiano', pt: 'Portugu\u00eas', pl: 'Polski', nl: 'Nederlands',
+        ru: '\u0420\u0443\u0441\u0441\u043a\u0438\u0439',
+    };
+    langs.forEach(function(lang) {
+        const opt = document.createElement('option');
+        opt.value = lang;
+        opt.textContent = labels[lang] || lang.toUpperCase();
+        sel.appendChild(opt);
+    });
+    sel.value = activeLanguage;
+    // Disable when only one language is available so the row is visible
+    // but it's clear there's nothing to switch to yet.
+    sel.disabled = langs.length <= 1;
+}
+
+//
+// ============================================================================
 //  [INIT]
 // ============================================================================
 //
 
 $(function() {
     document.getElementById('app-version').textContent = VERSION;
+    applyTranslations();
     initHomeScreen();
     showScreen('screen-home');
 
@@ -1107,4 +1194,6 @@ $(function() {
         settings.autoPlayNext = this.checked;
         saveSettings();
     });
+
+    $('#setting-language').on('change', function() { setLanguage(this.value); });
 });
