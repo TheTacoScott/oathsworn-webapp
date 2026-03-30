@@ -5,20 +5,23 @@ Translate a strings.js file to another language using a local Ollama model.
 Intended to run inside the Docker Compose environment defined alongside this
 script. The only host dependency is Docker - setup.sh handles everything else.
 
+Produces a sidecar file (e.g. strings_fr.js) that registers the translation
+into window.STRINGS["fr"]. The source strings.js is never modified.
+
 The output file itself acts as the checkpoint: keys present in the output
 but absent from the source are already done. Re-running the same command
 resumes from where it left off.
 
 Usage (via setup.sh):
-    ./translations/setup.sh web/data/strings.js --language German [options]
+    ./translations/setup.sh web/data/strings.js --language French [options]
 
 Direct usage (inside container):
-    python3 translate.py <strings.js> --language German [options]
+    python3 translate.py <strings.js> --language French [options]
 
 Arguments:
-    strings_js           Path to the source strings.js file
-    --language LANG      Target language name, e.g. "German", "French", "Spanish"
-    --output PATH        Output path (default: <input>_<lang>.js next to input)
+    strings_js           Path to the source English strings.js file
+    --language LANG      Target language name, e.g. "French", "Spanish"
+    --output PATH        Output path (default: strings_<lang>.js next to input)
     --model MODEL        Ollama model to use (default: translategemma:4b)
 """
 
@@ -27,7 +30,6 @@ import json
 import math
 import os
 import re
-import shutil
 import sys
 import time
 import urllib.request
@@ -98,29 +100,8 @@ def check_translation(original, translated):
 
 
 # ---------------------------------------------------------------------------
-# strings.js parsing / writing / replacing
+# strings.js parsing / writing
 # ---------------------------------------------------------------------------
-
-# Key/value pairs that must be present (with exact values) in the source file.
-# These are Material Design framework strings that only appear in the English
-# base APK, not in already-translated or corrupted files.
-ENGLISH_FINGERPRINT = {
-    'abc_action_bar_home_description': 'Navigate home',
-    'abc_action_bar_up_description': 'Navigate up',
-    'abc_action_menu_overflow_description': 'More options',
-    'add_time': 'ADD A TIME TOKEN TO THE TIME TRACK.',
-}
-
-
-def check_english_fingerprint(strings):
-    """Return a list of error strings if the source file does not look like English."""
-    errors = []
-    for key, expected in ENGLISH_FINGERPRINT.items():
-        if key not in strings:
-            errors.append(f"missing key {key!r}")
-        elif strings[key] != expected:
-            errors.append(f"key {key!r} has value {strings[key]!r}, expected {expected!r}")
-    return errors
 
 
 def parse_strings_js(path):
@@ -135,27 +116,6 @@ def parse_strings_js(path):
     if m:
         return json.loads(m.group(1))
     raise ValueError(f"Could not find STRINGS object in {path}")
-
-
-def replace_strings_js(strings_js_path, translated_path):
-    """Swap translated_path into strings_js_path, backing up the original as strings_original.js.
-
-    The backup is only written once - if strings_original.js already exists it is
-    left untouched. This means re-running setup.sh (which regenerates strings.js
-    from the APK) followed by this script will re-swap correctly without
-    clobbering the English backup with a previously-translated strings.js.
-    """
-    dirpath = os.path.dirname(os.path.abspath(strings_js_path))
-    backup_path = os.path.join(dirpath, 'strings_original.js')
-
-    if not os.path.exists(backup_path):
-        shutil.copy2(strings_js_path, backup_path)
-        print(f"  Backed up original strings to {backup_path}")
-    else:
-        print(f"  Backup already exists at {backup_path}, leaving it alone")
-
-    shutil.copy2(translated_path, strings_js_path)
-    print(f"  Replaced {strings_js_path} with translated version")
 
 
 LANGUAGE_CODES = {
@@ -333,10 +293,6 @@ def main():
                         help='Ollama model to use (default: translategemma:4b)')
     parser.add_argument('--retries', type=int, default=1, metavar='N',
                         help='Number of times to retry a string after a sanity failure (default: 1)')
-    parser.add_argument('--replace', default=True, action=argparse.BooleanOptionalAction,
-                        help='Replace strings.js with the translated version once all keys '
-                             'are complete with no skips. Backs up the original as '
-                             'strings_original.js (only on first run). Default: on.')
     args = parser.parse_args()
 
     # Resolve output path
@@ -351,15 +307,6 @@ def main():
     total = len(strings)
     print(f"  {total} strings found")
 
-    # Preflight: verify the source file looks like English
-    fingerprint_errors = check_english_fingerprint(strings)
-    if fingerprint_errors:
-        print("Error: source file does not appear to be the English strings.js:")
-        for err in fingerprint_errors:
-            print(f"  {err}")
-        print("Pass the original English strings.js, not an already-translated file.")
-        sys.exit(1)
-
     # Load existing output as checkpoint: keys present there are already done
     done_keys = {}
     if os.path.isfile(args.output):
@@ -369,9 +316,6 @@ def main():
     remaining = [(k, v) for k, v in strings.items() if k not in done_keys]
     if not remaining:
         print("  Nothing left to translate.")
-        if args.replace:
-            print("\nAll keys complete - replacing strings.js...")
-            replace_strings_js(args.strings_js, args.output)
         print(f"\nDone. Output is at {args.output}")
         return
 
@@ -425,9 +369,6 @@ def main():
         print(f"Output (partial) written to {args.output}")
     else:
         print(f"\nAll {total} keys translated successfully.")
-        if args.replace:
-            print("Replacing strings.js...")
-            replace_strings_js(args.strings_js, args.output)
         print(f"Done. Output written to {args.output}")
 
 
