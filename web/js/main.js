@@ -273,12 +273,17 @@ function loadChapterSelectScreen() {
 
         const numEl = document.createElement('span');
         numEl.className = 'chapter-list-num';
-        numEl.textContent = 'Chapter ' + label;
+        numEl.textContent = S('ui.chapter_prefix').replace('%s', label);
+        numEl.dataset.stringKey = 'ui.chapter_prefix';
+        numEl.dataset.stringParam = label;
+        numEl.classList.add('i18n');
         item.appendChild(numEl);
 
         const tagEl = document.createElement('span');
         tagEl.className = 'chapter-list-tagline';
         tagEl.textContent = tagline;
+        tagEl.dataset.stringKey = 'ui.tagline_' + chNum;
+        tagEl.classList.add('i18n');
         item.appendChild(tagEl);
 
         list.appendChild(item);
@@ -315,24 +320,24 @@ function selectChapterDetail(chNum) {
     const label = CHAPTER_LABELS[chNum] || String(chNum);
     const completed = GameState.isChapterCompleted(chNum);
     const started = !completed && GameState.isChapterStarted(chNum);
-    const tagline = CHAPTER_TAGLINES[chNum] || '';
+    const tagline = S('ui.tagline_' + chNum, '');
     const artPath = CHAPTER_ART[chNum] || null;
     const artExtraStyle = CHAPTER_ART_STYLE[chNum] || '';
 
     let statusHtml = '';
     if (completed) {
-        statusHtml = '<div class="chapter-detail-status chapter-status-completed">Completed</div>';
+        statusHtml = `<div class="chapter-detail-status chapter-status-completed">${S('ui.chapter_completed')}</div>`;
     } else if (started) {
-        statusHtml = '<div class="chapter-detail-status chapter-status-inprogress">In Progress</div>';
+        statusHtml = `<div class="chapter-detail-status chapter-status-inprogress">${S('ui.chapter_inprogress')}</div>`;
     }
 
-    const btnLabel = started ? 'Resume Chapter' : completed ? 'Replay Chapter' : 'Start Chapter';
+    const btnLabel = started ? S('ui.chapter_resume') : completed ? S('ui.chapter_replay') : S('ui.chapter_start');
 
     const detail = document.getElementById('chapter-detail');
     detail.innerHTML = `
         <div class="chapter-detail-image" style="${artPath ? `background-image: url('${artPath}'); ` : ''}${artExtraStyle}"></div>
         <div class="chapter-detail-info">
-            <div class="chapter-detail-num">Chapter ${label}</div>
+            <div class="chapter-detail-num">${S('ui.chapter_prefix').replace('%s', label)}</div>
             <div class="chapter-detail-tagline">${tagline}</div>
             ${statusHtml}
             <button class="btn btn-primary-game chapter-detail-start" id="btn-chapter-start">${btnLabel}</button>
@@ -1056,6 +1061,8 @@ function setLanguage(lang) {
     saveSettings();
     applyTranslations();
     syncLanguageUI();
+    // Rebuild dynamic screens that use S() but aren't covered by data-string-key sweeps
+    if (selectedChapterNum !== null) selectChapterDetail(selectedChapterNum);
 }
 
 function syncLanguageUI() {
@@ -1160,7 +1167,7 @@ $(function() {
     });
 
     // Settings modal
-    $('#btn-settings, #btn-settings-game').on('click', openSettingsModal);
+    $('#btn-settings, #btn-settings-game, #btn-settings-chapters').on('click', openSettingsModal);
 
     $('#btn-might-home, #btn-might-open').on('click', openMightOverlay);
 
