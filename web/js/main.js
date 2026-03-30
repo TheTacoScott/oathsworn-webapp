@@ -45,31 +45,6 @@ const CHAPTER_LABELS = {
 };
 
 // Short tagline shown on chapter select; edit freely
-const CHAPTER_TAGLINES = {
-    1:  'The road winds into the dark wood...',
-    2:  'A gathering at the Broken Oak...',
-    3:  'Calm before the storm...',
-    4:  'Lost and hunted...',
-    5:  'A desperate retreat...',
-    6:  'Something stirs beneath the skin...',
-    7:  'A grim march...',
-    8:  'Victory that feels like defeat...',
-    9:  'Weary and scarred...',
-    10: 'Trapped...',
-    11: 'Old grudges...',
-    22: 'A special encounter...',
-    12: 'Racing through the dark...',
-    13: 'Fire and screams...',
-    14: 'Infection...',
-    15: 'The City of Masks...',
-    16: 'Blades sharpened in the shadows...',
-    17: 'A horrible task...',
-    18: 'Return through plague-barred gates...',
-    19: 'Halfway there...',
-    20: 'Under the light ...',
-    21: 'Unleashed...',
-};
-
 // Per-chapter art shown in the detail panel; edit freely
 const CHAPTER_ART = {
     1:  'data/ui/chapters/ch1_21_1__p4.jpg',
@@ -164,17 +139,20 @@ let activeLanguage = (STRINGS.__namespaced && STRINGS[settings.language]) ? sett
 // ============================================================================
 //
 
-function S(key) {
-    if (!key) return '';
-    if (typeof key === 'number') return '';
+// S(key)          - look up a STRINGS key; returns key itself if not found
+// S(key, default) - look up a STRINGS key; returns default if not found
+function S(key, fallback) {
+    const def = arguments.length > 1 ? fallback : key;
+    if (!key) return def;
+    if (typeof key === 'number') return def;
     // New namespaced format (STRINGS.__namespaced set by generate_data.py)
     if (STRINGS.__namespaced) {
         const val = (STRINGS[activeLanguage] && STRINGS[activeLanguage][key])
                  || (STRINGS['en'] && STRINGS['en'][key]);
-        return val !== undefined ? val : key;
+        return val !== undefined ? val : def;
     }
     // Old flat format fallback (pre-regeneration)
-    return STRINGS[key] || key;
+    return STRINGS[key] || def;
 }
 
 function locationLabel(locationId) {
@@ -290,7 +268,7 @@ function loadChapterSelectScreen() {
         const label = CHAPTER_LABELS[chNum] || String(chNum);
         const completed = GameState.isChapterCompleted(chNum);
         const started = !completed && GameState.isChapterStarted(chNum);
-        const tagline = CHAPTER_TAGLINES[chNum] || '';
+        const tagline = S('ui.tagline_' + chNum, '');
 
         const item = document.createElement('button');
         let stateClass = completed ? ' chapter-completed' : (started ? ' chapter-in-progress' : '');
@@ -1098,9 +1076,28 @@ function populateLanguageSelect() {
     sel.innerHTML = '';
     const langs = STRINGS.__namespaced ? Object.keys(STRINGS).filter(k => k !== '__namespaced') : ['en'];
     const labels = {
-        en: 'English', de: 'Deutsch', fr: 'Fran\u00e7ais', es: 'Espa\u00f1ol',
-        it: 'Italiano', pt: 'Portugu\u00eas', pl: 'Polski', nl: 'Nederlands',
+        en: 'English',     de: 'Deutsch',       nl: 'Nederlands',    sv: 'Svenska',
+        no: 'Norsk',       da: 'Dansk',          is: '\u00cdslenska', af: 'Afrikaans',
+        fr: 'Fran\u00e7ais', es: 'Espa\u00f1ol', it: 'Italiano',     pt: 'Portugu\u00eas',
+        ro: 'Rom\u00e2n\u0103', ca: 'Catal\u00e0', gl: 'Galego',
+        pl: 'Polski',      cs: '\u010ce\u0161tina', sk: 'Sloven\u010dina',
         ru: '\u0420\u0443\u0441\u0441\u043a\u0438\u0439',
+        uk: '\u0423\u043a\u0440\u0430\u0457\u043d\u0441\u044c\u043a\u0430',
+        bg: '\u0411\u044a\u043b\u0433\u0430\u0440\u0441\u043a\u0438',
+        sr: '\u0421\u0440\u043f\u0441\u043a\u0438', hr: 'Hrvatski',  sl: 'Sloven\u0161\u010dina',
+        mk: '\u041c\u0430\u043a\u0435\u0434\u043e\u043d\u0441\u043a\u0438',
+        lt: 'Lietuvi\u0173', lv: 'Latvie\u0161u', et: 'Eesti',       fi: 'Suomi',
+        hu: 'Magyar',      el: '\u0395\u03bb\u03bb\u03b7\u03bd\u03b9\u03ba\u03ac', sq: 'Shqip',
+        tr: 'T\u00fcrk\u00e7e', he: '\u05e2\u05d1\u05e8\u05d9\u05ea',
+        ar: '\u0639\u0631\u0628\u064a',             fa: '\u0641\u0627\u0631\u0633\u06cc',
+        ur: '\u0627\u0631\u062f\u0648',             hi: '\u0939\u093f\u0928\u094d\u062f\u0940',
+        bn: '\u09ac\u09be\u0982\u09b2\u09be',
+        hy: '\u0540\u0561\u0575\u0565\u0580\u0565\u0576',
+        ka: '\u10e5\u10d0\u10e0\u10d7\u10e3\u10da\u10d8',
+        kk: '\u049a\u0430\u0437\u0430\u049b', uz: '\u040e\u0437\u0431\u0435\u043a\u0447\u0430',
+        ja: '\u65e5\u672c\u8a9e',             ko: '\ud55c\uad6d\uc5b4',
+        zh: '\u4e2d\u6587',                   vi: 'Ti\u1ebfng Vi\u1ec7t',
+        th: '\u0e44\u0e17\u0e22',             id: 'Bahasa Indonesia', ms: 'Melayu',
     };
     langs.forEach(function(lang) {
         const opt = document.createElement('option');
@@ -1125,6 +1122,14 @@ $(function() {
     applyTranslations();
     initHomeScreen();
     showScreen('screen-home');
+
+    // Load all language files asynchronously. When done, re-evaluate the
+    // active language (new files may now be registered) and re-apply so
+    // any saved non-English preference takes effect immediately.
+    loadLanguageFiles().then(function() {
+        activeLanguage = (STRINGS.__namespaced && STRINGS[settings.language]) ? settings.language : 'en';
+        applyTranslations();
+    });
 
     // Start/stop scroll animation based on native audio play/pause
     const audioEl = document.getElementById('audio-native');
