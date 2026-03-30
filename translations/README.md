@@ -27,7 +27,7 @@ This pipeline is for languages that have no official translation and must be mac
 ## Quick start
 
 ```bash
-./translations/setup.sh web/data/strings.js --language French
+./translations/setup.sh web/data/strings.js --lang fr
 ```
 
 When it finishes, `web/data/strings_fr.js` contains the French translation.
@@ -40,7 +40,7 @@ The original `web/data/strings.js` is untouched.
 | Argument | Default | Description |
 |---|---|---|
 | `strings_js` | (required) | Path to the source English `strings.js` file |
-| `--language LANG` | (required) | Target language name, e.g. `French`, `Spanish` |
+| `--lang CODE` | (required) | ISO 639-1 language code, e.g. `fr`, `es`, `ja` |
 | `--output PATH` | `strings_<lang>.js` next to input | Output path for the translated sidecar file |
 | `--model MODEL` | `translategemma:4b` | Ollama model to use |
 
@@ -89,7 +89,7 @@ The Ollama model is stored in a Docker volume (`oathsworn-ollama-models`) and pe
 To swap models, pass `--model` with any model available in Ollama:
 
 ```bash
-./translations/setup.sh web/data/strings.js --language French --model llama3.2:3b
+./translations/setup.sh web/data/strings.js --lang fr --model llama3.2:3b
 ```
 
 ---
