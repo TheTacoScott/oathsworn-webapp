@@ -383,7 +383,7 @@ def main():
     translated = {k: done_keys[k] for k in strings if k in done_keys}
     write_strings_js(translated, args.output, lang_code, args.strings_js)
 
-    skipped = total - len(done_keys)
+    skipped = total - len(translated)
     if skipped:
         print(f"\n{skipped} key(s) skipped due to failures - run again to retry them.")
         print(f"Output (partial) written to {args.output}")
