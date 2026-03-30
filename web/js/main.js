@@ -276,14 +276,12 @@ function loadChapterSelectScreen() {
         numEl.textContent = S('ui.chapter_prefix').replace('%s', label);
         numEl.dataset.stringKey = 'ui.chapter_prefix';
         numEl.dataset.stringParam = label;
-        numEl.classList.add('i18n');
         item.appendChild(numEl);
 
         const tagEl = document.createElement('span');
         tagEl.className = 'chapter-list-tagline';
         tagEl.textContent = tagline;
         tagEl.dataset.stringKey = 'ui.tagline_' + chNum;
-        tagEl.classList.add('i18n');
         item.appendChild(tagEl);
 
         list.appendChild(item);
@@ -413,10 +411,8 @@ function loadSection(goingBack) {
         const authorEl = document.getElementById('chapter-author-text');
         titleEl.textContent = S(titleKey) || ('Chapter ' + (CHAPTER_LABELS[chapterData.num] || chapterData.num));
         titleEl.dataset.stringKey = titleKey;
-        titleEl.classList.add('i18n');
         authorEl.textContent = S(authorKey) || '';
         authorEl.dataset.stringKey = authorKey;
-        authorEl.classList.add('i18n');
         titleArea.classList.remove('d-none');
     } else {
         titleArea.classList.add('d-none');
@@ -476,7 +472,7 @@ function renderPlate() {
     for (const [, item] of sorted) {
         if (item.type === 'text') {
             const div = document.createElement('div');
-            div.className = 'plate-text i18n';
+            div.className = 'plate-text';
             div.textContent = S(item.key);
             div.dataset.stringKey = item.key;
             content.appendChild(div);
@@ -488,7 +484,7 @@ function renderPlate() {
             icon.className = 'popup-box-icon';
             icon.alt = '';
             const text = document.createElement('span');
-            text.className = 'popup-box-text i18n';
+            text.className = 'popup-box-text';
             text.textContent = S(item.strKey);
             text.dataset.stringKey = item.strKey;
             box.appendChild(icon);
@@ -549,7 +545,7 @@ function renderButtons() {
     // Choice buttons
     choices.forEach(choice => {
         const btn = document.createElement('button');
-        btn.className = 'btn btn-choice w-100 i18n';
+        btn.className = 'btn btn-choice w-100';
         btn.textContent = S(choice.text);
         btn.dataset.stringKey = choice.text;
         btn.dataset.next = choice.next;
@@ -567,7 +563,7 @@ function renderButtons() {
             const s = String(locId);
             const locLabel = s.charAt(1) === '0' ? s.substring(2) : s.substring(1);
             const btn = document.createElement('button');
-            btn.className = 'btn btn-location w-100 i18n';
+            btn.className = 'btn btn-location w-100';
             btn.textContent = locationLabel(locId);
             btn.dataset.stringKey = 'location_starter';
             btn.dataset.stringParam = locLabel;
