@@ -20,7 +20,7 @@ Direct usage (inside container):
 
 Arguments:
     strings_js           Path to the source English strings.js file
-    --language LANG      Target language name, e.g. "French", "Spanish"
+    --lang CODE          ISO 639-1 language code, e.g. "fr", "es", "ja"
     --output PATH        Output path (default: strings_<lang>.js next to input)
     --model MODEL        Ollama model to use (default: translategemma:4b)
 """
@@ -118,77 +118,10 @@ def parse_strings_js(path):
     raise ValueError(f"Could not find STRINGS object in {path}")
 
 
-LANGUAGE_CODES = {
-    # Germanic
-    'german':        'de',
-    'dutch':         'nl',
-    'swedish':       'sv',
-    'norwegian':     'no',
-    'danish':        'da',
-    'icelandic':     'is',
-    'afrikaans':     'af',
-    # Romance
-    'french':        'fr',
-    'spanish':       'es',
-    'italian':       'it',
-    'portuguese':    'pt',
-    'romanian':      'ro',
-    'catalan':       'ca',
-    'galician':      'gl',
-    # Slavic
-    'polish':        'pl',
-    'czech':         'cs',
-    'slovak':        'sk',
-    'russian':       'ru',
-    'ukrainian':     'uk',
-    'bulgarian':     'bg',
-    'serbian':       'sr',
-    'croatian':      'hr',
-    'slovenian':     'sl',
-    'macedonian':    'mk',
-    # Baltic / Finno-Ugric
-    'lithuanian':    'lt',
-    'latvian':       'lv',
-    'estonian':      'et',
-    'finnish':       'fi',
-    'hungarian':     'hu',
-    # Other European
-    'greek':         'el',
-    'albanian':      'sq',
-    # Middle Eastern / South Asian
-    'turkish':       'tr',
-    'hebrew':        'he',
-    'arabic':        'ar',
-    'persian':       'fa',
-    'urdu':          'ur',
-    'hindi':         'hi',
-    'bengali':       'bn',
-    # Caucasian / Central Asian
-    'armenian':      'hy',
-    'georgian':      'ka',
-    'kazakh':        'kk',
-    'uzbek':         'uz',
-    # East / Southeast Asian
-    'japanese':      'ja',
-    'korean':        'ko',
-    'chinese':       'zh',
-    'vietnamese':    'vi',
-    'thai':          'th',
-    'indonesian':    'id',
-    'malay':         'ms',
-}
-
-
-def language_code(language_name):
-    """Return the ISO 639-1 code for a language name, or a slugified fallback."""
-    return LANGUAGE_CODES.get(language_name.lower().replace(' ', '_'), language_name.lower()[:2])
-
-
-def write_strings_js(strings, path, language, source_path):
-    """Write a (partial or complete) STRINGS dict to a strings.js file."""
-    lang_code = language_code(language)
+def write_strings_js(strings, path, lang_code, source_path):
+    """Write a (partial or complete) STRINGS dict to a strings_XX.js sidecar file."""
     with open(path, 'w', encoding='utf-8') as f:
-        f.write(f'// Auto-generated: {language} translation of {os.path.basename(source_path)}\n')
+        f.write(f'// Auto-generated: {lang_code} translation of {os.path.basename(source_path)}\n')
         f.write('window.STRINGS = window.STRINGS || {};\n')
         f.write(f'STRINGS["{lang_code}"] = Object.assign(STRINGS["{lang_code}"] || {{}}, ')
         f.write(json.dumps(strings, ensure_ascii=False, indent=2, sort_keys=True))
@@ -249,14 +182,14 @@ def ensure_model(model):
 # Translation
 # ---------------------------------------------------------------------------
 
-def translate_string(text, language, model):
+def translate_string(text, lang_code, model):
     """Send one string to the Ollama API and return the translated text."""
     terms_list = ', '.join(GAME_TERMS)
     prompt = (
         f'You are translating narrative text from a cooperative fantasy board game storybook. '
         f'The text may contain story passages, player instructions, or choice menus (e.g. "Choose one:" followed by options). '
         f'Translate every line completely - do not pick or act on any choices, just translate all of the text as-is. '
-        f'Translate the text below to {language}. '
+        f'Translate the text below to {lang_code}. '
         f'Return only the translated text with no explanation, quotes, or commentary. '
         f'Preserve all newlines and punctuation. '
         f'Do not translate proper nouns or game-specific terms: {terms_list}.\n\n'
@@ -284,19 +217,23 @@ def main():
     parser = argparse.ArgumentParser(
         description='Translate strings.js to another language using a local Ollama model.'
     )
-    parser.add_argument('strings_js', help='Path to source strings.js')
-    parser.add_argument('--language', '-l', required=True,
-                        help='Target language name, e.g. German, French, Spanish')
+    parser.add_argument('strings_js', help='Path to source English strings.js')
+    parser.add_argument('--lang', '-l', required=True, metavar='CODE',
+                        help='ISO 639-1 language code, e.g. fr, es, ja')
     parser.add_argument('--output', '-o',
-                        help='Output path for translated strings.js')
+                        help='Output path for the translated sidecar file')
     parser.add_argument('--model', '-m', default='translategemma:4b',
                         help='Ollama model to use (default: translategemma:4b)')
     parser.add_argument('--retries', type=int, default=1, metavar='N',
                         help='Number of times to retry a string after a sanity failure (default: 1)')
     args = parser.parse_args()
 
+    lang_code = args.lang.lower().strip()
+    if not lang_code.isalpha() or len(lang_code) < 2:
+        print(f"Error: --lang must be an ISO 639-1 language code (e.g. fr, es, ja), got {args.lang!r}")
+        sys.exit(1)
+
     # Resolve output path
-    lang_code = language_code(args.language)
     if args.output is None:
         base, _ = os.path.splitext(args.strings_js)
         args.output = f'{base}_{lang_code}.js'
@@ -325,7 +262,7 @@ def main():
 
     ensure_model(args.model)
 
-    print(f"\nTranslating {len(remaining)} strings to {args.language} using {args.model}...")
+    print(f"\nTranslating {len(remaining)} strings to {lang_code} using {args.model}...")
     print(f"  Output: {args.output}\n")
 
     for key, value in remaining:
@@ -333,7 +270,7 @@ def main():
             done_keys[key] = value
         else:
             try:
-                result = translate_string(value, args.language, args.model)
+                result = translate_string(value, lang_code, args.model)
                 warnings = check_translation(value, result)
                 for attempt in range(args.retries):
                     if not warnings:
@@ -342,7 +279,7 @@ def main():
                     print(f"  Input:      {value!r}", flush=True)
                     print(f"  Bad output: {result!r}", flush=True)
                     print(f"  Retrying ({attempt + 1}/{args.retries})...", flush=True)
-                    result = translate_string(value, args.language, args.model)
+                    result = translate_string(value, lang_code, args.model)
                     warnings = check_translation(value, result)
                 if warnings:
                     print(f"  SANITY FAIL [{key}]: {', '.join(warnings)}", flush=True)
@@ -355,13 +292,13 @@ def main():
                 print(f"  WARNING: failed on '{key}': {e} - skipping", flush=True)
 
         # Write output file after each string - it is the checkpoint
-        write_strings_js(done_keys, args.output, args.language, args.strings_js)
+        write_strings_js(done_keys, args.output, lang_code, args.strings_js)
 
         print(f"  [{len(done_keys)}/{total} {len(done_keys)/total*100:.1f}%] {key}", flush=True)
 
     # Re-write with keys in original source order
     translated = {k: done_keys[k] for k in strings if k in done_keys}
-    write_strings_js(translated, args.output, args.language, args.strings_js)
+    write_strings_js(translated, args.output, lang_code, args.strings_js)
 
     skipped = total - len(done_keys)
     if skipped:
