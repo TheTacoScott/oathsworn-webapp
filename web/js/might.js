@@ -385,7 +385,7 @@ function buildOverlayHTML() {
                 `</div>` +
                 `<div class="might-damage-result" id="might-damage-result">` +
                     `<span class="might-damage-eq">=</span>` +
-                    `<span class="might-damage-out" id="might-damage-out">0 damage</span>` +
+                    `<span class="might-damage-out" id="might-damage-out">${S('ui.might_damage').replace('%s', 0)}</span>` +
                 `</div>` +
                 `<div class="might-staging-bar-actions">` +
                     `<button id="btn-might-clear-draw" class="btn btn-ghost-game btn-draw-might" data-string-key="ui.clear" disabled>${S('ui.clear')}</button>` +
