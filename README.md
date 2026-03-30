@@ -149,11 +149,18 @@ To write the web output to a different directory:
 - Chapter art and tagline shown in the detail panel
 - Scroll indicators on the chapter list when there are more chapters above or below
 
+### Language support
+- Interface labels translated for English, German, Italian, and French (built-in, no extra setup)
+- Language selector in Settings switches the app language at runtime
+- Full story text translation: the official German story text is available via `INCLUDE_GERMAN_LANG=true ./setup.sh`
+- Fan-made story translations for other languages can be generated with the translation pipeline in `translations/` and dropped into `web/data/` as `strings_XX.js`
+
 ### Settings
 - Persistent settings saved across sessions
 - Toggle auto-scroll on/off
 - Toggle auto-start narration on/off
 - Toggle auto-play next audio track on/off
+- Language selector: switch between any installed interface or story translations
 
 ### Scroll indicators
 - Gradient overlay indicators on the choice/location button area when options are hidden off-screen
