@@ -27,11 +27,11 @@
             <img src="data/ui/oathsworn_logo.png" alt="Oathsworn: Into the Deepwood" class="home-logo">
         </div>
         <div class="d-flex flex-column gap-3 home-button-col">
-            <button id="btn-new-campaign" class="btn btn-primary-game">New Campaign</button>
-            <button id="btn-continue-campaign" class="btn btn-primary-game d-none">Continue Campaign</button>
-            <button id="btn-might-home" class="btn btn-ghost-game">Might Decks</button>
-            <button id="btn-view-save" class="btn btn-ghost-game">View Saved Data</button>
-            <button id="btn-settings" class="btn btn-ghost-game">Settings</button>
+            <button id="btn-new-campaign" class="btn btn-primary-game" data-string-key="ui.new_campaign">New Campaign</button>
+            <button id="btn-continue-campaign" class="btn btn-primary-game d-none" data-string-key="ui.continue_campaign">Continue Campaign</button>
+            <button id="btn-might-home" class="btn btn-ghost-game" data-string-key="ui.might_decks">Might Decks</button>
+            <button id="btn-view-save" class="btn btn-ghost-game" data-string-key="ui.view_saved_data">View Saved Data</button>
+            <button id="btn-settings" class="btn btn-ghost-game" data-string-key="ui.settings">Settings</button>
         </div>
         <p class="home-credit">
             Web Companion + Transpiler "thing" created by <a href="https://github.com/TheTacoScott/oathsworn-webapp" target="_blank" rel="noopener" class="home-credit-link">Scott Powers</a>
@@ -50,15 +50,15 @@
 <div id="screen-save-data" class="screen">
     <div class="container py-3">
         <div class="d-flex align-items-center mb-4 gap-3">
-            <button id="btn-save-back" class="btn btn-ghost-game">Back</button>
-            <h4 class="mb-0 screen-heading">Saved Data</h4>
-            <button id="btn-copy-save" class="btn btn-ghost-game ms-auto">Copy JSON</button>
+            <button id="btn-save-back" class="btn btn-ghost-game" data-string-key="ui.back">Back</button>
+            <h4 class="mb-0 screen-heading" data-string-key="ui.saved_data">Saved Data</h4>
+            <button id="btn-copy-save" class="btn btn-ghost-game ms-auto" data-string-key="ui.copy_json">Copy JSON</button>
         </div>
         <div id="save-data-content">
             <!-- populated by loadSaveDataScreen() -->
         </div>
         <details class="mt-4">
-            <summary class="save-data-summary">Raw JSON</summary>
+            <summary class="save-data-summary" data-string-key="ui.raw_json">Raw JSON</summary>
             <pre id="save-data-raw" class="save-data-raw"></pre>
         </details>
     </div>
@@ -72,15 +72,16 @@
     <div class="chapters-layout">
         <div class="chapters-list-pane">
             <div class="chapters-list-header">
-                <button id="btn-chapters-back" class="btn btn-ghost-game btn-back-home">Back</button>
-                <h4 class="mb-0 screen-heading">Select Chapter</h4>
+                <button id="btn-chapters-back" class="btn btn-ghost-game btn-back-home" data-string-key="ui.back">Back</button>
+                <h4 class="mb-0 screen-heading" data-string-key="ui.select_chapter">Select Chapter</h4>
+                <button id="btn-settings-chapters" class="btn btn-ghost-game ms-auto" title="Settings"><img src="data/ui/settings.png" class="settings-icon" alt="Settings"></button>
             </div>
             <div class="chapter-list-wrapper">
                 <div id="chapter-list" class="chapters-list-scroll">
                     <!-- populated by loadChapterSelectScreen() -->
                 </div>
-                <div id="chapter-list-fade-top"    class="choice-fade choice-fade-top">&#9650; scroll for more</div>
-                <div id="chapter-list-fade-bottom" class="choice-fade choice-fade-bottom">scroll for more &#9660;</div>
+                <div id="chapter-list-fade-top"    class="choice-fade choice-fade-top">&#9650; <span data-string-key="ui.scroll_more">scroll for more</span></div>
+                <div id="chapter-list-fade-bottom" class="choice-fade choice-fade-bottom"><span data-string-key="ui.scroll_more">scroll for more</span> &#9660;</div>
             </div>
         </div>
         <div class="chapters-detail-pane">
@@ -104,9 +105,9 @@
             <span id="game-time" class="game-time-display">TIME: 0</span>
             <div class="d-flex gap-2">
                 <button id="btn-settings-game" class="btn btn-ghost-game" title="Settings"><img src="data/ui/settings.png" class="settings-icon" alt="Settings"></button>
-                <button id="btn-might-open" class="btn btn-ghost-game">Might Decks</button>
-                <button id="btn-bug-report" class="btn btn-ghost-game">Bug Report</button>
-                <button id="btn-game-menu" class="btn btn-ghost-game">Exit to Chapter Select</button>
+                <button id="btn-might-open" class="btn btn-ghost-game" data-string-key="ui.might_decks">Might Decks</button>
+                <button id="btn-bug-report" class="btn btn-ghost-game" data-string-key="ui.bug_report">Bug Report</button>
+                <button id="btn-game-menu" class="btn btn-ghost-game" data-string-key="ui.exit_chapter_select">Exit to Chapter Select</button>
             </div>
         </div>
 
@@ -126,7 +127,7 @@
         </div>
 
         <!-- Auto-scroll paused indicator -->
-        <div id="autoscroll-paused" class="autoscroll-paused-bar d-none">
+        <div id="autoscroll-paused" class="autoscroll-paused-bar d-none" data-string-key="ui.autoscroll_paused">
             Auto-scroll paused &middot; click to resume
         </div>
 
@@ -144,8 +145,8 @@
                 <div id="choice-buttons" class="choice-buttons-area d-flex flex-column gap-2">
                     <!-- populated by renderButtons() -->
                 </div>
-                <div id="choice-fade-top"    class="choice-fade choice-fade-top">&#9650; scroll for more</div>
-                <div id="choice-fade-bottom" class="choice-fade choice-fade-bottom">scroll for more &#9660;</div>
+                <div id="choice-fade-top"    class="choice-fade choice-fade-top">&#9650; <span data-string-key="ui.scroll_more">scroll for more</span></div>
+                <div id="choice-fade-bottom" class="choice-fade choice-fade-bottom"><span data-string-key="ui.scroll_more">scroll for more</span> &#9660;</div>
             </div>
         </div>
 
@@ -166,23 +167,32 @@
             <div class="settings-row">
                 <label class="settings-label">
                     <input type="checkbox" id="setting-auto-scroll" class="settings-checkbox">
-                    <span class="settings-label-text">Auto Scroll</span>
+                    <span class="settings-label-text" data-string-key="ui.auto_scroll">Auto Scroll</span>
                 </label>
-                <p class="settings-desc">Scroll the page automatically as narration plays. Scrolling manually will disable it for the current section.</p>
+                <p class="settings-desc" data-string-key="ui.auto_scroll_desc">Scroll the page automatically as narration plays. Scrolling manually will disable it for the current section.</p>
             </div>
             <div class="settings-row">
                 <label class="settings-label">
                     <input type="checkbox" id="setting-auto-narration" class="settings-checkbox">
-                    <span class="settings-label-text">Auto Start Narration</span>
+                    <span class="settings-label-text" data-string-key="ui.auto_narration">Auto Start Narration</span>
                 </label>
-                <p class="settings-desc">Begin playing narration automatically when a new section loads.</p>
+                <p class="settings-desc" data-string-key="ui.auto_narration_desc">Begin playing narration automatically when a new section loads.</p>
             </div>
             <div class="settings-row">
                 <label class="settings-label">
                     <input type="checkbox" id="setting-auto-next" class="settings-checkbox">
-                    <span class="settings-label-text">Auto Play Next Track</span>
+                    <span class="settings-label-text" data-string-key="ui.auto_next">Auto Play Next Track</span>
                 </label>
-                <p class="settings-desc">Advance to the next audio track automatically when one finishes.</p>
+                <p class="settings-desc" data-string-key="ui.auto_next_desc">Advance to the next audio track automatically when one finishes.</p>
+            </div>
+            <div class="settings-row">
+                <label class="settings-label">
+                    <span class="settings-label-text" data-string-key="ui.language">Language</span>
+                </label>
+                <select id="setting-language" class="settings-language-select">
+                    <!-- populated by populateLanguageSelect() -->
+                </select>
+                <p class="settings-desc" data-string-key="ui.language_desc">Switch the story text and interface language. Falls back to English for any missing keys.</p>
             </div>
         </div>
     </div>
@@ -194,7 +204,7 @@
      ============================================================ -->
 <div id="image-lightbox" class="image-lightbox-overlay" style="display:none">
     <img id="image-lightbox-img" class="image-lightbox-img" src="" alt="">
-    <p class="image-lightbox-hint">Click anywhere to close</p>
+    <p class="image-lightbox-hint" data-string-key="ui.lightbox_close">Click anywhere to close</p>
 </div>
 
 
@@ -210,16 +220,16 @@
 <div id="bug-report-modal" class="bug-modal-overlay" style="display:none">
     <div class="bug-modal">
         <div class="bug-modal-header">
-            <span class="bug-modal-title">File a Bug Report</span>
+            <span class="bug-modal-title" data-string-key="ui.file_bug_report">File a Bug Report</span>
             <button id="btn-bug-modal-close" class="btn btn-ghost-game btn-sm">&#10005;</button>
         </div>
         <div class="bug-modal-body">
-            <p class="bug-modal-instructions">Copy the debug info below and paste it into a new GitHub issue:</p>
-            <a href="https://github.com/TheTacoScott/oathsworn-webapp/issues" target="_blank" rel="noopener" class="bug-modal-link">&#8594; Open GitHub Issues</a>
+            <p class="bug-modal-instructions" data-string-key="ui.bug_instructions">Copy the debug info below and paste it into a new GitHub issue:</p>
+            <a href="https://github.com/TheTacoScott/oathsworn-webapp/issues" target="_blank" rel="noopener" class="bug-modal-link">&#8594; <span data-string-key="ui.open_github_issues">Open GitHub Issues</span></a>
             <textarea id="bug-report-text" class="bug-report-textarea" readonly spellcheck="false"></textarea>
         </div>
         <div class="bug-modal-footer">
-            <button id="btn-bug-copy" class="btn btn-ghost-game">Copy to Clipboard</button>
+            <button id="btn-bug-copy" class="btn btn-ghost-game" data-string-key="ui.copy_to_clipboard">Copy to Clipboard</button>
         </div>
     </div>
 </div>
@@ -229,6 +239,8 @@
      SCRIPTS (order matters: data -> engine -> jQuery -> bootstrap -> main)
      ============================================================ -->
 <script src="data/strings.js"></script>
+<script src="js/ui_strings.js"></script>
+<script src="js/lang-loader.js"></script>
 <script src="data/chapters/init.js"></script>
 <script src="data/chapters/chapter_1.js"></script>
 <script src="data/chapters/chapter_2.js"></script>

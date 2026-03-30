@@ -403,6 +403,24 @@
     line-height: 1.4;
 }
 
+.settings-language-select {
+    font-family: var(--font-body);
+    font-size: 0.95rem;
+    background: var(--bg-panel-alt, #1a1508);
+    color: var(--color-text);
+    border: 1px solid var(--color-border);
+    border-radius: 4px;
+    padding: 0.3rem 0.5rem;
+    cursor: pointer;
+    margin-top: 0.4rem;
+    display: block;
+}
+
+.settings-language-select:disabled {
+    opacity: 0.5;
+    cursor: default;
+}
+
 /* Bug report modal */
 
 .bug-modal-overlay {

@@ -3,12 +3,15 @@
 # Translate a strings.js file using a local Ollama model running in Docker.
 # The only host dependency is Docker.
 #
+# Produces a sidecar file (e.g. strings_fr.js) next to the source.
+# The source strings.js is never modified.
+#
 # Usage:
 #   ./translations/setup.sh <strings.js> --language <lang> [options]
 #
 # Examples:
-#   ./translations/setup.sh web/data/strings.js --language French
-#   ./translations/setup.sh web/data/strings.js --language Spanish --model llama3.2:3b
+#   ./translations/setup.sh web/data/strings.js --lang fr
+#   ./translations/setup.sh web/data/strings.js --lang es --model llama3.2:3b
 #
 # All arguments are passed directly to translate.py.
 # Paths are relative to the repo root.
