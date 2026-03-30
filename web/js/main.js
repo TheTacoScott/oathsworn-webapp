@@ -209,7 +209,7 @@ function initHomeScreen() {
 
 $('#btn-new-campaign').on('click', function() {
     if (GameState.hasAnyProgress()) {
-        if (!confirm('Are you sure you want to start a new campaign? This will DELETE any saved progress.')) return;
+        if (!confirm(S('ui.confirm_new_campaign'))) return;
     }
     GameState.clearAll();
     loadChapterSelectScreen();
@@ -239,7 +239,7 @@ $('#btn-copy-save').on('click', function() {
     navigator.clipboard.writeText(raw).then(() => {
         const btn = document.getElementById('btn-copy-save');
         const orig = btn.textContent;
-        btn.textContent = 'Copied!';
+        btn.textContent = S('ui.copied');
         setTimeout(() => { btn.textContent = orig; }, 1500);
     });
 });
@@ -409,7 +409,7 @@ function loadSection(goingBack) {
         const authorKey = 'authorText' + (chapterData.num === 22 ? '11_5' : chapterData.num);
         const titleEl = document.getElementById('chapter-title-text');
         const authorEl = document.getElementById('chapter-author-text');
-        titleEl.textContent = S(titleKey) || ('Chapter ' + (CHAPTER_LABELS[chapterData.num] || chapterData.num));
+        titleEl.textContent = S(titleKey) || S('ui.chapter_prefix').replace('%s', CHAPTER_LABELS[chapterData.num] || chapterData.num);
         titleEl.dataset.stringKey = titleKey;
         authorEl.textContent = S(authorKey) || '';
         authorEl.dataset.stringKey = authorKey;
@@ -693,7 +693,7 @@ function advanceAndGo(nextSectionNum) {
 //
 
 $('#btn-game-back').on('click', function() {
-    if (!confirm('Are you sure you want to go back?')) return;
+    if (!confirm(S('ui.confirm_go_back'))) return;
     stopAudio();
 
     engine.removeCurrentSectionNum(
@@ -850,7 +850,7 @@ function stopScrollAnimation() {
 
 function updateTrackLabel() {
     const total = audioTracks.length;
-    const label = total > 1 ? 'Track ' + (audioTrackIndex + 1) + ' / ' + total : 'Audio';
+    const label = total > 1 ? S('ui.audio_label').replace('%s', audioTrackIndex + 1).replace('%s', total) : S('ui.audio');
     const el = document.getElementById('audio-track-label');
     if (el) el.textContent = label;
 }
@@ -891,7 +891,7 @@ function loadSaveDataScreen() {
     if (chapterNums.length === 0) {
         const p = document.createElement('p');
         p.style.color = 'var(--color-text-dim)';
-        p.textContent = 'No saved progress found.';
+        p.textContent = S('ui.no_saved_progress');
         content.appendChild(p);
     } else {
         chapterNums.forEach(chNum => {
@@ -900,25 +900,28 @@ function loadSaveDataScreen() {
             const currentSection = cs.sectionsList[cs.sectionsList.length - 1];
 
             const rows = [
-                ['Section', currentSection],
-                ['History', cs.sectionsList.length + ' sections visited'],
+                [S('ui.save_section'), currentSection],
+                ['History', S('ui.save_history').replace('%s', cs.sectionsList.length)],
                 ['Time', cs.timeTrackList || 0],
-                ['Locations', cs.locationsList && cs.locationsList.length ? cs.locationsList.join(', ') : 'none'],
+                ['Locations', cs.locationsList && cs.locationsList.length ? cs.locationsList.join(', ') : S('ui.save_locations_none')],
             ];
 
             if (cs.clue1 || cs.clue2) {
-                const found = [cs.clue1 && 'Clue 1', cs.clue2 && 'Clue 2'].filter(Boolean).join(', ');
+                const found = [
+                    cs.clue1 && S('ui.save_clue_n').replace('%s', 1),
+                    cs.clue2 && S('ui.save_clue_n').replace('%s', 2),
+                ].filter(Boolean).join(', ');
                 rows.push(['Clues', found]);
             }
 
             if (cs.unvisitedDeepwoodTokens && cs.unvisitedDeepwoodTokens.length > 0) {
-                rows.push(['Unvisited Deepwood', cs.unvisitedDeepwoodTokens.join(', ')]);
+                rows.push([S('ui.save_unvisited_deepwood'), cs.unvisitedDeepwoodTokens.join(', ')]);
             }
 
             const panel = document.createElement('div');
             panel.className = 'save-data-panel mb-3';
 
-            let html = `<div class="save-data-chapter-label">Chapter ${label}</div>`;
+            let html = `<div class="save-data-chapter-label">${S('ui.chapter_prefix').replace('%s', label)}</div>`;
             html += '<table class="save-data-table">';
             rows.forEach(([k, v]) => {
                 html += `<tr><td class="save-data-key">${k}</td><td class="save-data-val">${v}</td></tr>`;
@@ -1023,7 +1026,7 @@ $('#btn-bug-copy').on('click', function() {
     navigator.clipboard.writeText(text).then(() => {
         const btn = document.getElementById('btn-bug-copy');
         const orig = btn.textContent;
-        btn.textContent = 'Copied!';
+        btn.textContent = S('ui.copied');
         setTimeout(() => { btn.textContent = orig; }, 1500);
     });
 });

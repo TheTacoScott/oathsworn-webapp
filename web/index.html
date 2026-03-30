@@ -58,7 +58,7 @@
             <!-- populated by loadSaveDataScreen() -->
         </div>
         <details class="mt-4">
-            <summary class="save-data-summary">Raw JSON</summary>
+            <summary class="save-data-summary" data-string-key="ui.raw_json">Raw JSON</summary>
             <pre id="save-data-raw" class="save-data-raw"></pre>
         </details>
     </div>
@@ -80,8 +80,8 @@
                 <div id="chapter-list" class="chapters-list-scroll">
                     <!-- populated by loadChapterSelectScreen() -->
                 </div>
-                <div id="chapter-list-fade-top"    class="choice-fade choice-fade-top">&#9650; scroll for more</div>
-                <div id="chapter-list-fade-bottom" class="choice-fade choice-fade-bottom">scroll for more &#9660;</div>
+                <div id="chapter-list-fade-top"    class="choice-fade choice-fade-top">&#9650; <span data-string-key="ui.scroll_more">scroll for more</span></div>
+                <div id="chapter-list-fade-bottom" class="choice-fade choice-fade-bottom"><span data-string-key="ui.scroll_more">scroll for more</span> &#9660;</div>
             </div>
         </div>
         <div class="chapters-detail-pane">
@@ -145,8 +145,8 @@
                 <div id="choice-buttons" class="choice-buttons-area d-flex flex-column gap-2">
                     <!-- populated by renderButtons() -->
                 </div>
-                <div id="choice-fade-top"    class="choice-fade choice-fade-top">&#9650; scroll for more</div>
-                <div id="choice-fade-bottom" class="choice-fade choice-fade-bottom">scroll for more &#9660;</div>
+                <div id="choice-fade-top"    class="choice-fade choice-fade-top">&#9650; <span data-string-key="ui.scroll_more">scroll for more</span></div>
+                <div id="choice-fade-bottom" class="choice-fade choice-fade-bottom"><span data-string-key="ui.scroll_more">scroll for more</span> &#9660;</div>
             </div>
         </div>
 
@@ -204,7 +204,7 @@
      ============================================================ -->
 <div id="image-lightbox" class="image-lightbox-overlay" style="display:none">
     <img id="image-lightbox-img" class="image-lightbox-img" src="" alt="">
-    <p class="image-lightbox-hint">Click anywhere to close</p>
+    <p class="image-lightbox-hint" data-string-key="ui.lightbox_close">Click anywhere to close</p>
 </div>
 
 
@@ -225,7 +225,7 @@
         </div>
         <div class="bug-modal-body">
             <p class="bug-modal-instructions" data-string-key="ui.bug_instructions">Copy the debug info below and paste it into a new GitHub issue:</p>
-            <a href="https://github.com/TheTacoScott/oathsworn-webapp/issues" target="_blank" rel="noopener" class="bug-modal-link">&#8594; Open GitHub Issues</a>
+            <a href="https://github.com/TheTacoScott/oathsworn-webapp/issues" target="_blank" rel="noopener" class="bug-modal-link">&#8594; <span data-string-key="ui.open_github_issues">Open GitHub Issues</span></a>
             <textarea id="bug-report-text" class="bug-report-textarea" readonly spellcheck="false"></textarea>
         </div>
         <div class="bug-modal-footer">

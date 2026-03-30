@@ -57,6 +57,23 @@ STRINGS["en"] = Object.assign(STRINGS["en"] || {}, {
     "ui.might_no_draws":       "No draws yet.",
     "ui.might_draw_n":         "Draw %s",
     "ui.might_miss":           "MISS",
+    // Confirmations and feedback
+    "ui.confirm_new_campaign":  "Are you sure you want to start a new campaign? This will delete any saved progress.",
+    "ui.confirm_go_back":       "Are you sure you want to go back?",
+    "ui.copied":                "Copied!",
+    "ui.lightbox_close":        "Click anywhere to close",
+    "ui.open_github_issues":    "Open GitHub Issues",
+    "ui.raw_json":              "Raw JSON",
+    // Audio track label
+    "ui.audio_label":           "Track %s / %s",
+    "ui.audio":                 "Audio",
+    // Save data screen
+    "ui.no_saved_progress":       "No saved progress.",
+    "ui.save_section":            "Section",
+    "ui.save_history":            "%s sections visited",
+    "ui.save_locations_none":     "none",
+    "ui.save_clue_n":             "Clue %s",
+    "ui.save_unvisited_deepwood": "Unvisited Deepwood",
     // Chapter taglines shown in the chapter select screen
     "ui.tagline_1":  "The road winds into the dark wood...",
     "ui.tagline_2":  "A gathering at the Broken Oak...",
@@ -83,8 +100,6 @@ STRINGS["en"] = Object.assign(STRINGS["en"] || {}, {
 });
 
 // ── Deutsch (German) ─────────────────────────────────────────────────────────
-// Note: game-specific terms (Macht-Decks, Tiefwald, etc.) should be verified
-// against the official German edition before publishing.
 STRINGS["de"] = Object.assign(STRINGS["de"] || {}, {
     "ui.new_campaign":         "Neue Kampagne",
     "ui.continue_campaign":    "Kampagne fortsetzen",
@@ -132,6 +147,20 @@ STRINGS["de"] = Object.assign(STRINGS["de"] || {}, {
     "ui.might_no_draws":       "Noch keine Z\u00fcge.",
     "ui.might_draw_n":         "Zug %s",
     "ui.might_miss":           "VERFEHLT",
+    "ui.confirm_new_campaign":  "Bist du sicher, dass du eine neue Kampagne starten m\u00f6chtest? Der gespeicherte Fortschritt wird gel\u00f6scht.",
+    "ui.confirm_go_back":       "Bist du sicher, dass du zur\u00fcckgehen m\u00f6chtest?",
+    "ui.copied":                "Kopiert!",
+    "ui.lightbox_close":        "Klicke irgendwo zum Schlie\u00dfen",
+    "ui.open_github_issues":    "GitHub Issues \u00f6ffnen",
+    "ui.raw_json":              "Roh-JSON",
+    "ui.audio_label":           "Spur %s / %s",
+    "ui.audio":                 "Audio",
+    "ui.no_saved_progress":       "Kein gespeicherter Fortschritt.",
+    "ui.save_section":            "Abschnitt",
+    "ui.save_history":            "%s Abschnitte besucht",
+    "ui.save_locations_none":     "keine",
+    "ui.save_clue_n":             "Hinweis %s",
+    "ui.save_unvisited_deepwood": "Unbesuchter Tiefwald",
     "ui.tagline_1":  "Der Weg windet sich in den dunklen Wald...",
     "ui.tagline_2":  "Eine Versammlung an der Gebrochenen Eiche...",
     "ui.tagline_3":  "Die Ruhe vor dem Sturm...",
@@ -157,8 +186,6 @@ STRINGS["de"] = Object.assign(STRINGS["de"] || {}, {
 });
 
 // ── Italiano (Italian) ───────────────────────────────────────────────────────
-// Note: game-specific terms should be verified against the official Italian
-// edition before publishing.
 STRINGS["it"] = Object.assign(STRINGS["it"] || {}, {
     "ui.new_campaign":         "Nuova Campagna",
     "ui.continue_campaign":    "Continua Campagna",
@@ -206,6 +233,20 @@ STRINGS["it"] = Object.assign(STRINGS["it"] || {}, {
     "ui.might_no_draws":       "Nessuna pesca ancora.",
     "ui.might_draw_n":         "Pesca %s",
     "ui.might_miss":           "MANCATO",
+    "ui.confirm_new_campaign":  "Sei sicuro di voler iniziare una nuova campagna? I progressi salvati verranno eliminati.",
+    "ui.confirm_go_back":       "Sei sicuro di voler tornare indietro?",
+    "ui.copied":                "Copiato!",
+    "ui.lightbox_close":        "Clicca ovunque per chiudere",
+    "ui.open_github_issues":    "Apri le Segnalazioni GitHub",
+    "ui.raw_json":              "JSON Grezzo",
+    "ui.audio_label":           "Traccia %s / %s",
+    "ui.audio":                 "Audio",
+    "ui.no_saved_progress":       "Nessun progresso salvato.",
+    "ui.save_section":            "Sezione",
+    "ui.save_history":            "%s sezioni visitate",
+    "ui.save_locations_none":     "nessuna",
+    "ui.save_clue_n":             "Indizio %s",
+    "ui.save_unvisited_deepwood": "Bosco Profondo non visitato",
     "ui.tagline_1":  "La strada si snoda nel bosco oscuro...",
     "ui.tagline_2":  "Un raduno alla Quercia Spezzata...",
     "ui.tagline_3":  "La quiete prima della tempesta...",
@@ -231,8 +272,6 @@ STRINGS["it"] = Object.assign(STRINGS["it"] || {}, {
 });
 
 // ── Français (French) ────────────────────────────────────────────────────────
-// Note: game-specific terms should be verified against the official French
-// edition before publishing.
 STRINGS["fr"] = Object.assign(STRINGS["fr"] || {}, {
     "ui.new_campaign":         "Nouvelle Campagne",
     "ui.continue_campaign":    "Continuer la Campagne",
@@ -280,6 +319,20 @@ STRINGS["fr"] = Object.assign(STRINGS["fr"] || {}, {
     "ui.might_no_draws":       "Aucun tirage pour l\u2019instant.",
     "ui.might_draw_n":         "Tirage %s",
     "ui.might_miss":           "RAT\u00c9",
+    "ui.confirm_new_campaign":  "Voulez-vous vraiment d\u00e9marrer une nouvelle campagne\u00a0? Cela supprimera tout progr\u00e8s enregistr\u00e9.",
+    "ui.confirm_go_back":       "Voulez-vous vraiment revenir en arri\u00e8re\u00a0?",
+    "ui.copied":                "Copi\u00e9\u00a0!",
+    "ui.lightbox_close":        "Cliquez n\u2019importe o\u00f9 pour fermer",
+    "ui.open_github_issues":    "Ouvrir les Issues GitHub",
+    "ui.raw_json":              "JSON Brut",
+    "ui.audio_label":           "Piste %s / %s",
+    "ui.audio":                 "Audio",
+    "ui.no_saved_progress":       "Aucune progression sauvegard\u00e9e.",
+    "ui.save_section":            "Section",
+    "ui.save_history":            "%s sections visit\u00e9es",
+    "ui.save_locations_none":     "aucun",
+    "ui.save_clue_n":             "Indice %s",
+    "ui.save_unvisited_deepwood": "For\u00eat profonde non visit\u00e9e",
     "ui.tagline_1":  "La route sinue dans la for\u00eat sombre...",
     "ui.tagline_2":  "Un rassemblement au Ch\u00eane Bris\u00e9...",
     "ui.tagline_3":  "Le calme avant la temp\u00eate...",
