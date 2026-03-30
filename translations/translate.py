@@ -159,17 +159,63 @@ def replace_strings_js(strings_js_path, translated_path):
 
 
 LANGUAGE_CODES = {
-    'german':     'de',
-    'french':     'fr',
-    'spanish':    'es',
-    'italian':    'it',
-    'portuguese': 'pt',
-    'polish':     'pl',
-    'dutch':      'nl',
-    'russian':    'ru',
-    'japanese':   'ja',
-    'chinese':    'zh',
-    'korean':     'ko',
+    # Germanic
+    'german':        'de',
+    'dutch':         'nl',
+    'swedish':       'sv',
+    'norwegian':     'no',
+    'danish':        'da',
+    'icelandic':     'is',
+    'afrikaans':     'af',
+    # Romance
+    'french':        'fr',
+    'spanish':       'es',
+    'italian':       'it',
+    'portuguese':    'pt',
+    'romanian':      'ro',
+    'catalan':       'ca',
+    'galician':      'gl',
+    # Slavic
+    'polish':        'pl',
+    'czech':         'cs',
+    'slovak':        'sk',
+    'russian':       'ru',
+    'ukrainian':     'uk',
+    'bulgarian':     'bg',
+    'serbian':       'sr',
+    'croatian':      'hr',
+    'slovenian':     'sl',
+    'macedonian':    'mk',
+    # Baltic / Finno-Ugric
+    'lithuanian':    'lt',
+    'latvian':       'lv',
+    'estonian':      'et',
+    'finnish':       'fi',
+    'hungarian':     'hu',
+    # Other European
+    'greek':         'el',
+    'albanian':      'sq',
+    # Middle Eastern / South Asian
+    'turkish':       'tr',
+    'hebrew':        'he',
+    'arabic':        'ar',
+    'persian':       'fa',
+    'urdu':          'ur',
+    'hindi':         'hi',
+    'bengali':       'bn',
+    # Caucasian / Central Asian
+    'armenian':      'hy',
+    'georgian':      'ka',
+    'kazakh':        'kk',
+    'uzbek':         'uz',
+    # East / Southeast Asian
+    'japanese':      'ja',
+    'korean':        'ko',
+    'chinese':       'zh',
+    'vietnamese':    'vi',
+    'thai':          'th',
+    'indonesian':    'id',
+    'malay':         'ms',
 }
 
 
