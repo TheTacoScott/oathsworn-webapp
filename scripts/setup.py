@@ -236,7 +236,7 @@ def step_generate_german_strings_js(apk_path):
     # end_of_pop5b_1_4a__b with the same text - copy it across.
     if 'end_of_pop5b_1_4a__b' in strings and 'end_of_pop5_9_5a__b' not in strings:
         strings['end_of_pop5_9_5a__b'] = strings['end_of_pop5b_1_4a__b']
-        print("  Patched: end_of_pop5_9_5a__b <- end_of_pop5b_1_4a__b")
+        print("  Patched: end_of_pop5b_1_4a__b -> end_of_pop5_9_5a__b")
 
     out_path = os.path.join(REPO_ROOT, 'web', 'data', 'strings_de.js')
     with open(out_path, 'w', encoding='utf-8') as f:
