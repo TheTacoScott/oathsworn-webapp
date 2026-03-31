@@ -119,9 +119,9 @@ function saveSettings() {
 }
 
 function syncSettingsUI() {
-    document.getElementById('setting-auto-scroll').checked    = settings.autoScroll;
-    document.getElementById('setting-auto-narration').checked = settings.autoStartNarration;
-    document.getElementById('setting-auto-next').checked      = settings.autoPlayNext;
+    $('#setting-auto-scroll').prop('checked', settings.autoScroll);
+    $('#setting-auto-narration').prop('checked', settings.autoStartNarration);
+    $('#setting-auto-next').prop('checked', settings.autoPlayNext);
 }
 
 function openSettingsModal() {
@@ -174,9 +174,8 @@ function audioUrl(name) {
 //
 
 function showScreen(id) {
-    document.querySelectorAll('.screen').forEach(el => el.classList.remove('active'));
-    const el = document.getElementById(id);
-    if (el) el.classList.add('active');
+    $('.screen').removeClass('active');
+    $('#' + id).addClass('active');
 }
 
 //
@@ -237,10 +236,10 @@ $('#btn-save-back').on('click', function() {
 $('#btn-copy-save').on('click', function() {
     const raw = localStorage.getItem(STORAGE_KEY) || '{}';
     navigator.clipboard.writeText(raw).then(() => {
-        const btn = document.getElementById('btn-copy-save');
-        const orig = btn.textContent;
-        btn.textContent = S('ui.copied');
-        setTimeout(() => { btn.textContent = orig; }, 1500);
+        const $btn = $(this);
+        const orig = $btn.text();
+        $btn.text(S('ui.copied'));
+        setTimeout(() => { $btn.text(orig); }, 1500);
     });
 });
 
@@ -253,8 +252,7 @@ $('#btn-copy-save').on('click', function() {
 let selectedChapterNum = null;
 
 function loadChapterSelectScreen() {
-    const list = document.getElementById('chapter-list');
-    list.innerHTML = '';
+    const $list = $('#chapter-list').empty();
 
     CHAPTER_ORDER.forEach(chNum => {
         const ch = CHAPTERS[chNum];
@@ -265,26 +263,24 @@ function loadChapterSelectScreen() {
         const started = !completed && GameState.isChapterStarted(chNum);
         const tagline = S('ui.tagline_' + chNum, '');
 
-        const item = document.createElement('button');
         let stateClass = completed ? ' chapter-completed' : (started ? ' chapter-in-progress' : '');
-        item.className = 'btn chapter-list-item' + stateClass;
-        item.dataset.chapter = chNum;
-        item.addEventListener('click', () => selectChapterDetail(chNum));
+        const $item = $('<button>')
+            .addClass('btn chapter-list-item' + stateClass)
+            .attr('data-chapter', chNum)
+            .on('click', () => selectChapterDetail(chNum));
 
-        const numEl = document.createElement('span');
-        numEl.className = 'chapter-list-num';
-        numEl.textContent = S('ui.chapter_prefix').replace('%s', label);
-        numEl.dataset.stringKey = 'ui.chapter_prefix';
-        numEl.dataset.stringParam = label;
-        item.appendChild(numEl);
+        $('<span>').addClass('chapter-list-num')
+            .text(S('ui.chapter_prefix').replace('%s', label))
+            .attr('data-string-key', 'ui.chapter_prefix')
+            .attr('data-string-param', label)
+            .appendTo($item);
 
-        const tagEl = document.createElement('span');
-        tagEl.className = 'chapter-list-tagline';
-        tagEl.textContent = tagline;
-        tagEl.dataset.stringKey = 'ui.tagline_' + chNum;
-        item.appendChild(tagEl);
+        $('<span>').addClass('chapter-list-tagline')
+            .text(tagline)
+            .attr('data-string-key', 'ui.tagline_' + chNum)
+            .appendTo($item);
 
-        list.appendChild(item);
+        $list.append($item);
     });
 
     // Preload all chapter art so image swaps are instant
@@ -299,20 +295,21 @@ function loadChapterSelectScreen() {
 }
 
 function updateChapterListFade() {
-    const container = document.getElementById('chapter-list');
-    const top    = document.getElementById('chapter-list-fade-top');
-    const bottom = document.getElementById('chapter-list-fade-bottom');
-    const clippedTop    = container.scrollTop > 2;
-    const clippedBottom = container.scrollTop + container.clientHeight < container.scrollHeight - 2;
-    if (top)    top.classList.toggle('is-visible', clippedTop);
-    if (bottom) bottom.classList.toggle('is-visible', clippedBottom);
+    const $container = $('#chapter-list');
+    const scrollTop    = $container.scrollTop();
+    const clientHeight = $container.innerHeight();
+    const scrollHeight = $container.prop('scrollHeight');
+    const clippedTop    = scrollTop > 2;
+    const clippedBottom = scrollTop + clientHeight < scrollHeight - 2;
+    $('#chapter-list-fade-top').toggleClass('is-visible', clippedTop);
+    $('#chapter-list-fade-bottom').toggleClass('is-visible', clippedBottom);
 }
 
 function selectChapterDetail(chNum) {
     selectedChapterNum = chNum;
 
-    document.querySelectorAll('.chapter-list-item').forEach(el => {
-        el.classList.toggle('active', parseInt(el.dataset.chapter) === chNum);
+    $('.chapter-list-item').each(function() {
+        $(this).toggleClass('active', parseInt($(this).attr('data-chapter')) === chNum);
     });
 
     const label = CHAPTER_LABELS[chNum] || String(chNum);
@@ -331,8 +328,7 @@ function selectChapterDetail(chNum) {
 
     const btnLabel = started ? S('ui.chapter_resume') : completed ? S('ui.chapter_replay') : S('ui.chapter_start');
 
-    const detail = document.getElementById('chapter-detail');
-    detail.innerHTML = `
+    $('#chapter-detail').html(`
         <div class="chapter-detail-image" style="${artPath ? `background-image: url('${artPath}'); ` : ''}${artExtraStyle}"></div>
         <div class="chapter-detail-info">
             <div class="chapter-detail-num">${S('ui.chapter_prefix').replace('%s', label)}</div>
@@ -340,17 +336,17 @@ function selectChapterDetail(chNum) {
             ${statusHtml}
             <button class="btn btn-primary-game chapter-detail-start" id="btn-chapter-start">${btnLabel}</button>
         </div>
-    `;
+    `);
 
-    document.getElementById('btn-chapter-start').addEventListener('click', () => {
+    $('#btn-chapter-start').on('click', () => {
         if (completed) engine.clearCampaign(chNum);
         startChapter(chNum);
     });
 
     // Fade in the image (starts at 0 via inline style, transitions to 1)
-    const imageDiv = detail.querySelector('.chapter-detail-image');
-    imageDiv.style.opacity = '0';
-    requestAnimationFrame(() => requestAnimationFrame(() => { imageDiv.style.opacity = ''; }));
+    const $imageDiv = $('#chapter-detail .chapter-detail-image');
+    $imageDiv.css('opacity', '0');
+    requestAnimationFrame(() => requestAnimationFrame(() => { $imageDiv.css('opacity', ''); }));
 }
 
 $('#btn-chapters-back').on('click', function() {
@@ -400,22 +396,22 @@ function loadSection(goingBack) {
 
     // Time display
     const time = engine.getTime();
-    document.getElementById('game-time').textContent = 'TIME: ' + time;
+    $('#game-time').text('TIME: ' + time);
 
     // Chapter title (shown only on section 0 first visit)
-    const titleArea = document.getElementById('chapter-title-area');
+    const $titleArea = $('#chapter-title-area');
     if (currentSectionNum === 0 && chapterData.num !== 22) {
         const titleKey = 'chapterText' + (chapterData.num === 22 ? '11_5' : chapterData.num);
         const authorKey = 'authorText' + (chapterData.num === 22 ? '11_5' : chapterData.num);
-        const titleEl = document.getElementById('chapter-title-text');
-        const authorEl = document.getElementById('chapter-author-text');
-        titleEl.textContent = S(titleKey) || S('ui.chapter_prefix').replace('%s', CHAPTER_LABELS[chapterData.num] || chapterData.num);
-        titleEl.dataset.stringKey = titleKey;
-        authorEl.textContent = S(authorKey) || '';
-        authorEl.dataset.stringKey = authorKey;
-        titleArea.classList.remove('d-none');
+        $('#chapter-title-text')
+            .text(S(titleKey) || S('ui.chapter_prefix').replace('%s', CHAPTER_LABELS[chapterData.num] || chapterData.num))
+            .attr('data-string-key', titleKey);
+        $('#chapter-author-text')
+            .text(S(authorKey) || '')
+            .attr('data-string-key', authorKey);
+        $titleArea.removeClass('d-none');
     } else {
-        titleArea.classList.add('d-none');
+        $titleArea.addClass('d-none');
     }
 
     renderPlate();
@@ -423,7 +419,7 @@ function loadSection(goingBack) {
     setupAudio();
 
     // Scroll content to top
-    document.getElementById('game-content').scrollTop = 0;
+    $('#game-content').scrollTop(0);
 }
 
 //
@@ -434,8 +430,7 @@ function loadSection(goingBack) {
 
 function renderPlate() {
     const section = currentSection;
-    const content = document.getElementById('game-content');
-    content.innerHTML = '';
+    const $content = $('#game-content').empty();
 
     // Build the ordered plate_sections map (key -> item)
     // Even keys: text/popup; odd keys: images
@@ -471,34 +466,26 @@ function renderPlate() {
     const sorted = [...plate.entries()].sort((a, b) => a[0] - b[0]);
     for (const [, item] of sorted) {
         if (item.type === 'text') {
-            const div = document.createElement('div');
-            div.className = 'plate-text';
-            div.textContent = S(item.key);
-            div.dataset.stringKey = item.key;
-            content.appendChild(div);
+            $content.append(
+                $('<div>').addClass('plate-text')
+                    .text(S(item.key))
+                    .attr('data-string-key', item.key)
+            );
         } else if (item.type === 'popup') {
-            const box = document.createElement('div');
-            box.className = 'popup-box';
-            const icon = document.createElement('img');
-            icon.src = 'data/ui/info.png';
-            icon.className = 'popup-box-icon';
-            icon.alt = '';
-            const text = document.createElement('span');
-            text.className = 'popup-box-text';
-            text.textContent = S(item.strKey);
-            text.dataset.stringKey = item.strKey;
-            box.appendChild(icon);
-            box.appendChild(text);
-            content.appendChild(box);
+            const $box = $('<div>').addClass('popup-box');
+            $('<img>').attr({ src: 'data/ui/info.png', alt: '' }).addClass('popup-box-icon').appendTo($box);
+            $('<span>').addClass('popup-box-text')
+                .text(S(item.strKey))
+                .attr('data-string-key', item.strKey)
+                .appendTo($box);
+            $content.append($box);
         } else if (item.type === 'image') {
             const url = imageUrl(item.name);
             if (url) {
-                const img = document.createElement('img');
-                img.src = url;
-                img.className = 'plate-image';
-                img.alt = '';
-                img.addEventListener('click', () => openImageLightbox(url));
-                content.appendChild(img);
+                $content.append(
+                    $('<img>').attr({ src: url, alt: '' }).addClass('plate-image')
+                        .on('click', () => openImageLightbox(url))
+                );
             }
         }
     }
@@ -508,13 +495,11 @@ function renderPlate() {
 }
 
 function updateContentFade() {
-    const container = document.getElementById('game-content');
-    const top    = document.getElementById('content-fade-top');
-    const bottom = document.getElementById('content-fade-bottom');
-    const maxScroll = container.scrollHeight - container.clientHeight;
-    const ratio = maxScroll > 0 ? container.scrollTop / maxScroll : 0;
-    if (top)    top.style.opacity    = ratio * 0.5;
-    if (bottom) bottom.style.opacity = (1 - ratio) * 0.5;
+    const $container = $('#game-content');
+    const maxScroll = $container.prop('scrollHeight') - $container.innerHeight();
+    const ratio = maxScroll > 0 ? $container.scrollTop() / maxScroll : 0;
+    $('#content-fade-top').css('opacity', ratio * 0.5);
+    $('#content-fade-bottom').css('opacity', (1 - ratio) * 0.5);
 }
 
 //
@@ -524,7 +509,7 @@ function updateContentFade() {
 //
 
 function openImageLightbox(url) {
-    document.getElementById('image-lightbox-img').src = url;
+    $('#image-lightbox-img').attr('src', url);
     $('#image-lightbox').css('display', 'flex');
 }
 
@@ -535,22 +520,20 @@ function openImageLightbox(url) {
 //
 
 function renderButtons() {
-    const container = document.getElementById('choice-buttons');
-    container.innerHTML = '';
+    const $container = $('#choice-buttons').empty();
 
-    const section = currentSection;
-    const choices = section.choices || [];
-    const showLocs = section.showLocations;
+    const choices = currentSection.choices || [];
+    const showLocs = currentSection.showLocations;
 
     // Choice buttons
     choices.forEach(choice => {
-        const btn = document.createElement('button');
-        btn.className = 'btn btn-choice w-100';
-        btn.textContent = S(choice.text);
-        btn.dataset.stringKey = choice.text;
-        btn.dataset.next = choice.next;
-        btn.addEventListener('click', () => handleChoiceClick(choice.next));
-        container.appendChild(btn);
+        $container.append(
+            $('<button>').addClass('btn btn-choice w-100')
+                .text(S(choice.text))
+                .attr('data-string-key', choice.text)
+                .attr('data-next', choice.next)
+                .on('click', () => handleChoiceClick(choice.next))
+        );
     });
 
     // Location buttons
@@ -562,15 +545,15 @@ function renderButtons() {
 
             const s = String(locId);
             const locLabel = s.charAt(1) === '0' ? s.substring(2) : s.substring(1);
-            const btn = document.createElement('button');
-            btn.className = 'btn btn-location w-100';
-            btn.textContent = locationLabel(locId);
-            btn.dataset.stringKey = 'location_starter';
-            btn.dataset.stringParam = locLabel;
-            btn.dataset.locId = locId;
-            btn.dataset.next = nextSection;
-            btn.addEventListener('click', () => handleLocationClick(locId, nextSection));
-            container.appendChild(btn);
+            $container.append(
+                $('<button>').addClass('btn btn-location w-100')
+                    .text(locationLabel(locId))
+                    .attr('data-string-key', 'location_starter')
+                    .attr('data-string-param', locLabel)
+                    .attr('data-loc-id', locId)
+                    .attr('data-next', nextSection)
+                    .on('click', () => handleLocationClick(locId, nextSection))
+            );
         });
     }
 
@@ -579,13 +562,14 @@ function renderButtons() {
 }
 
 function updateScrollHint() {
-    const container = document.getElementById('choice-buttons');
-    const top    = document.getElementById('choice-fade-top');
-    const bottom = document.getElementById('choice-fade-bottom');
-    const clippedTop    = container.scrollTop > 2;
-    const clippedBottom = container.scrollTop + container.clientHeight < container.scrollHeight - 2;
-    if (top)    top.classList.toggle('is-visible',    clippedTop);
-    if (bottom) bottom.classList.toggle('is-visible', clippedBottom);
+    const $container = $('#choice-buttons');
+    const scrollTop    = $container.scrollTop();
+    const clientHeight = $container.innerHeight();
+    const scrollHeight = $container.prop('scrollHeight');
+    const clippedTop    = scrollTop > 2;
+    const clippedBottom = scrollTop + clientHeight < scrollHeight - 2;
+    $('#choice-fade-top').toggleClass('is-visible', clippedTop);
+    $('#choice-fade-bottom').toggleClass('is-visible', clippedBottom);
 }
 
 //
@@ -749,7 +733,7 @@ function setupAudio() {
     audioTrackDurations = audioTracks.map(() => null);
     audioTracks.forEach((url, i) => {
         const tmp = new Audio();
-        tmp.addEventListener('loadedmetadata', () => { audioTrackDurations[i] = tmp.duration; });
+        $(tmp).on('loadedmetadata', () => { audioTrackDurations[i] = tmp.duration; });
         tmp.src = url;
     });
 
@@ -762,7 +746,7 @@ function setupAudio() {
 }
 
 function loadAudioTrack(idx, loop) {
-    audioPlayer = document.getElementById('audio-native');
+    audioPlayer = $('#audio-native')[0];
     audioPlayer.src = audioTracks[idx];
     audioPlayer.loop = !!loop;
     audioPlayer.onended = () => {
@@ -793,7 +777,7 @@ function pauseAudio() {
 }
 
 function stopAudio() {
-    const el = document.getElementById('audio-native');
+    const el = $('#audio-native')[0];
     if (el) { el.pause(); el.src = ''; el.onended = null; }
     audioPlayer = null;
     audioTrackIndex = 0;
@@ -805,12 +789,12 @@ function startScrollAnimation() {
     if (scrollAnimFrame) return;
     function frame() {
         if (!autoScroll) { scrollAnimFrame = null; return; }
-        const audio = document.getElementById('audio-native');
+        const audio = $('#audio-native')[0];
         if (!audio || audio.paused) { scrollAnimFrame = null; return; }
         const dur = audio.duration;
         if (dur && !isNaN(dur)) {
-            const content = document.getElementById('game-content');
-            const maxScroll = content.scrollHeight - content.clientHeight;
+            const $content = $('#game-content');
+            const maxScroll = $content.prop('scrollHeight') - $content.innerHeight();
             if (maxScroll > 0) {
                 // Use combined position across all tracks if all durations are loaded
                 let t, totalDur;
@@ -829,9 +813,9 @@ function startScrollAnimation() {
                 const startSec = Math.max(SCROLL_START_MIN, Math.min(SCROLL_START_MAX, totalDur * SCROLL_START_RATIO));
                 const target = t < startSec ? 0
                     : ((t - startSec) / (totalDur - startSec)) * maxScroll;
-                const diff = target - content.scrollTop;
+                const diff = target - $content.scrollTop();
                 if (Math.abs(diff) > 0.5) {
-                    content.scrollTop += diff * 0.08;
+                    $content.scrollTop($content.scrollTop() + diff * 0.08);
                 }
             }
         }
@@ -851,8 +835,7 @@ function stopScrollAnimation() {
 function updateTrackLabel() {
     const total = audioTracks.length;
     const label = total > 1 ? S('ui.audio_label').replace('%s', audioTrackIndex + 1).replace('%s', total) : S('ui.audio');
-    const el = document.getElementById('audio-track-label');
-    if (el) el.textContent = label;
+    $('#audio-track-label').text(label);
 }
 
 $('#btn-audio-prev').on('click', function() {
@@ -880,8 +863,7 @@ $('#btn-audio-next').on('click', function() {
 function loadSaveDataScreen() {
     const raw = localStorage.getItem(STORAGE_KEY);
     const save = raw ? JSON.parse(raw) : { chapters: {} };
-    const content = document.getElementById('save-data-content');
-    content.innerHTML = '';
+    const $content = $('#save-data-content').empty();
 
     const chapterNums = CHAPTER_ORDER.filter(n => {
         const cs = save.chapters && save.chapters[n];
@@ -889,10 +871,9 @@ function loadSaveDataScreen() {
     });
 
     if (chapterNums.length === 0) {
-        const p = document.createElement('p');
-        p.style.color = 'var(--color-text-dim)';
-        p.textContent = S('ui.no_saved_progress');
-        content.appendChild(p);
+        $content.append(
+            $('<p>').css('color', 'var(--color-text-dim)').text(S('ui.no_saved_progress'))
+        );
     } else {
         chapterNums.forEach(chNum => {
             const cs = save.chapters[chNum];
@@ -918,21 +899,17 @@ function loadSaveDataScreen() {
                 rows.push([S('ui.save_unvisited_deepwood'), cs.unvisitedDeepwoodTokens.join(', ')]);
             }
 
-            const panel = document.createElement('div');
-            panel.className = 'save-data-panel mb-3';
-
             let html = `<div class="save-data-chapter-label">${S('ui.chapter_prefix').replace('%s', label)}</div>`;
             html += '<table class="save-data-table">';
             rows.forEach(([k, v]) => {
                 html += `<tr><td class="save-data-key">${k}</td><td class="save-data-val">${v}</td></tr>`;
             });
             html += '</table>';
-            panel.innerHTML = html;
-            content.appendChild(panel);
+            $content.append($('<div>').addClass('save-data-panel mb-3').html(html));
         });
     }
 
-    document.getElementById('save-data-raw').textContent = raw ? JSON.stringify(JSON.parse(raw), null, 2) : '{}';
+    $('#save-data-raw').text(raw ? JSON.stringify(JSON.parse(raw), null, 2) : '{}');
     showScreen('screen-save-data');
 }
 
@@ -1022,12 +999,12 @@ $('#bug-report-modal').on('click', function(e) {
 });
 
 $('#btn-bug-copy').on('click', function() {
-    const text = document.getElementById('bug-report-text').value;
+    const text = $('#bug-report-text').val();
     navigator.clipboard.writeText(text).then(() => {
-        const btn = document.getElementById('btn-bug-copy');
-        const orig = btn.textContent;
-        btn.textContent = S('ui.copied');
-        setTimeout(() => { btn.textContent = orig; }, 1500);
+        const $btn = $(this);
+        const orig = $btn.text();
+        $btn.text(S('ui.copied'));
+        setTimeout(() => { $btn.text(orig); }, 1500);
     });
 });
 
@@ -1041,14 +1018,15 @@ function applyTranslations() {
     const strings = STRINGS[activeLanguage] || STRINGS['en'];
     const en = STRINGS['en'];
 
-    document.querySelectorAll('[data-string-key]').forEach(function(el) {
-        const key = el.dataset.stringKey;
-        const val = strings[key] || en[key];
+    $('[data-string-key]').each(function() {
+        const key   = $(this).attr('data-string-key');
+        const val   = strings[key] || en[key];
         if (!val) return;
-        if (el.dataset.stringParam !== undefined) {
-            el.textContent = val.replace('%s', el.dataset.stringParam);
+        const param = $(this).attr('data-string-param');
+        if (param !== undefined) {
+            $(this).text(val.replace('%s', param));
         } else {
-            el.textContent = val;
+            $(this).text(val);
         }
     });
 }
@@ -1066,14 +1044,13 @@ function setLanguage(lang) {
 }
 
 function syncLanguageUI() {
-    const sel = document.getElementById('setting-language');
-    if (sel) sel.value = activeLanguage;
+    $('#setting-language').val(activeLanguage);
 }
 
 function populateLanguageSelect() {
-    const sel = document.getElementById('setting-language');
-    if (!sel) return;
-    sel.innerHTML = '';
+    const $sel = $('#setting-language');
+    if (!$sel.length) return;
+    $sel.empty();
     const langs = Object.keys(STRINGS);
     const labels = {
         en: 'English',     de: 'Deutsch',       nl: 'Nederlands',    sv: 'Svenska',
@@ -1100,15 +1077,12 @@ function populateLanguageSelect() {
         th: '\u0e44\u0e17\u0e22',             id: 'Bahasa Indonesia', ms: 'Melayu',
     };
     langs.forEach(function(lang) {
-        const opt = document.createElement('option');
-        opt.value = lang;
-        opt.textContent = labels[lang] || lang.toUpperCase();
-        sel.appendChild(opt);
+        $sel.append($('<option>').val(lang).text(labels[lang] || lang.toUpperCase()));
     });
-    sel.value = activeLanguage;
+    $sel.val(activeLanguage);
     // Disable when only one language is available so the row is visible
     // but it's clear there's nothing to switch to yet.
-    sel.disabled = langs.length <= 1;
+    $sel.prop('disabled', langs.length <= 1);
 }
 
 //
@@ -1118,7 +1092,7 @@ function populateLanguageSelect() {
 //
 
 $(function() {
-    document.getElementById('app-version').textContent = VERSION;
+    $('#app-version').text(VERSION);
     applyTranslations();
     initHomeScreen();
     showScreen('screen-home');
@@ -1132,12 +1106,9 @@ $(function() {
     });
 
     // Start/stop scroll animation based on native audio play/pause
-    const audioEl = document.getElementById('audio-native');
-    audioEl.addEventListener('play', startScrollAnimation);
-    audioEl.addEventListener('pause', stopScrollAnimation);
-    audioEl.addEventListener('ended', stopScrollAnimation);
+    $('#audio-native').on('play', startScrollAnimation).on('pause', stopScrollAnimation).on('ended', stopScrollAnimation);
 
-    // Chapter list scroll fades
+    // Chapter list scroll fades (passive: true for scroll performance)
     const chapterList = document.getElementById('chapter-list');
     chapterList.addEventListener('scroll', updateChapterListFade, { passive: true });
     new ResizeObserver(updateChapterListFade).observe(chapterList);
@@ -1162,7 +1133,7 @@ $(function() {
     $('#autoscroll-paused').on('click', function() {
         autoScroll = true;
         $(this).addClass('d-none');
-        const audio = document.getElementById('audio-native');
+        const audio = $('#audio-native')[0];
         if (audio && !audio.paused) startScrollAnimation();
     });
 

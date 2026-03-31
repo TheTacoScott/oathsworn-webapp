@@ -407,30 +407,22 @@ function buildOverlayHTML() {
 //
 
 function updateDeckDisplay(key) {
-    const deck  = mightDecks[key];
-    const remEl = document.getElementById(`might-rem-${key}`);
-    if (remEl) remEl.textContent = deck.remainingCount;
+    const deck = mightDecks[key];
+    $(`#might-rem-${key}`).text(deck.remainingCount);
 
-    const badge = document.getElementById(`might-badge-${key}`);
-    if (badge) {
-        if (deck.staged > 0) {
-            badge.textContent = deck.staged;
-            badge.classList.remove('d-none');
-        } else {
-            badge.classList.add('d-none');
-        }
+    const $badge = $(`#might-badge-${key}`);
+    if (deck.staged > 0) {
+        $badge.text(deck.staged).removeClass('d-none');
+    } else {
+        $badge.addClass('d-none');
     }
 
-    const cb = document.getElementById(`might-cb-${key}`);
-    if (cb) {
-        cb.classList.toggle('might-cb-empty', deck.remainingCount === 0 && deck.totalCount === 0);
-    }
+    $(`#might-cb-${key}`).toggleClass('might-cb-empty', deck.remainingCount === 0 && deck.totalCount === 0);
 }
 
 function setMightDefense(value) {
     mightDefense = Math.max(0, Math.min(20, value));
-    const el = document.getElementById('might-defense-value');
-    if (el) el.textContent = mightDefense;
+    $('#might-defense-value').text(mightDefense);
     updateStagingBar();
 }
 
@@ -441,18 +433,13 @@ function setMightAttack(value) {
 }
 
 function updateAttackWidget() {
-    const valueEl = document.getElementById('might-attack-value');
-    if (valueEl) valueEl.textContent = mightAttack;
-    const syncEl = document.getElementById('might-attack-sync');
-    if (syncEl) syncEl.style.visibility = (mightLastResult && mightAttack !== mightAttackNatural) ? 'visible' : 'hidden';
-    const cardTotalEl = document.getElementById('might-card-total');
-    if (cardTotalEl) {
-        if (mightLastResult) {
-            cardTotalEl.textContent = mightAttackNatural;
-            cardTotalEl.style.display = '';
-        } else {
-            cardTotalEl.style.display = 'none';
-        }
+    $('#might-attack-value').text(mightAttack);
+    $('#might-attack-sync').css('visibility', (mightLastResult && mightAttack !== mightAttackNatural) ? 'visible' : 'hidden');
+    const $cardTotal = $('#might-card-total');
+    if (mightLastResult) {
+        $cardTotal.text(mightAttackNatural).css('display', '');
+    } else {
+        $cardTotal.css('display', 'none');
     }
 }
 
@@ -461,44 +448,35 @@ function updateAttackWidget() {
 function updateLockStates() {
     const activeSide = mightActiveSide();
     for (const [key, deck] of Object.entries(mightDecks)) {
-        const cb = document.getElementById(`might-cb-${key}`);
-        if (!cb) continue;
-        cb.classList.toggle('might-cb-locked', activeSide !== null && deck.side !== activeSide);
+        $(`#might-cb-${key}`).toggleClass('might-cb-locked', activeSide !== null && deck.side !== activeSide);
     }
 }
 
 // Updates the staging bar text and Draw button enabled state.
 function updateStagingBar() {
     updateAttackWidget();
-    const total   = mightTotalStaged();
-    const infoEl  = document.getElementById('might-staged-info');
-    const drawBtn = document.getElementById('btn-might-draw');
-    if (!infoEl) return;
+    const total    = mightTotalStaged();
+    const $infoEl  = $('#might-staged-info');
+    if (!$infoEl.length) return;
 
     const isMiss = mightLastResult && mightLastResult.isMiss;
     const damage = isMiss ? 0 : Math.floor(mightAttack / Math.max(mightDefense, 1));
-    const dmgEl  = document.getElementById('might-damage-out');
-    if (dmgEl) {
-        dmgEl.textContent = damage;
-        dmgEl.classList.toggle('might-damage-out-miss', !!isMiss);
-    }
+    $('#might-damage-out').text(damage).toggleClass('might-damage-out-miss', !!isMiss);
 
     if (mightLastResult) {
         const sideLabel = mightLastResult.side === 'player' ? S('ui.might_player') : S('ui.might_monster');
         if (mightLastResult.isMiss) {
-            infoEl.innerHTML = `<span class="might-result-miss">${sideLabel} ${S('ui.might_miss')}</span>`;
+            $infoEl.html(`<span class="might-result-miss">${sideLabel} ${S('ui.might_miss')}</span>`);
         } else {
-            infoEl.innerHTML = `<span class="might-result-label">${sideLabel}</span>`;
+            $infoEl.html(`<span class="might-result-label">${sideLabel}</span>`);
         }
     } else {
-        infoEl.textContent = S('ui.might_stage_prompt');
+        $infoEl.text(S('ui.might_stage_prompt'));
     }
 
-    if (drawBtn) drawBtn.disabled = total === 0;
-    const drawMoreBtn = document.getElementById('btn-might-draw-more');
-    if (drawMoreBtn) drawMoreBtn.disabled = total === 0;
-    const clearDrawBtn = document.getElementById('btn-might-clear-draw');
-    if (clearDrawBtn) clearDrawBtn.disabled = mightLastDrawCards.length === 0;
+    $('#btn-might-draw').prop('disabled', total === 0);
+    $('#btn-might-draw-more').prop('disabled', total === 0);
+    $('#btn-might-clear-draw').prop('disabled', mightLastDrawCards.length === 0);
     updateLockStates();
 }
 
@@ -540,12 +518,12 @@ function buildDrawnCardHTML(cardEntry, cfg, size, index) {
 }
 
 function renderHistorySide(side) {
-    const bodyEl = document.getElementById(`might-hist-body-${side}`);
-    if (!bodyEl) return;
+    const $bodyEl = $(`#might-hist-body-${side}`);
+    if (!$bodyEl.length) return;
 
     const entries = mightSessionHistory.filter(s => s.side === side);
     if (entries.length === 0) {
-        bodyEl.innerHTML = `<p class="might-hist-empty">${S('ui.might_no_draws')}</p>`;
+        $bodyEl.html(`<p class="might-hist-empty">${S('ui.might_no_draws')}</p>`);
         return;
     }
 
@@ -568,8 +546,7 @@ function renderHistorySide(side) {
             `</div>`
         );
     });
-    bodyEl.innerHTML = html;
-    bodyEl.scrollTop = 0;
+    $bodyEl.html(html).scrollTop(0);
 }
 
 function renderHistoryModal() {
@@ -578,8 +555,8 @@ function renderHistoryModal() {
 }
 
 function renderSharedDrawnArea() {
-    const grid = document.getElementById('might-shared-grid');
-    if (!grid) return;
+    const $grid = $('#might-shared-grid');
+    if (!$grid.length) return;
     let html = '';
     for (let i = 0; i < mightLastDrawCards.length; i++) {
         html += buildDrawnCardHTML(mightLastDrawCards[i], mightLastDrawCards[i].cfg, 'full', i);
@@ -588,7 +565,7 @@ function renderSharedDrawnArea() {
     for (let i = mightLastDrawCards.length; i < padTo; i++) {
         html += `<div class="might-card-slot-empty"></div>`;
     }
-    grid.innerHTML = html;
+    $grid.html(html);
 }
 
 //
@@ -636,8 +613,7 @@ function handleToggleCard(index) {
     if (!card) return;
     card.disabled = !card.disabled;
     // Toggle the class directly on the existing element - no re-render, no re-animation.
-    const el = document.querySelector(`.might-shared-drawn [data-card-index="${index}"]`);
-    if (el) el.classList.toggle('card-disabled', card.disabled);
+    $(`.might-shared-drawn [data-card-index="${index}"]`).toggleClass('card-disabled', card.disabled);
     mightLastResult = computeLiveResult();
     const natural = mightLastResult ? (mightLastResult.isMiss ? 0 : mightLastResult.total) : 0;
     // If attack was in sync with the old natural, keep it in sync with the new one.
@@ -666,20 +642,18 @@ function handleDrawMore() {
     }
 
     // Replace empty slots with new card elements; append beyond 20 if needed.
-    const grid = document.getElementById('might-shared-grid');
-    if (grid) {
-        const emptySlots = Array.from(grid.querySelectorAll('.might-card-slot-empty'));
+    const $grid = $('#might-shared-grid');
+    if ($grid.length) {
+        const $emptySlots = $grid.find('.might-card-slot-empty');
         let slotIdx = 0;
         for (let i = startIndex; i < mightLastDrawCards.length; i++) {
             const card = mightLastDrawCards[i];
-            const tmp  = document.createElement('div');
-            tmp.innerHTML = buildDrawnCardHTML(card, card.cfg, 'full', i);
-            const newEl = tmp.firstElementChild;
-            if (slotIdx < emptySlots.length) {
-                emptySlots[slotIdx].replaceWith(newEl);
+            const $newEl = $(buildDrawnCardHTML(card, card.cfg, 'full', i));
+            if (slotIdx < $emptySlots.length) {
+                $emptySlots.eq(slotIdx).replaceWith($newEl);
                 slotIdx++;
             } else {
-                grid.appendChild(newEl);
+                $grid.append($newEl);
             }
         }
     }
@@ -763,7 +737,7 @@ function initMightUI() {
     const overlay = document.getElementById('might-overlay');
     if (!overlay) return;
 
-    overlay.innerHTML = buildOverlayHTML();
+    $(overlay).html(buildOverlayHTML());
     mightUIBuilt = true;
     if (window.applyTranslations) window.applyTranslations();
     updateStagingBar();
@@ -843,22 +817,22 @@ function initMightUI() {
         }
     }, { passive: false });
 
-    document.getElementById('btn-might-draw').addEventListener('click', handleDraw);
-    document.getElementById('btn-might-draw-more').addEventListener('click', handleDrawMore);
-    document.getElementById('btn-might-clear-draw').addEventListener('click', handleClearDrawArea);
-    document.getElementById('btn-might-history').addEventListener('click', openHistoryModal);
-    document.getElementById('btn-might-hist-close').addEventListener('click', closeHistoryModal);
-    document.getElementById('btn-might-hist-clear').addEventListener('click', function() {
+    $('#btn-might-draw').on('click', handleDraw);
+    $('#btn-might-draw-more').on('click', handleDrawMore);
+    $('#btn-might-clear-draw').on('click', handleClearDrawArea);
+    $('#btn-might-history').on('click', openHistoryModal);
+    $('#btn-might-hist-close').on('click', closeHistoryModal);
+    $('#btn-might-hist-clear').on('click', function() {
         mightSessionHistory = [];
         mightLastResult = null;
         updateStagingBar();
         closeHistoryModal();
     });
-    document.getElementById('btn-might-reset-all').addEventListener('click', handleResetAll);
-    document.getElementById('btn-might-settings').addEventListener('click', function() {
+    $('#btn-might-reset-all').on('click', handleResetAll);
+    $('#btn-might-settings').on('click', function() {
         if (window.openSettingsModal) window.openSettingsModal();
     });
-    document.getElementById('btn-might-close').addEventListener('click', closeMightOverlay);
+    $('#btn-might-close').on('click', closeMightOverlay);
 
     overlay.addEventListener('click', function(e) {
         if (e.target === overlay) closeMightOverlay();
@@ -866,12 +840,12 @@ function initMightUI() {
         if (modal && e.target === modal) closeHistoryModal();
     });
 
-    document.addEventListener('keydown', function(e) {
-        if (overlay.style.display === 'none') return;
+    $(document).on('keydown', function(e) {
+        if ($(overlay).css('display') === 'none') return;
         if (e.key === 'Escape') { closeMightOverlay(); return; }
         if (e.key === 'Enter') {
-            const drawBtn = document.getElementById('btn-might-draw');
-            if (drawBtn && !drawBtn.disabled) { e.preventDefault(); drawBtn.click(); }
+            const $drawBtn = $('#btn-might-draw');
+            if ($drawBtn.length && !$drawBtn.prop('disabled')) { e.preventDefault(); $drawBtn[0].click(); }
             return;
         }
         if (e.key === 'Backspace') {
@@ -883,13 +857,11 @@ function initMightUI() {
 
 function openHistoryModal() {
     renderHistoryModal();
-    const modal = document.getElementById('might-hist-modal');
-    if (modal) modal.style.display = 'flex';
+    $('#might-hist-modal').css('display', 'flex');
 }
 
 function closeHistoryModal() {
-    const modal = document.getElementById('might-hist-modal');
-    if (modal) modal.style.display = 'none';
+    $('#might-hist-modal').css('display', 'none');
 }
 
 //
@@ -900,11 +872,9 @@ function closeHistoryModal() {
 
 function openMightOverlay() {
     if (!mightUIBuilt) initMightUI();
-    const overlay = document.getElementById('might-overlay');
-    if (overlay) overlay.style.display = 'flex';
+    $('#might-overlay').css('display', 'flex');
 }
 
 function closeMightOverlay() {
-    const overlay = document.getElementById('might-overlay');
-    if (overlay) overlay.style.display = 'none';
+    $('#might-overlay').css('display', 'none');
 }
