@@ -70,7 +70,7 @@
 
 .home-version {
     font-family: var(--font-title);
-    font-size: 0.8rem;
+    font-size: 1.25rem;
     letter-spacing: 0.12em;
     color: var(--color-text);
     opacity: 0.85;
