@@ -41,6 +41,9 @@
     gap: 4px;
 }
 
+.hud-cluster-left .path-btn { margin-left: 0.4rem; }
+.hud-cluster-right .path-btn { margin-right: 0.4rem; }
+
 .game-header-right {
     justify-content: flex-end;
 }
