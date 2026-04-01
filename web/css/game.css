@@ -123,14 +123,15 @@
     transition: background 0.15s;
 }
 
-/* Inner darker ring, inset ~10% from the outer circle edge */
+/* Inner darker ring, centered via transform to avoid sub-pixel rounding drift */
 .clue-token::before {
     content: '';
     position: absolute;
-    top: 10%;
-    left: 10%;
-    right: 10%;
-    bottom: 10%;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 80%;
+    height: 80%;
     border-radius: 50%;
     border: 2px solid rgba(180, 140, 60, 0.18);
     pointer-events: none;
