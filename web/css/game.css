@@ -22,7 +22,10 @@
 }
 
 .hud-cluster {
-    gap: 2rem;
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    column-gap: 2rem;
 }
 
 .time-tracker-display {
@@ -73,6 +76,7 @@
     display: flex;
     gap: 3px;
     align-items: center;
+    justify-self: end;
 }
 
 .path-btn {
@@ -83,11 +87,11 @@
     height: 34px;
     padding: 0 0.55rem;
     border-radius: 4px;
-    border: 1px solid rgba(138, 120, 80, 0.4);
+    border: 1px solid rgba(138, 120, 80, 0.55);
     background: transparent;
-    color: var(--color-text-dim);
+    color: var(--color-text);
     cursor: pointer;
-    opacity: 0.45;
+    opacity: 0.65;
     transition: background 0.15s, border-color 0.15s, color 0.15s, opacity 0.15s;
     white-space: nowrap;
     display: inline-flex;
@@ -95,7 +99,7 @@
 }
 
 .path-btn:hover {
-    opacity: 0.7;
+    opacity: 0.85;
 }
 
 .path-btn.selected {
@@ -104,6 +108,12 @@
     color: var(--bg-dark);
     opacity: 1;
 }
+
+/* Colored path letters */
+.path-btn-a .path-letter { color: #c04848; }
+.path-btn-b .path-letter { color: #4a72c4; }
+.path-btn-a.selected .path-letter { color: #7a1c1c; }
+.path-btn-b.selected .path-letter { color: #1c3478; }
 
 /* Clue tokens */
 
@@ -119,7 +129,7 @@
     height: 34px;
     border-radius: 50%;
     border: none;
-    background: rgba(230, 210, 160, 0.08);
+    background: rgba(230, 210, 160, 0.14);
     cursor: pointer;
     padding: 0;
     flex-shrink: 0;
@@ -136,7 +146,7 @@
     width: 80%;
     height: 80%;
     border-radius: 50%;
-    border: 2px solid rgba(180, 140, 60, 0.18);
+    border: 2px solid rgba(180, 140, 60, 0.45);
     pointer-events: none;
     transition: border-color 0.15s;
 }
@@ -163,7 +173,7 @@
     font-size: 1rem;
     font-weight: 700;
     line-height: 1;
-    color: rgba(200, 160, 80, 0.2);
+    color: rgba(200, 160, 80, 0.6);
     pointer-events: none;
     transition: color 0.15s;
 }
@@ -182,7 +192,7 @@
     font-size: 0.95rem;
     font-weight: 900;
     line-height: 1;
-    color: rgba(200, 160, 80, 0.2);
+    color: rgba(200, 160, 80, 0.6);
     pointer-events: none;
     transition: color 0.15s;
 }
