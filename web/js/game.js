@@ -72,7 +72,7 @@ class GameEngine {
                 clue2: false,
                 unvisitedDeepwoodTokens: [],
                 pathChoice: null,
-                clueTokens: [false, false, false, false, false, false, false],
+                clueTokens: [false, false, false, false, false, false, false, false],
             };
         }
         return save.chapters[n];
@@ -573,10 +573,10 @@ class GameEngine {
 
     getClueTokens() {
         const arr = this._getArr('clueTokens');
-        if (arr.length === 7) return arr;
-        // pad or trim to always return exactly 7 entries
-        const result = [false, false, false, false, false, false, false];
-        for (let i = 0; i < Math.min(arr.length, 7); i++) result[i] = arr[i];
+        if (arr.length === 8) return arr;
+        // pad or trim to always return exactly 8 entries
+        const result = [false, false, false, false, false, false, false, false];
+        for (let i = 0; i < Math.min(arr.length, 8); i++) result[i] = arr[i];
         return result;
     }
 

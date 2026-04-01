@@ -370,7 +370,7 @@ function renderHudControls() {
     $('#btn-path-b').toggleClass('selected', pathChoice === 'B');
 
     const tokens = engine.getClueTokens();
-    $('#clue-tokens .clue-token').each(function() {
+    $('.hud-cluster .clue-token').each(function() {
         const idx = parseInt($(this).attr('data-clue-index'), 10);
         $(this).toggleClass('active', tokens[idx] === true);
     });
@@ -1231,7 +1231,7 @@ $(function() {
     });
 
     // Clue token toggles
-    $('#clue-tokens').on('click', '.clue-token', function() {
+    $('.hud-cluster').on('click', '.clue-token', function() {
         if (!engine) return;
         const idx = parseInt($(this).attr('data-clue-index'), 10);
         const tokens = engine.getClueTokens();

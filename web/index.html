@@ -105,23 +105,24 @@
             <div class="game-header-left">
                 <button id="btn-game-back" class="btn btn-ghost-game">Back</button>
             </div>
-            <!-- Center cluster: clue tokens | time tracker | path cards -->
+            <!-- Center cluster: [A · ! 1 2 3] | TIME | [4 5 6 X · B] -->
             <div class="hud-cluster">
-                <div class="clue-tokens" id="clue-tokens">
+                <div class="hud-cluster-left">
+                    <button class="path-btn path-btn-a" id="btn-path-a"><span class="path-letter">A</span></button>
+                    <button class="clue-token clue-token-exclaim" data-clue-index="6"><span class="ct-bang">!</span></button>
                     <button class="clue-token" data-clue-index="0"><span class="ct-num">1</span></button>
                     <button class="clue-token" data-clue-index="1"><span class="ct-num">2</span></button>
                     <button class="clue-token" data-clue-index="2"><span class="ct-num">3</span></button>
-                    <button class="clue-token" data-clue-index="3"><span class="ct-num">4</span></button>
-                    <button class="clue-token" data-clue-index="4"><span class="ct-num">5</span></button>
-                    <button class="clue-token" data-clue-index="5"><span class="ct-num">6</span></button>
-                    <button class="clue-token clue-token-exclaim" data-clue-index="6"><span class="ct-bang">!</span></button>
                 </div>
                 <div class="time-tracker-display">
                     <img src="data/ui/deepwood_token.png" class="time-token-img" alt="Time">
                     <span id="game-time" class="time-token-num">0</span>
                 </div>
-                <div class="path-toggle" id="path-toggle">
-                    <button class="path-btn path-btn-a" id="btn-path-a"><span class="path-letter">A</span></button>
+                <div class="hud-cluster-right">
+                    <button class="clue-token" data-clue-index="3"><span class="ct-num">4</span></button>
+                    <button class="clue-token" data-clue-index="4"><span class="ct-num">5</span></button>
+                    <button class="clue-token" data-clue-index="5"><span class="ct-num">6</span></button>
+                    <button class="clue-token clue-token-x" data-clue-index="7"><span class="ct-x">X</span></button>
                     <button class="path-btn path-btn-b" id="btn-path-b"><span class="path-letter">B</span></button>
                 </div>
             </div>

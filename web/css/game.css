@@ -27,11 +27,18 @@
     justify-content: space-between;
 }
 
-/* Center HUD cluster: path cards | time tracker | clue tokens */
+/* Center HUD cluster */
 .hud-cluster {
     display: flex;
     align-items: center;
     gap: clamp(0.75rem, 2.5vw, 2.5rem);
+}
+
+.hud-cluster-left,
+.hud-cluster-right {
+    display: flex;
+    align-items: center;
+    gap: 4px;
 }
 
 .game-header-right {
@@ -80,12 +87,6 @@
 }
 
 /* Path A/B toggle buttons */
-
-.path-toggle {
-    display: flex;
-    gap: 3px;
-    align-items: center;
-}
 
 .path-btn {
     font-family: var(--font-title);
@@ -190,8 +191,9 @@
     color: rgba(45, 28, 8, 0.88);
 }
 
-/* Special "!" token - large centered exclamation, no number/cutout */
-.clue-token-exclaim .ct-bang {
+/* Special "!" and "X" tokens */
+.clue-token-exclaim .ct-bang,
+.clue-token-x .ct-x {
     position: absolute;
     top: 50%;
     left: 50%;
@@ -205,7 +207,8 @@
     transition: color 0.15s;
 }
 
-.clue-token-exclaim.active .ct-bang {
+.clue-token-exclaim.active .ct-bang,
+.clue-token-x.active .ct-x {
     color: rgba(45, 28, 8, 0.88);
 }
 
