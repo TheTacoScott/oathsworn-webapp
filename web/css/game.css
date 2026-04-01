@@ -14,12 +14,15 @@
     background-color: rgba(18, 15, 7, 0.95);
     border-bottom: 1px solid var(--color-border);
     min-height: 50px;
-    gap: 1.5rem;
 }
 
 .game-header-left,
 .game-header-right {
     flex: 1;
+}
+
+.hud-cluster {
+    gap: 2rem;
 }
 
 .time-tracker-display {
@@ -56,7 +59,7 @@
     left: 50%;
     transform: translate(-50%, -50%);
     font-family: var(--font-title);
-    font-size: 1.05rem;
+    font-size: 1.25rem;
     font-weight: 700;
     line-height: 1;
     color: #1a0e04;
