@@ -27,15 +27,26 @@
     justify-content: space-between;
 }
 
-/* Thin vertical separators to distinguish path cards and clue tokens from the time tracker */
+/* Center HUD cluster: path cards | time tracker | clue tokens */
+.hud-cluster {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+}
+
+/* Thin vertical separators between cluster elements */
 .path-toggle {
-    padding-right: 0.75rem;
+    padding-right: 0.6rem;
     border-right: 1px solid var(--color-border);
 }
 
 .clue-tokens {
-    padding-left: 0.75rem;
+    padding-left: 0.6rem;
     border-left: 1px solid var(--color-border);
+}
+
+.game-header-right {
+    justify-content: flex-end;
 }
 
 .time-tracker-display {
