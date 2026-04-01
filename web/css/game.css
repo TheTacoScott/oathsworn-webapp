@@ -394,6 +394,13 @@
     filter: invert(0.8);
 }
 
+.bug-report-icon {
+    height: 1.1rem;
+    width: auto;
+    display: block;
+    opacity: 0.8;
+}
+
 .btn-ghost-game:hover .settings-icon,
 .btn-ghost-game:focus .settings-icon {
     filter: invert(1);
