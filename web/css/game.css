@@ -41,8 +41,8 @@
 }
 
 .clue-tokens {
-    padding-left: 0.6rem;
-    border-left: 1px solid var(--color-border);
+    padding-right: 0.6rem;
+    border-right: 1px solid var(--color-border);
 }
 
 .game-header-right {
