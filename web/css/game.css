@@ -11,22 +11,41 @@
 }
 
 .game-header {
+    position: relative;
     background-color: rgba(18, 15, 7, 0.95);
     border-bottom: 1px solid var(--color-border);
     min-height: 50px;
 }
 
 .time-tracker-display {
-    position: relative;
-    width: 46px;
-    height: 46px;
-    flex-shrink: 0;
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: 52px;
+    height: 52px;
+    z-index: 1;
 }
 
 .time-token-img {
     width: 100%;
     height: 100%;
     display: block;
+}
+
+/* Dark circle over the hourglass so the number reads cleanly */
+.time-tracker-display::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(6, 4, 1, 0.82) 55%, rgba(6, 4, 1, 0) 100%);
+    pointer-events: none;
+    z-index: 2;
 }
 
 .time-token-num {
@@ -38,16 +57,14 @@
     font-size: 1.05rem;
     font-weight: 700;
     line-height: 1;
-    color: #fff;
+    color: var(--color-gold-light);
     text-shadow:
-        0 0 3px #000,
-        0 0 6px #000,
-        0 0 10px rgba(0, 0, 0, 0.9),
-        0 1px 2px #000,
-        0 -1px 2px #000,
-        1px 0 2px #000,
-        -1px 0 2px #000;
+        0 0 4px rgba(0, 0, 0, 1),
+        0 0 8px rgba(0, 0, 0, 1),
+        0 1px 3px #000,
+        0 -1px 3px #000;
     pointer-events: none;
+    z-index: 3;
 }
 
 /* Path A/B toggle buttons */
