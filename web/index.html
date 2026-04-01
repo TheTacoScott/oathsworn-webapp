@@ -99,37 +99,40 @@
 <div id="screen-game" class="screen game-screen">
     <div class="game-panel d-flex flex-column">
 
-        <!-- Game header bar: 1fr [time tracker] 1fr grid keeps the token dead center -->
+        <!-- Game header bar: Back | {Path A/B | Time | Clue tokens} | nav buttons -->
         <div class="game-header px-3 flex-shrink-0">
-            <!-- Left column: Back (far left) + Path cards (far right) -->
+            <!-- Left: Back button -->
             <div class="game-header-left">
                 <button id="btn-game-back" class="btn btn-ghost-game">Back</button>
-                <div class="path-toggle" id="path-toggle">
-                    <button class="path-btn path-btn-a" id="btn-path-a"><span data-string-key="ui.path_prefix">Path:</span><span class="path-letter"> A</span></button>
-                    <button class="path-btn path-btn-b" id="btn-path-b"><span data-string-key="ui.path_prefix">Path:</span><span class="path-letter"> B</span></button>
-                </div>
             </div>
-            <!-- Center column: time tracker -->
-            <div class="time-tracker-display">
-                <img src="data/ui/deepwood_token.png" class="time-token-img" alt="Time">
-                <span id="game-time" class="time-token-num">0</span>
-            </div>
-            <!-- Right column: Clue tokens (far left) + nav buttons (far right) -->
-            <div class="game-header-right">
-                <div class="clue-tokens" id="clue-tokens">
+            <!-- Center cluster: [A · ! 1 2 3] | TIME | [4 5 6 X · B] -->
+            <div class="hud-cluster">
+                <div class="hud-cluster-left">
+                    <button class="clue-token clue-token-exclaim" data-clue-index="6"><span class="ct-bang">!</span></button>
                     <button class="clue-token" data-clue-index="0"><span class="ct-num">1</span></button>
                     <button class="clue-token" data-clue-index="1"><span class="ct-num">2</span></button>
                     <button class="clue-token" data-clue-index="2"><span class="ct-num">3</span></button>
+                    <button class="path-btn path-btn-a" id="btn-path-a"><span class="path-letter">A</span></button>
+                </div>
+                <div class="time-tracker-display">
+                    <img src="data/ui/deepwood_token.png" class="time-token-img" alt="Time">
+                    <span id="game-time" class="time-token-num">0</span>
+                </div>
+                <div class="hud-cluster-right">
+                    <button class="path-btn path-btn-b" id="btn-path-b"><span class="path-letter">B</span></button>
                     <button class="clue-token" data-clue-index="3"><span class="ct-num">4</span></button>
                     <button class="clue-token" data-clue-index="4"><span class="ct-num">5</span></button>
                     <button class="clue-token" data-clue-index="5"><span class="ct-num">6</span></button>
-                    <button class="clue-token clue-token-exclaim" data-clue-index="6"><span class="ct-bang">!</span></button>
+                    <button class="clue-token clue-token-x" data-clue-index="7"><span class="ct-x">X</span></button>
                 </div>
+            </div>
+            <!-- Right: nav buttons -->
+            <div class="game-header-right">
                 <div class="d-flex align-items-center gap-2">
                     <button id="btn-settings-game" class="btn btn-ghost-game" title="Settings"><img src="data/ui/settings.png" class="settings-icon" alt="Settings"></button>
+                    <button id="btn-bug-report" class="btn btn-ghost-game" title="Bug Report" aria-label="Bug Report"><svg class="bug-report-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><circle cx="8" cy="4.5" r="2.5"/><ellipse cx="8" cy="11" rx="3.5" ry="4"/><path d="M5.5 3.2 Q4 1.5 2.5 1M10.5 3.2 Q12 1.5 13.5 1" stroke="currentColor" stroke-width="1.2" fill="none" stroke-linecap="round"/><path d="M4.5 8.5 L1 7M4.5 11 L1 11M4.5 13.5 L1 15" stroke="currentColor" stroke-width="1" fill="none" stroke-linecap="round"/><path d="M11.5 8.5 L15 7M11.5 11 L15 11M11.5 13.5 L15 15" stroke="currentColor" stroke-width="1" fill="none" stroke-linecap="round"/></svg></button>
                     <button id="btn-might-open" class="btn btn-ghost-game" data-string-key="ui.might_decks">Might Decks</button>
-                    <button id="btn-bug-report" class="btn btn-ghost-game" data-string-key="ui.bug_report">Bug Report</button>
-                    <button id="btn-game-menu" class="btn btn-ghost-game" data-string-key="ui.exit_chapter_select">Exit to Chapter Select</button>
+                    <button id="btn-game-menu" class="btn btn-ghost-game" data-string-key="ui.exit_chapter_select">Exit</button>
                 </div>
             </div>
         </div>
@@ -140,7 +143,7 @@
             <p id="chapter-author-text" class="chapter-author mb-0"></p>
         </div>
 
-        <!-- Scrollable plate content -->
+        <!-- Scrollable plate content with flanking HUD drawers -->
         <div class="content-area-wrapper">
             <div id="game-content" class="game-content">
                 <!-- populated by renderPlate() -->
