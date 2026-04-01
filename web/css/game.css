@@ -11,20 +11,22 @@
 }
 
 .game-header {
-    position: relative;
     background-color: rgba(18, 15, 7, 0.95);
     border-bottom: 1px solid var(--color-border);
     min-height: 50px;
+    gap: 1.5rem;
+}
+
+.game-header-left,
+.game-header-right {
+    flex: 1;
 }
 
 .time-tracker-display {
-    position: absolute;
-    left: 50%;
-    top: 50%;
-    transform: translate(-50%, -50%);
+    position: relative;
     width: 52px;
     height: 52px;
-    z-index: 1;
+    flex-shrink: 0;
 }
 
 .time-token-img {
@@ -33,17 +35,17 @@
     display: block;
 }
 
-/* Dark circle over the hourglass so the number reads cleanly */
+/* Light radial gradient matching the token's natural parchment tone */
 .time-tracker-display::after {
     content: '';
     position: absolute;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    width: 26px;
-    height: 26px;
+    width: 30px;
+    height: 30px;
     border-radius: 50%;
-    background: radial-gradient(circle, rgba(6, 4, 1, 0.82) 55%, rgba(6, 4, 1, 0) 100%);
+    background: radial-gradient(circle, rgb(255, 244, 232) 55%, rgba(6, 4, 1, 0) 100%);
     pointer-events: none;
     z-index: 2;
 }
@@ -57,12 +59,7 @@
     font-size: 1.05rem;
     font-weight: 700;
     line-height: 1;
-    color: var(--color-gold-light);
-    text-shadow:
-        0 0 4px rgba(0, 0, 0, 1),
-        0 0 8px rgba(0, 0, 0, 1),
-        0 1px 3px #000,
-        0 -1px 3px #000;
+    color: #1a0e04;
     pointer-events: none;
     z-index: 3;
 }

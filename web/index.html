@@ -100,22 +100,22 @@
     <div class="game-panel d-flex flex-column">
 
         <!-- Game header bar -->
-        <div class="game-header d-flex align-items-center justify-content-between px-3 py-2 flex-shrink-0">
-            <!-- Left: Back + Path selector -->
-            <div class="d-flex align-items-center gap-3">
+        <div class="game-header d-flex align-items-center px-3 py-2 flex-shrink-0">
+            <!-- Left: Back + Path selector (flex:1, left-aligned) -->
+            <div class="game-header-left d-flex align-items-center gap-3">
                 <button id="btn-game-back" class="btn btn-ghost-game">Back</button>
                 <div class="path-toggle" id="path-toggle">
                     <button class="path-btn" id="btn-path-a">Path: A</button>
                     <button class="path-btn" id="btn-path-b">Path: B</button>
                 </div>
             </div>
-            <!-- Center: Time tracker (absolutely centered in header) -->
+            <!-- Center: Time tracker -->
             <div class="time-tracker-display">
                 <img src="data/ui/deepwood_token.png" class="time-token-img" alt="Time">
                 <span id="game-time" class="time-token-num">0</span>
             </div>
-            <!-- Right: Clue tokens + nav buttons -->
-            <div class="d-flex align-items-center gap-2">
+            <!-- Right: Clue tokens + nav buttons (flex:1, right-aligned) -->
+            <div class="game-header-right d-flex align-items-center justify-content-end gap-2">
                 <div class="clue-tokens" id="clue-tokens">
                     <button class="clue-token" data-clue-index="0"><span class="ct-num">1</span></button>
                     <button class="clue-token" data-clue-index="1"><span class="ct-num">2</span></button>
