@@ -23,6 +23,154 @@
     letter-spacing: 0.2em;
 }
 
+/* Path A/B toggle buttons */
+
+.path-toggle {
+    display: flex;
+    gap: 3px;
+    align-items: center;
+}
+
+.path-btn {
+    font-family: var(--font-title);
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    width: 30px;
+    height: 42px;
+    border-radius: 4px;
+    border: 1px solid rgba(138, 120, 80, 0.4);
+    background: transparent;
+    color: var(--color-text-dim);
+    cursor: pointer;
+    opacity: 0.45;
+    transition: background 0.15s, border-color 0.15s, color 0.15s, opacity 0.15s;
+    padding: 0;
+    line-height: 1;
+}
+
+.path-btn:hover {
+    opacity: 0.7;
+}
+
+.path-btn.selected {
+    border-color: var(--color-gold-light);
+    background: var(--color-gold-light);
+    color: var(--bg-dark);
+    opacity: 1;
+}
+
+/* Clue tokens */
+
+.clue-tokens {
+    display: flex;
+    gap: 4px;
+    align-items: center;
+}
+
+.clue-token {
+    position: relative;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    border: none;
+    background: rgba(230, 210, 160, 0.08);
+    cursor: pointer;
+    padding: 0;
+    flex-shrink: 0;
+    transition: background 0.15s;
+}
+
+/* Inner darker ring, inset ~10% from the outer circle edge */
+.clue-token::before {
+    content: '';
+    position: absolute;
+    top: 10%;
+    left: 10%;
+    right: 10%;
+    bottom: 10%;
+    border-radius: 50%;
+    border: 2px solid rgba(180, 140, 60, 0.18);
+    pointer-events: none;
+    transition: border-color 0.15s;
+}
+
+.clue-token:hover::before {
+    border-color: rgba(180, 140, 60, 0.4);
+}
+
+.clue-token.active {
+    background: rgba(242, 232, 205, 0.92);
+}
+
+.clue-token.active::before {
+    border-color: rgba(45, 28, 8, 0.6);
+}
+
+/* Number label - upper area of inner ring */
+.ct-num {
+    position: absolute;
+    top: 4px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-family: var(--font-title);
+    font-size: 0.7rem;
+    font-weight: 700;
+    line-height: 1;
+    color: rgba(200, 160, 80, 0.2);
+    pointer-events: none;
+    transition: color 0.15s;
+}
+
+.clue-token.active .ct-num {
+    color: rgba(45, 28, 8, 0.88);
+}
+
+/* "!" cutout badge - bottom of inner ring.
+   Background matches the outer circle to visually cut the ring. */
+.ct-sub {
+    position: absolute;
+    bottom: 4px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-family: var(--font-title);
+    font-size: 0.42rem;
+    font-weight: 900;
+    line-height: 1;
+    padding: 0 1.5px;
+    border-radius: 2px;
+    background: rgba(20, 14, 4, 0.85); /* matches header bg -> creates cutout illusion */
+    color: rgba(180, 140, 60, 0.18);
+    white-space: nowrap;
+    pointer-events: none;
+    transition: color 0.15s, background 0.15s;
+    z-index: 1;
+}
+
+.clue-token.active .ct-sub {
+    background: rgba(242, 232, 205, 0.92); /* matches active token bg */
+    color: rgba(45, 28, 8, 0.65);
+}
+
+/* Special "!" token - large centered exclamation, no number/cutout */
+.clue-token-exclaim .ct-bang {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-family: var(--font-title);
+    font-size: 0.95rem;
+    font-weight: 900;
+    line-height: 1;
+    color: rgba(200, 160, 80, 0.2);
+    pointer-events: none;
+    transition: color 0.15s;
+}
+
+.clue-token-exclaim.active .ct-bang {
+    color: rgba(45, 28, 8, 0.88);
+}
+
 /* Chapter title area (section 0) */
 
 .chapter-title-area {
