@@ -15,9 +15,9 @@
  *
  *   [STORAGE]       _load(), _save(), _chapterSave(), _getArr/_setArr, _getInt/_setInt, _getBool/_setBool
  *   [NAVIGATION]    getCurrentSectionNum(), setCurrentSectionNum(), removeCurrentSectionNum()
- *   [TIME]          manageTime(), _timePop(), getTime(), returnToNextPositionToken()
+ *   [TIME]          manageTime(), _timePop(), getTime(), returnToNextPositionToken(), getActivePath()
  *   [LOCATIONS]     getLocationsList(), removeLocation(), reAddLocation()
- *   [CLUES]         _addAndPopClues(), _removeAndUnPopClues()
+ *   [CLUES]         _addAndPopClues(), _removeAndUnPopClues(), getClueTokens()
  *   [DEEPWOOD]      _setupDeepwood(), _secondDeepwoodVisitRedirect(), _reAddDeepwoodIfBackingOut()
  *   [CAMPAIGN]      diedRestartChapter(), clearCampaign()
  *   [GAME_STATE]    GameState static object (campaign-level helpers)
@@ -371,6 +371,28 @@ class GameEngine {
         return this._getInt('nextPositionToken');
     }
 
+    // Returns 'A', 'B', or null.
+    // null means: not a two-path chapter, or player has not yet navigated far
+    // enough to determine a path (nextPositionToken still -1).
+    // Detection uses conditionalTimeTriggers: path B conditions are identified
+    // by whenTokenInRange with min > 0 (path B sections never start at 0).
+    getActivePath() {
+        const ctt = this.chapterData.conditionalTimeTriggers;
+        if (!ctt) return null;
+        const npt = this._getInt('nextPositionToken');
+        if (npt < 0) return null;
+        let hasPathBCondition = false;
+        for (const cond of Object.values(ctt)) {
+            if (!cond.whenTokenInRange) continue;
+            const [min, max] = cond.whenTokenInRange;
+            if (min <= 0) continue;
+            hasPathBCondition = true;
+            if (npt >= min && npt <= max) return 'B';
+            if (cond.orTokenIs && cond.orTokenIs.includes(npt)) return 'B';
+        }
+        return hasPathBCondition ? 'A' : null;
+    }
+
     //
     // ========================================================================
     //  [LOCATIONS]
@@ -478,6 +500,18 @@ class GameEngine {
             }
             this._setBool('clue2', false);
         }
+    }
+
+    // Returns an array of clue numbers (1 and/or 2) the player currently holds,
+    // in acquisition order. Empty array when the chapter has no clue mechanic
+    // or no clues have been found yet.
+    getClueTokens() {
+        const clues = this.chapterData.clue;
+        if (!clues || clues[0] === -1) return [];
+        const tokens = [];
+        if (this._getBool('clue1')) tokens.push(1);
+        if (this._getBool('clue2')) tokens.push(2);
+        return tokens;
     }
 
     //

@@ -63,6 +63,8 @@ STRINGS["en"] = Object.assign(STRINGS["en"] || {}, {
     "ui.lightbox_close":        "Click anywhere to close",
     "ui.open_github_issues":    "Open GitHub Issues",
     "ui.raw_json":              "Raw JSON",
+    // Path indicator (two-path chapters only)
+    "ui.path_label":            "PATH: %s",
     // Audio track label
     "ui.audio_label":           "Track %s / %s",
     "ui.audio":                 "Audio",
@@ -151,6 +153,7 @@ STRINGS["de"] = Object.assign(STRINGS["de"] || {}, {
     "ui.lightbox_close":        "Klicke irgendwo zum Schlie\u00dfen",
     "ui.open_github_issues":    "GitHub Issues \u00f6ffnen",
     "ui.raw_json":              "Roh-JSON",
+    "ui.path_label":            "PFAD: %s",
     "ui.audio_label":           "Spur %s / %s",
     "ui.audio":                 "Audio",
     "ui.no_saved_progress":       "Kein gespeicherter Fortschritt.",
@@ -236,6 +239,7 @@ STRINGS["it"] = Object.assign(STRINGS["it"] || {}, {
     "ui.lightbox_close":        "Clicca ovunque per chiudere",
     "ui.open_github_issues":    "Apri le Segnalazioni GitHub",
     "ui.raw_json":              "JSON Grezzo",
+    "ui.path_label":            "PERCORSO: %s",
     "ui.audio_label":           "Traccia %s / %s",
     "ui.audio":                 "Audio",
     "ui.no_saved_progress":       "Nessun progresso salvato.",
@@ -321,6 +325,7 @@ STRINGS["fr"] = Object.assign(STRINGS["fr"] || {}, {
     "ui.lightbox_close":        "Cliquez n\u2019importe o\u00f9 pour fermer",
     "ui.open_github_issues":    "Ouvrir les Issues GitHub",
     "ui.raw_json":              "JSON Brut",
+    "ui.path_label":            "CHEMIN: %s",
     "ui.audio_label":           "Piste %s / %s",
     "ui.audio":                 "Audio",
     "ui.no_saved_progress":       "Aucune progression sauvegard\u00e9e.",

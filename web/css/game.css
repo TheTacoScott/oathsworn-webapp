@@ -23,6 +23,34 @@
     letter-spacing: 0.2em;
 }
 
+.game-path-display {
+    font-family: var(--font-title);
+    font-size: 0.9rem;
+    color: var(--color-text);
+    letter-spacing: 0.15em;
+}
+
+.game-clue-tokens-wrap {
+    display: flex;
+    gap: 0.4rem;
+    align-items: center;
+}
+
+.clue-token {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.6rem;
+    height: 1.6rem;
+    border-radius: 50%;
+    background: #f5f0e8;
+    color: #1a1209;
+    font-family: var(--font-title);
+    font-size: 0.9rem;
+    font-weight: 700;
+    line-height: 1;
+}
+
 /* Chapter title area (section 0) */
 
 .chapter-title-area {

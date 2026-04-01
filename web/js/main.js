@@ -13,7 +13,7 @@
  *   [GAME_STATE]        module-level variables
  *   [HOME]              home screen
  *   [CHAPTER_SELECT]    chapter select screen
- *   [GAME_SCREEN]       startChapter(), loadSection()
+ *   [GAME_SCREEN]       startChapter(), loadSection(), updatePathDisplay(), updateClueDisplay()
  *   [RENDER_PLATE]      renderPlate()
  *   [IMAGE_LIGHTBOX]    openImageLightbox()
  *   [RENDER_BUTTONS]    renderButtons()
@@ -401,6 +401,8 @@ function loadSection(goingBack) {
     // Time display
     const time = engine.getTime();
     document.getElementById('game-time').textContent = 'TIME: ' + time;
+    updatePathDisplay();
+    updateClueDisplay();
 
     // Chapter title (shown only on section 0 first visit)
     const titleArea = document.getElementById('chapter-title-area');
@@ -424,6 +426,36 @@ function loadSection(goingBack) {
 
     // Scroll content to top
     document.getElementById('game-content').scrollTop = 0;
+}
+
+function updatePathDisplay() {
+    const path = engine.getActivePath();
+    const el = document.getElementById('game-path-label');
+    if (path) {
+        el.textContent = S('ui.path_label').replace('%s', path);
+        el.dataset.stringKey = 'ui.path_label';
+        el.dataset.stringParam = path;
+        el.classList.remove('d-none');
+    } else {
+        el.classList.add('d-none');
+    }
+}
+
+function updateClueDisplay() {
+    const tokens = engine.getClueTokens();
+    const wrap = document.getElementById('game-clue-tokens');
+    wrap.innerHTML = '';
+    if (tokens.length === 0) {
+        wrap.classList.add('d-none');
+        return;
+    }
+    tokens.forEach(function(n) {
+        const tok = document.createElement('div');
+        tok.className = 'clue-token';
+        tok.textContent = n;
+        wrap.appendChild(tok);
+    });
+    wrap.classList.remove('d-none');
 }
 
 //
