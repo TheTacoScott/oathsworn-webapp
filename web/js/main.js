@@ -412,7 +412,7 @@ function loadSection(goingBack) {
 
     // Time display
     const time = engine.getTime();
-    document.getElementById('game-time').textContent = 'TIME: ' + time;
+    document.getElementById('game-time').textContent = time;
 
     renderHudControls();
 

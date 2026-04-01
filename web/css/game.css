@@ -16,11 +16,38 @@
     min-height: 50px;
 }
 
-.game-time-display {
+.time-tracker-display {
+    position: relative;
+    width: 46px;
+    height: 46px;
+    flex-shrink: 0;
+}
+
+.time-token-img {
+    width: 100%;
+    height: 100%;
+    display: block;
+}
+
+.time-token-num {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
     font-family: var(--font-title);
-    font-size: 0.85rem;
-    color: var(--color-gold);
-    letter-spacing: 0.2em;
+    font-size: 1.05rem;
+    font-weight: 700;
+    line-height: 1;
+    color: #fff;
+    text-shadow:
+        0 0 3px #000,
+        0 0 6px #000,
+        0 0 10px rgba(0, 0, 0, 0.9),
+        0 1px 2px #000,
+        0 -1px 2px #000,
+        1px 0 2px #000,
+        -1px 0 2px #000;
+    pointer-events: none;
 }
 
 /* Path A/B toggle buttons */
@@ -36,8 +63,8 @@
     font-size: 0.7rem;
     font-weight: 700;
     letter-spacing: 0.06em;
-    padding: 0.3rem 0.55rem;
-    height: auto;
+    height: 34px;
+    padding: 0 0.55rem;
     border-radius: 4px;
     border: 1px solid rgba(138, 120, 80, 0.4);
     background: transparent;
@@ -46,7 +73,8 @@
     opacity: 0.45;
     transition: background 0.15s, border-color 0.15s, color 0.15s, opacity 0.15s;
     white-space: nowrap;
-    line-height: 1;
+    display: inline-flex;
+    align-items: center;
 }
 
 .path-btn:hover {
