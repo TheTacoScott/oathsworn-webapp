@@ -18,3 +18,6 @@ docs/
 # Python
 __pycache__/
 *.pyc
+
+#IDE foo - no more terminal editors
+.idea/
