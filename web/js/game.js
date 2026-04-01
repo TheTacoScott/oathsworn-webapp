@@ -71,6 +71,8 @@ class GameEngine {
                 clue1: false,
                 clue2: false,
                 unvisitedDeepwoodTokens: [],
+                pathChoice: null,
+                clueTokens: [false, false, false, false, false, false, false],
             };
         }
         return save.chapters[n];
@@ -550,6 +552,40 @@ class GameEngine {
     // ========================================================================
     //
 
+    //
+    // ========================================================================
+    //  [HUD_STATE]
+    // ========================================================================
+    //
+
+    getPathChoice() {
+        const save = this._load();
+        const cs = this._chapterSave(save);
+        return cs.pathChoice || null;
+    }
+
+    setPathChoice(choice) {
+        const save = this._load();
+        const cs = this._chapterSave(save);
+        cs.pathChoice = choice;
+        this._save(save);
+    }
+
+    getClueTokens() {
+        const arr = this._getArr('clueTokens');
+        if (arr.length === 7) return arr;
+        // pad or trim to always return exactly 7 entries
+        const result = [false, false, false, false, false, false, false];
+        for (let i = 0; i < Math.min(arr.length, 7); i++) result[i] = arr[i];
+        return result;
+    }
+
+    setClueToken(index, active) {
+        const tokens = this.getClueTokens();
+        tokens[index] = active;
+        this._setArr('clueTokens', tokens);
+    }
+
     diedRestartChapter() {
         this.clearCampaign(this.chapterNum);
         return 0;
@@ -571,6 +607,8 @@ class GameEngine {
             clue1: false,
             clue2: false,
             unvisitedDeepwoodTokens: [],
+            pathChoice: null,
+            clueTokens: [false, false, false, false, false, false, false],
         };
         this._save(save);
     }

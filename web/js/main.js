@@ -364,6 +364,18 @@ $('#btn-chapters-back').on('click', function() {
 // ============================================================================
 //
 
+function renderHudControls() {
+    const pathChoice = engine.getPathChoice();
+    $('#btn-path-a').toggleClass('selected', pathChoice === 'A');
+    $('#btn-path-b').toggleClass('selected', pathChoice === 'B');
+
+    const tokens = engine.getClueTokens();
+    $('#clue-tokens .clue-token').each(function() {
+        const idx = parseInt($(this).attr('data-clue-index'), 10);
+        $(this).toggleClass('active', tokens[idx] === true);
+    });
+}
+
 function startChapter(chapterNum) {
     currentChapterNum = chapterNum;
     engine = new GameEngine(chapterNum);
@@ -401,6 +413,8 @@ function loadSection(goingBack) {
     // Time display
     const time = engine.getTime();
     document.getElementById('game-time').textContent = 'TIME: ' + time;
+
+    renderHudControls();
 
     // Chapter title (shown only on section 0 first visit)
     const titleArea = document.getElementById('chapter-title-area');
@@ -1201,4 +1215,27 @@ $(function() {
     });
 
     $('#setting-language').on('change', function() { setLanguage(this.value); });
+
+    // Path A/B toggle
+    $('#btn-path-a').on('click', function() {
+        if (!engine) return;
+        const current = engine.getPathChoice();
+        engine.setPathChoice(current === 'A' ? null : 'A');
+        renderHudControls();
+    });
+    $('#btn-path-b').on('click', function() {
+        if (!engine) return;
+        const current = engine.getPathChoice();
+        engine.setPathChoice(current === 'B' ? null : 'B');
+        renderHudControls();
+    });
+
+    // Clue token toggles
+    $('#clue-tokens').on('click', '.clue-token', function() {
+        if (!engine) return;
+        const idx = parseInt($(this).attr('data-clue-index'), 10);
+        const tokens = engine.getClueTokens();
+        engine.setClueToken(idx, !tokens[idx]);
+        renderHudControls();
+    });
 });
