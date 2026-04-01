@@ -99,22 +99,23 @@
 <div id="screen-game" class="screen game-screen">
     <div class="game-panel d-flex flex-column">
 
-        <!-- Game header bar -->
-        <div class="game-header d-flex align-items-center px-3 flex-shrink-0">
-            <!-- Far left: Back button -->
-            <div class="game-header-left d-flex align-items-center">
+        <!-- Game header bar: 1fr [time tracker] 1fr grid keeps the token dead center -->
+        <div class="game-header px-3 flex-shrink-0">
+            <!-- Left column: Back (far left) + Path cards (far right) -->
+            <div class="game-header-left">
                 <button id="btn-game-back" class="btn btn-ghost-game">Back</button>
-            </div>
-            <!-- Center cluster: Path | Time tracker | Clues -->
-            <div class="hud-cluster d-flex align-items-center">
                 <div class="path-toggle" id="path-toggle">
                     <button class="path-btn path-btn-a" id="btn-path-a"><span data-string-key="ui.path_prefix">Path:</span><span class="path-letter"> A</span></button>
                     <button class="path-btn path-btn-b" id="btn-path-b"><span data-string-key="ui.path_prefix">Path:</span><span class="path-letter"> B</span></button>
                 </div>
-                <div class="time-tracker-display">
-                    <img src="data/ui/deepwood_token.png" class="time-token-img" alt="Time">
-                    <span id="game-time" class="time-token-num">0</span>
-                </div>
+            </div>
+            <!-- Center column: time tracker -->
+            <div class="time-tracker-display">
+                <img src="data/ui/deepwood_token.png" class="time-token-img" alt="Time">
+                <span id="game-time" class="time-token-num">0</span>
+            </div>
+            <!-- Right column: Clue tokens (far left) + nav buttons (far right) -->
+            <div class="game-header-right">
                 <div class="clue-tokens" id="clue-tokens">
                     <button class="clue-token" data-clue-index="0"><span class="ct-num">1</span></button>
                     <button class="clue-token" data-clue-index="1"><span class="ct-num">2</span></button>
@@ -124,13 +125,12 @@
                     <button class="clue-token" data-clue-index="5"><span class="ct-num">6</span></button>
                     <button class="clue-token clue-token-exclaim" data-clue-index="6"><span class="ct-bang">!</span></button>
                 </div>
-            </div>
-            <!-- Far right: nav buttons -->
-            <div class="game-header-right d-flex align-items-center justify-content-end gap-2">
-                <button id="btn-settings-game" class="btn btn-ghost-game" title="Settings"><img src="data/ui/settings.png" class="settings-icon" alt="Settings"></button>
-                <button id="btn-might-open" class="btn btn-ghost-game" data-string-key="ui.might_decks">Might Decks</button>
-                <button id="btn-bug-report" class="btn btn-ghost-game" data-string-key="ui.bug_report">Bug Report</button>
-                <button id="btn-game-menu" class="btn btn-ghost-game" data-string-key="ui.exit_chapter_select">Exit to Chapter Select</button>
+                <div class="d-flex align-items-center gap-2">
+                    <button id="btn-settings-game" class="btn btn-ghost-game" title="Settings"><img src="data/ui/settings.png" class="settings-icon" alt="Settings"></button>
+                    <button id="btn-might-open" class="btn btn-ghost-game" data-string-key="ui.might_decks">Might Decks</button>
+                    <button id="btn-bug-report" class="btn btn-ghost-game" data-string-key="ui.bug_report">Bug Report</button>
+                    <button id="btn-game-menu" class="btn btn-ghost-game" data-string-key="ui.exit_chapter_select">Exit to Chapter Select</button>
+                </div>
             </div>
         </div>
 
