@@ -36,8 +36,8 @@
 
 /* Thin vertical separators between cluster elements */
 .path-toggle {
-    padding-right: 0.6rem;
-    border-right: 1px solid var(--color-border);
+    padding-left: 0.6rem;
+    border-left: 1px solid var(--color-border);
 }
 
 .clue-tokens {
