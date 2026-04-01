@@ -43,17 +43,17 @@ fi
 echo ""
 
 echo "Building setup image..."
-docker build -t oathsworn-setup -f "$SCRIPT_DIR/Dockerfile" "$SCRIPT_DIR"
+#docker build -t oathsworn-setup -f "$SCRIPT_DIR/Dockerfile" "$SCRIPT_DIR"
 
 echo ""
 echo "Running setup..."
-docker run --rm \
-    -e HOST_UID="$(id -u)" \
-    -e HOST_GID="$(id -g)" \
-    -e INCLUDE_GERMAN_LANG="${INCLUDE_GERMAN_LANG:-}" \
-    -v "$OUTPUT_DIR/data:/repo/web/data:z" \
-    -v "$CACHE_DIR:/cache:z" \
-    oathsworn-setup
+#docker run --rm \
+#    -e HOST_UID="$(id -u)" \
+#    -e HOST_GID="$(id -g)" \
+#    -e INCLUDE_GERMAN_LANG="${INCLUDE_GERMAN_LANG:-}" \
+#    -v "$OUTPUT_DIR/data:/repo/web/data:z" \
+#    -v "$CACHE_DIR:/cache:z" \
+#    oathsworn-setup
 
 echo ""
 echo "============================================================"
