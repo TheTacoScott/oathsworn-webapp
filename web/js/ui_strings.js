@@ -66,6 +66,8 @@ STRINGS["en"] = Object.assign(STRINGS["en"] || {}, {
     // Audio track label
     "ui.audio_label":           "Track %s / %s",
     "ui.audio":                 "Audio",
+    // Path selector prefix (letter follows in a separate span)
+    "ui.path_prefix":           "Path:",
     // Save data screen
     "ui.no_saved_progress":       "No saved progress.",
     "ui.save_section":            "Section",
@@ -153,6 +155,7 @@ STRINGS["de"] = Object.assign(STRINGS["de"] || {}, {
     "ui.raw_json":              "Roh-JSON",
     "ui.audio_label":           "Spur %s / %s",
     "ui.audio":                 "Audio",
+    "ui.path_prefix":           "Pfad:",
     "ui.no_saved_progress":       "Kein gespeicherter Fortschritt.",
     "ui.save_section":            "Abschnitt",
     "ui.save_history":            "%s Abschnitte besucht",
@@ -238,6 +241,7 @@ STRINGS["it"] = Object.assign(STRINGS["it"] || {}, {
     "ui.raw_json":              "JSON Grezzo",
     "ui.audio_label":           "Traccia %s / %s",
     "ui.audio":                 "Audio",
+    "ui.path_prefix":           "Via:",
     "ui.no_saved_progress":       "Nessun progresso salvato.",
     "ui.save_section":            "Sezione",
     "ui.save_history":            "%s sezioni visitate",
@@ -323,6 +327,7 @@ STRINGS["fr"] = Object.assign(STRINGS["fr"] || {}, {
     "ui.raw_json":              "JSON Brut",
     "ui.audio_label":           "Piste %s / %s",
     "ui.audio":                 "Audio",
+    "ui.path_prefix":           "Chemin\u00a0:",
     "ui.no_saved_progress":       "Aucune progression sauvegard\u00e9e.",
     "ui.save_section":            "Section",
     "ui.save_history":            "%s sections visit\u00e9es",
