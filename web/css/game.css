@@ -14,7 +14,7 @@
     display: grid;
     grid-template-columns: 1fr auto 1fr;
     align-items: center;
-    column-gap: 2rem;
+    column-gap: 3.5rem;
     background-color: rgba(18, 15, 7, 0.95);
     border-bottom: 1px solid var(--color-border);
     height: 58px;
