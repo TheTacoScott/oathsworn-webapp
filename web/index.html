@@ -99,9 +99,9 @@
 <div id="screen-game" class="screen game-screen">
     <div class="game-panel d-flex flex-column">
 
-        <!-- Game header bar: 1fr [time tracker] 1fr grid keeps the token dead center -->
+        <!-- Game header bar: [Back · Path A/B] | Time | [Clue tokens · nav buttons] -->
         <div class="game-header px-3 flex-shrink-0">
-            <!-- Left column: Back (far left) + Path cards (far right) -->
+            <!-- Left: Back button + path A/B toggle -->
             <div class="game-header-left">
                 <button id="btn-game-back" class="btn btn-ghost-game">Back</button>
                 <div class="path-toggle" id="path-toggle">
@@ -109,12 +109,12 @@
                     <button class="path-btn path-btn-b" id="btn-path-b"><span data-string-key="ui.path_prefix">Path:</span><span class="path-letter"> B</span></button>
                 </div>
             </div>
-            <!-- Center column: time tracker -->
+            <!-- Center: time tracker -->
             <div class="time-tracker-display">
                 <img src="data/ui/deepwood_token.png" class="time-token-img" alt="Time">
                 <span id="game-time" class="time-token-num">0</span>
             </div>
-            <!-- Right column: Clue tokens (far left) + nav buttons (far right) -->
+            <!-- Right: clue tokens + nav buttons -->
             <div class="game-header-right">
                 <div class="clue-tokens" id="clue-tokens">
                     <button class="clue-token" data-clue-index="0"><span class="ct-num">1</span></button>
@@ -140,7 +140,7 @@
             <p id="chapter-author-text" class="chapter-author mb-0"></p>
         </div>
 
-        <!-- Scrollable plate content -->
+        <!-- Scrollable plate content with flanking HUD drawers -->
         <div class="content-area-wrapper">
             <div id="game-content" class="game-content">
                 <!-- populated by renderPlate() -->
