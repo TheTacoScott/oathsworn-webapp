@@ -101,16 +101,21 @@
 
         <!-- Game header bar -->
         <div class="game-header d-flex align-items-center justify-content-between px-3 py-2 flex-shrink-0">
-            <button id="btn-game-back" class="btn btn-ghost-game">Back</button>
-            <div class="d-flex align-items-center gap-2">
+            <!-- Left: Back + Path selector -->
+            <div class="d-flex align-items-center gap-3">
+                <button id="btn-game-back" class="btn btn-ghost-game">Back</button>
                 <div class="path-toggle" id="path-toggle">
                     <button class="path-btn" id="btn-path-a">Path: A</button>
                     <button class="path-btn" id="btn-path-b">Path: B</button>
                 </div>
-                <div class="time-tracker-display">
-                    <img src="data/ui/deepwood_token.png" class="time-token-img" alt="Time">
-                    <span id="game-time" class="time-token-num">0</span>
-                </div>
+            </div>
+            <!-- Center: Time tracker (absolutely centered in header) -->
+            <div class="time-tracker-display">
+                <img src="data/ui/deepwood_token.png" class="time-token-img" alt="Time">
+                <span id="game-time" class="time-token-num">0</span>
+            </div>
+            <!-- Right: Clue tokens + nav buttons -->
+            <div class="d-flex align-items-center gap-2">
                 <div class="clue-tokens" id="clue-tokens">
                     <button class="clue-token" data-clue-index="0"><span class="ct-num">1</span></button>
                     <button class="clue-token" data-clue-index="1"><span class="ct-num">2</span></button>
@@ -120,8 +125,6 @@
                     <button class="clue-token" data-clue-index="5"><span class="ct-num">6</span></button>
                     <button class="clue-token clue-token-exclaim" data-clue-index="6"><span class="ct-bang">!</span></button>
                 </div>
-            </div>
-            <div class="d-flex align-items-center gap-2">
                 <button id="btn-settings-game" class="btn btn-ghost-game" title="Settings"><img src="data/ui/settings.png" class="settings-icon" alt="Settings"></button>
                 <button id="btn-might-open" class="btn btn-ghost-game" data-string-key="ui.might_decks">Might Decks</button>
                 <button id="btn-bug-report" class="btn btn-ghost-game" data-string-key="ui.bug_report">Bug Report</button>
