@@ -52,6 +52,8 @@ if [[ -n "$DOMAIN" ]]; then
     cat > Caddyfile <<EOF
 $DOMAIN {
     root * /srv
+    @serve_files path /serve.sh /Caddyfile
+    respond @serve_files 404
     file_server
     encode gzip
 }
@@ -60,6 +62,8 @@ else
     cat > Caddyfile <<EOF
 :$PORT {
     root * /srv
+    @serve_files path /serve.sh /Caddyfile
+    respond @serve_files 404
     file_server
     encode gzip
 }
