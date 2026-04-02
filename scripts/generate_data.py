@@ -267,7 +267,7 @@ def generate_favicon():
     # Trim transparent padding, add a small equal margin back
     bbox = img.getbbox()
     if bbox:
-        margin = 4
+        margin = 1
         img = img.crop((
             max(0, bbox[0] - margin),
             max(0, bbox[1] - margin),
