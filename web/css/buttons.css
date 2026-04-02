@@ -22,6 +22,12 @@
     color: #fff;
 }
 
+.btn-primary-game:active {
+    --bs-btn-active-bg: var(--btn-primary-bg);
+    --bs-btn-active-border-color: var(--color-gold);
+    --bs-btn-active-color: var(--color-gold-light);
+}
+
 .btn-ghost-game {
     background-color: transparent;
     border: 1px solid var(--color-border);
@@ -36,4 +42,10 @@
     background-color: rgba(200, 150, 42, 0.08);
     border-color: var(--color-gold);
     color: var(--color-gold-light);
+}
+
+.btn-ghost-game:active {
+    --bs-btn-active-bg: rgba(200, 150, 42, 0.12);
+    --bs-btn-active-border-color: var(--color-gold);
+    --bs-btn-active-color: var(--color-gold-light);
 }

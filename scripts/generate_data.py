@@ -24,6 +24,7 @@ OUT_DIR = os.path.join(BASE_DIR, 'web', 'data')
 IMAGE_DIR = os.path.join(RES_DIR, 'drawable-land-xxxhdpi')
 DRAWABLE_DIR = os.path.join(RES_DIR, 'drawable')
 AUDIO_DIR = os.path.join(RES_DIR, 'raw')
+MIPMAP_DIR = os.path.join(RES_DIR, 'mipmap-xxxhdpi')
 OUT_IMAGE_DIR = os.path.join(OUT_DIR, 'images')
 OUT_AUDIO_DIR = os.path.join(OUT_DIR, 'audio')
 OUT_CHAPTERS_DIR = os.path.join(OUT_DIR, 'chapters')
@@ -241,6 +242,43 @@ def generate_deepwood_token():
 
     os.makedirs(OUT_UI_DIR, exist_ok=True)
     combined.save(out)
+    return True
+
+
+def generate_favicon():
+    """
+    Crop transparent padding from ic_launcher.png (the app icon from
+    res/mipmap-xxxhdpi/) and resize to 64x64, writing favicon.png to
+    web/data/ui/.  Used as the browser favicon via a <link> tag in index.html.
+    """
+    src = os.path.join(MIPMAP_DIR, 'ic_launcher.png')
+    out = os.path.join(OUT_UI_DIR, 'favicon.png')
+
+    if not os.path.exists(src):
+        print(f"  WARNING: favicon source not found: {src}")
+        return False
+
+    # Skip if output is already newer than source
+    if os.path.exists(out) and os.path.getmtime(out) >= os.path.getmtime(src):
+        return False
+
+    img = Image.open(src).convert('RGBA')
+
+    # Trim transparent padding, add a small equal margin back
+    bbox = img.getbbox()
+    if bbox:
+        margin = 4
+        img = img.crop((
+            max(0, bbox[0] - margin),
+            max(0, bbox[1] - margin),
+            min(img.width,  bbox[2] + margin),
+            min(img.height, bbox[3] + margin),
+        ))
+
+    img = img.resize((64, 64), Image.LANCZOS)
+
+    os.makedirs(OUT_UI_DIR, exist_ok=True)
+    img.save(out)
     return True
 
 
@@ -644,6 +682,8 @@ def main():
     print(f"  {copied} copied -> {OUT_UI_CHAPTERS_DIR}")
     generated = generate_deepwood_token()
     print(f"  deepwood_token.png {'generated' if generated else 'up to date'} -> {OUT_UI_DIR}")
+    generated = generate_favicon()
+    print(f"  favicon.png {'generated' if generated else 'up to date'} -> {OUT_UI_DIR}")
 
     # Chapters
     print("\nParsing chapter files...")
