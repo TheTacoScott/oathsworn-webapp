@@ -7,15 +7,16 @@
 #   ./serve.sh --port 3000               Local:  http://localhost:3000
 #   ./serve.sh --domain example.com      Public: https://example.com  (Let's Encrypt)
 #   ./serve.sh -d                        Run detached (background)
-#   ./serve.sh --stop                    Stop a running server
+#   ./serve.sh --stop                    Stop a detached server
 #
 # For public HTTPS, ports 80 and 443 must be open and the domain must
 # resolve to this machine before starting.
 #
-# Requires: Docker with the Compose plugin (docker compose)
+# Requires: Docker
 
 set -euo pipefail
 
+CONTAINER_NAME="oathsworn-caddy"
 DOMAIN=""
 PORT=8080
 DETACH=false
@@ -37,15 +38,13 @@ if ! command -v docker &>/dev/null; then
     exit 1
 fi
 
-# --stop: bring down whatever compose project is running here
 if [[ "$STOP" == true ]]; then
-    if [[ ! -f docker-compose.yml ]]; then
-        echo "No docker-compose.yml found — is a server running from this directory?" >&2
-        exit 1
-    fi
-    docker compose down
+    docker stop "$CONTAINER_NAME"
     exit 0
 fi
+
+# Remove any existing stopped container with the same name
+docker rm -f "$CONTAINER_NAME" 2>/dev/null || true
 
 # --- Generate Caddyfile ---
 
@@ -67,62 +66,36 @@ else
 EOF
 fi
 
-# --- Generate docker-compose.yml ---
+# --- Build docker run args ---
+
+DOCKER_ARGS=(
+    --name "$CONTAINER_NAME"
+    --restart unless-stopped
+    -v "$(pwd)/Caddyfile:/etc/caddy/Caddyfile:ro"
+    -v "$(pwd):/srv:ro"
+    -v "oathsworn-caddy-config:/config"
+)
 
 if [[ -n "$DOMAIN" ]]; then
-    # Public HTTPS: expose 80 (ACME challenge + redirect) and 443 (TLS + HTTP/3)
-    # caddy_data persists Let's Encrypt certificates across restarts
-    cat > docker-compose.yml <<EOF
-services:
-  caddy:
-    image: caddy:2-alpine
-    restart: unless-stopped
-    ports:
-      - "80:80"
-      - "443:443"
-      - "443:443/udp"
-    volumes:
-      - ./Caddyfile:/etc/caddy/Caddyfile:ro
-      - ./:/srv:ro
-      - caddy_data:/data
-      - caddy_config:/config
-volumes:
-  caddy_data:
-  caddy_config:
-EOF
-else
-    cat > docker-compose.yml <<EOF
-services:
-  caddy:
-    image: caddy:2-alpine
-    restart: unless-stopped
-    ports:
-      - "${PORT}:${PORT}"
-    volumes:
-      - ./Caddyfile:/etc/caddy/Caddyfile:ro
-      - ./:/srv:ro
-      - caddy_config:/config
-volumes:
-  caddy_config:
-EOF
-fi
-
-# --- Launch ---
-
-if [[ -n "$DOMAIN" ]]; then
+    DOCKER_ARGS+=(
+        -p "80:80"
+        -p "443:443"
+        -p "443:443/udp"
+        -v "oathsworn-caddy-data:/data"
+    )
     echo "Starting Caddy for https://$DOMAIN"
     echo "Ensure ports 80 and 443 are open and $DOMAIN resolves to this machine."
     echo ""
 else
+    DOCKER_ARGS+=(-p "${PORT}:${PORT}")
     echo "Starting Caddy at http://localhost:$PORT"
     echo ""
 fi
 
-COMPOSE_FLAGS="--remove-orphans"
 if [[ "$DETACH" == true ]]; then
-    COMPOSE_FLAGS="$COMPOSE_FLAGS -d"
+    DOCKER_ARGS+=(-d)
     echo "Running in background.  Stop with:  ./serve.sh --stop"
     echo ""
 fi
 
-docker compose up $COMPOSE_FLAGS
+docker run "${DOCKER_ARGS[@]}" caddy:2-alpine
