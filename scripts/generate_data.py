@@ -14,7 +14,7 @@ import re
 import json
 import os
 import shutil
-from PIL import Image, ImageDraw, ImageFilter
+from PIL import Image, ImageChops, ImageDraw, ImageFilter
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 APP_DIR = os.path.join(BASE_DIR, 'app', 'src', 'main')
@@ -247,11 +247,12 @@ def generate_deepwood_token():
 
 def generate_favicon():
     """
-    Crop transparent padding from ic_launcher.png (the app icon from
-    res/mipmap-xxxhdpi/) and resize to 64x64, writing favicon.png to
-    web/data/ui/.  Used as the browser favicon via a <link> tag in index.html.
+    Crop ic_launcher_foreground.png (res/mipmap-xxxhdpi/) to a square around the
+    content, inset by 10px on each side, then resize to 128x128, writing
+    favicon.png to web/data/ui/.  Used as the browser favicon via a <link>
+    tag in index.html.
     """
-    src = os.path.join(MIPMAP_DIR, 'ic_launcher.png')
+    src = os.path.join(MIPMAP_DIR, 'ic_launcher_foreground.png')
     out = os.path.join(OUT_UI_DIR, 'favicon.png')
 
     if not os.path.exists(src):
@@ -264,18 +265,39 @@ def generate_favicon():
 
     img = Image.open(src).convert('RGBA')
 
-    # Trim transparent padding, add a small equal margin back
+    # Auto-crop to content, square around the center, then inset 10px per side
     bbox = img.getbbox()
     if bbox:
-        margin = 1
-        img = img.crop((
-            max(0, bbox[0] - margin),
-            max(0, bbox[1] - margin),
-            min(img.width,  bbox[2] + margin),
-            min(img.height, bbox[3] + margin),
-        ))
+        left, upper, right, lower = bbox
+        size = max(right - left, lower - upper)
+        cx = (left + right) // 2
+        cy = (upper + lower) // 2 - 3
+        half = size // 2
+        inset = 28
+        img = img.crop((cx - half + inset, cy - half + inset,
+                        cx - half + size - inset, cy - half + size - inset))
 
-    img = img.resize((64, 64), Image.LANCZOS)
+    img = img.resize((128, 128), Image.LANCZOS)
+
+    # --- Compound alpha mask ---
+    # Circle: clips outer boundary (1px inset, quick soft edge)
+    circle = Image.new('L', (128, 128), 0)
+    ImageDraw.Draw(circle).ellipse((1, 1, 126, 126), fill=255)
+    circle = circle.filter(ImageFilter.GaussianBlur(radius=2))
+
+    # Vertical rectangle: 10px wide, centered, punches through top to bottom
+    rect = Image.new('L', (128, 128), 255)
+    ImageDraw.Draw(rect).rectangle((57, 0, 70, 127), fill=0)
+    rect = rect.filter(ImageFilter.GaussianBlur(radius=2))
+
+    # Oval over the O interior: taller top-to-bottom than left-to-right
+    oval = Image.new('L', (128, 128), 255)
+    ImageDraw.Draw(oval).ellipse((23, 8, 105, 118), fill=0)
+    oval = oval.filter(ImageFilter.GaussianBlur(radius=2))
+
+    combined = ImageChops.multiply(ImageChops.multiply(circle, rect), oval)
+    r, g, b, a = img.split()
+    img = Image.merge('RGBA', (r, g, b, ImageChops.multiply(a, combined)))
 
     os.makedirs(OUT_UI_DIR, exist_ok=True)
     img.save(out)
