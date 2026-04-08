@@ -100,7 +100,7 @@ def build_image_map():
         return ext_map
     for fname in os.listdir(IMAGE_DIR):
         base, ext = os.path.splitext(fname)
-        if base.startswith('ch') and ext in ('.jpg', '.png'):
+        if (base.startswith('ch') or base.startswith('path_')) and ext in ('.jpg', '.png'):
             ext_map[base] = ext[1:]  # 'jpg' or 'png'
     return ext_map
 
@@ -140,13 +140,13 @@ def _sync_dir(src_dir, dest_dir, keep):
 
 
 def copy_images():
-    """Sync game images (ch*) from drawable-land-xxxhdpi to web/data/images/."""
+    """Sync game images (ch*, path_*) from drawable-land-xxxhdpi to web/data/images/."""
     if not os.path.isdir(IMAGE_DIR):
         print(f"  WARNING: image dir not found: {IMAGE_DIR}")
         return 0, 0
     def keep(fname):
         base, ext = os.path.splitext(fname)
-        return base.startswith('ch') and ext in ('.jpg', '.png')
+        return (base.startswith('ch') or base.startswith('path_')) and ext in ('.jpg', '.png')
     return _sync_dir(IMAGE_DIR, OUT_IMAGE_DIR, keep)
 
 
