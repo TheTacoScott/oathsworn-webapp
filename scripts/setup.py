@@ -99,6 +99,17 @@ def verify_sha256(path, expected):
 # Steps
 # ---------------------------------------------------------------------------
 
+def _gdown_download(gdown, url, dest_path):
+    """Download from Google Drive, handling API differences across gdown versions.
+
+    The fuzzy= parameter was added in gdown 4.4.0 and dropped in 5.x.
+    """
+    try:
+        return gdown.download(url, dest_path, quiet=False, fuzzy=True)
+    except TypeError:
+        return gdown.download(url, dest_path, quiet=False)
+
+
 def step_download(dest_path):
     banner("Download APK")
     gdown = ensure_gdown()
@@ -108,7 +119,7 @@ def step_download(dest_path):
     for i, url in enumerate(APK_DRIVE_URLS, 1):
         print(f"  [{i}/{len(APK_DRIVE_URLS)}] {url}")
         try:
-            output = gdown.download(url, dest_path, quiet=False, fuzzy=True)
+            output = _gdown_download(gdown, url, dest_path)
         except Exception as e:
             print(f"  Failed: {e}")
             output = None
@@ -169,7 +180,7 @@ def step_download_german():
     for i, url in enumerate(APK_DE_DRIVE_URLS, 1):
         print(f"  [{i}/{len(APK_DE_DRIVE_URLS)}] {url}")
         try:
-            output = gdown.download(url, CACHED_APK_DE, quiet=False, fuzzy=True)
+            output = _gdown_download(gdown, url, CACHED_APK_DE)
         except Exception as e:
             print(f"  Failed: {e}")
             output = None
