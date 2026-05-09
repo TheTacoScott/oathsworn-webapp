@@ -47,12 +47,27 @@ docker build -t oathsworn-setup -f "$SCRIPT_DIR/Dockerfile" "$SCRIPT_DIR"
 
 echo ""
 echo "Running setup..."
+
+# On Windows Git Bash (MINGW), MSYS path translation mangles Docker volume
+# mount arguments, silently breaking bind mounts. Detect this environment,
+# convert host paths to Windows format, and disable path translation so the
+# container-side paths are passed through unchanged.
+# The :z SELinux relabeling flag is Linux-only and unsupported on Windows.
+if [[ "$(uname -s)" == MINGW* ]] || [[ "$(uname -s)" == MSYS* ]]; then
+    DATA_MOUNT="$(cygpath -m "$OUTPUT_DIR/data"):/repo/web/data"
+    CACHE_MOUNT="$(cygpath -m "$CACHE_DIR"):/cache"
+    export MSYS_NO_PATHCONV=1
+else
+    DATA_MOUNT="$OUTPUT_DIR/data:/repo/web/data:z"
+    CACHE_MOUNT="$CACHE_DIR:/cache:z"
+fi
+
 docker run --rm \
     -e HOST_UID="$(id -u)" \
     -e HOST_GID="$(id -g)" \
     -e INCLUDE_GERMAN_LANG="${INCLUDE_GERMAN_LANG:-}" \
-    -v "$OUTPUT_DIR/data:/repo/web/data:z" \
-    -v "$CACHE_DIR:/cache:z" \
+    -v "$DATA_MOUNT" \
+    -v "$CACHE_MOUNT" \
     oathsworn-setup
 
 echo ""
