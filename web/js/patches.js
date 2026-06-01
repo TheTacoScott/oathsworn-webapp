@@ -409,3 +409,11 @@ patchConditionalTimeTrigger(15, 10, {
     goTo: 33,
     whenTokenNotInRange: [106, 218],
 });
+
+
+// =============================================================================
+//  BUG C: String content errors (typos in APK source strings)
+// =============================================================================
+
+// chp9a_1_6__a: "freeas" -> "free as" (typo in APK strings.xml)
+patchStringReplace('en', 'chp9a_1_6__a', 'freeas', 'free as');

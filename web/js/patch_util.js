@@ -197,3 +197,23 @@ function patchConditionalTimeTrigger(chapterNum, timeIndex, condition) {
 // Note: the runtime logic that evaluates conditionalTimeTriggers lives in
 // game.js (_timeTriggerConditionMatches and the _timePop method).
 // patch_util.js only writes data; it has no runtime hooks of its own.
+
+
+// =============================================================================
+//  STRING PATCHES
+// =============================================================================
+
+/**
+ * Replace a substring within a localized string entry.
+ *
+ * Silently does nothing if the language code or key is not present (e.g. the
+ * strings file for that language hasn't been loaded), so it is safe to call
+ * for every language that might carry the same bug.
+ *
+ * Example:
+ *   patchStringReplace('en', 'chp9a_1_6__a', 'freeas', 'free as');
+ */
+function patchStringReplace(langCode, key, search, replacement) {
+    if (!STRINGS[langCode] || !STRINGS[langCode][key]) return;
+    STRINGS[langCode][key] = STRINGS[langCode][key].replace(search, replacement);
+}
