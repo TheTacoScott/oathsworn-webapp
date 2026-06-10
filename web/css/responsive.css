@@ -23,10 +23,12 @@
 }
 
 /* Notched-device safe area — keeps bottom bar above the home indicator.
-   !important needed to beat Bootstrap's pb-3 on .game-bottom. */
+   !important needed to beat Bootstrap's pb-3 on .game-bottom.
+   1rem minimum preserves Bootstrap's baseline; env() only wins when
+   there is an actual inset (notched/dynamic-island phones). */
 @supports (padding-bottom: env(safe-area-inset-bottom)) {
     .game-bottom {
-        padding-bottom: max(0.75rem, env(safe-area-inset-bottom)) !important;
+        padding-bottom: max(1rem, env(safe-area-inset-bottom)) !important;
     }
 }
 
@@ -146,6 +148,34 @@
     /* Choice buttons: reduce max-height slightly so content area has more room */
     .choice-buttons-area {
         max-height: 32vh;
+    }
+}
+
+
+/* ============================================================
+   GAME SCREEN — very narrow phones (374px and below, e.g. 360px Android)
+   The HUD row needs ~339px; at 360px only 328px is available after
+   Bootstrap px-3 padding. Shrink tokens further to fit.
+   ============================================================ */
+@media (max-width: 374px) {
+
+    .clue-token {
+        width: 24px;
+        height: 24px;
+    }
+
+    .time-tracker-display {
+        width: 36px;
+        height: 36px;
+    }
+
+    .time-tracker-display::after {
+        width: 18px;
+        height: 18px;
+    }
+
+    .time-token-num {
+        font-size: 0.9rem;
     }
 }
 
