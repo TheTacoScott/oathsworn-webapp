@@ -1,0 +1,276 @@
+/* ============================================================
+   Responsive layout overrides
+   Breakpoints:
+     xs  < 576px  — phones portrait
+     sm  576–767px — phones landscape / small tablets
+     md  768–991px — tablets portrait
+     lg  ≥ 992px  — tablets landscape / desktop (base styles)
+   ============================================================ */
+
+
+/* ============================================================
+   iOS / modern browsers: dynamic viewport height
+   Prevents content from hiding behind the mobile address bar.
+   ============================================================ */
+@supports (height: 100dvh) {
+    .screen,
+    .game-panel {
+        height: 100dvh;
+    }
+    .home-wrap {
+        min-height: 100dvh;
+    }
+}
+
+/* Notched-device safe area — keeps bottom bar above the home indicator.
+   !important needed to beat Bootstrap's pb-3 on .game-bottom. */
+@supports (padding-bottom: env(safe-area-inset-bottom)) {
+    .game-bottom {
+        padding-bottom: max(0.75rem, env(safe-area-inset-bottom)) !important;
+    }
+}
+
+
+/* ============================================================
+   GAME SCREEN — tablet (992px and below)
+   Reduce excessive side padding on story content.
+   ============================================================ */
+@media (max-width: 991px) {
+    .game-content {
+        padding-left: 10%;
+        padding-right: 10%;
+    }
+}
+
+
+/* ============================================================
+   GAME SCREEN — phone / small tablet (767px and below)
+   ============================================================ */
+@media (max-width: 767px) {
+
+    /* Story content: minimal side padding on narrow screens */
+    .game-content {
+        padding-left: 5%;
+        padding-right: 5%;
+    }
+
+    .plate-text {
+        font-size: 1.2rem;
+        line-height: 1.65;
+    }
+
+    /* Images can spread wider on a small screen */
+    .plate-image {
+        max-width: 85%;
+    }
+
+    /* ---- Game header: 2-row layout ----
+     * Row 1: Back (left) | nav buttons (right)
+     * Row 2: full-width HUD cluster
+     */
+    .game-header {
+        flex-wrap: wrap;
+        height: auto;
+        /* Bootstrap px-3 !important owns left/right padding; only set top/bottom */
+        padding-top: 0.35rem;
+        padding-bottom: 0;
+        gap: 0.25rem;
+    }
+
+    /* Back button: don't grow to fill half the row */
+    .game-header-left {
+        flex: 0 0 auto;
+    }
+
+    /* Nav buttons: take remaining space, push right */
+    .game-header-right {
+        flex: 1 1 auto;
+    }
+
+    /* Shrink header right-side button text and padding */
+    .game-header-right .btn-ghost-game {
+        font-size: 0.78rem;
+        padding: 0.2rem 0.45rem;
+        letter-spacing: 0.02em;
+    }
+
+    /* HUD cluster: bump to its own full-width second row */
+    .hud-cluster {
+        order: 10;
+        flex-basis: 100%;
+        justify-content: center;
+        gap: 0.4rem;
+        padding-bottom: 0.35rem;
+    }
+
+    /* Scale down clue tokens to fit 8 tokens + 2 path btns + time tracker in ~350px */
+    .clue-token {
+        width: 26px;
+        height: 26px;
+    }
+
+    .ct-num {
+        font-size: 0.75rem;
+    }
+
+    .clue-token-exclaim .ct-bang,
+    .clue-token-x .ct-x {
+        font-size: 0.72rem;
+    }
+
+    /* Smaller path A/B toggle buttons */
+    .path-btn {
+        height: 26px;
+        padding: 0 0.35rem;
+        font-size: 0.82rem;
+    }
+
+    .hud-cluster-left .path-btn { margin-left: 0.2rem; }
+    .hud-cluster-right .path-btn { margin-right: 0.2rem; }
+
+    /* Smaller time tracker token */
+    .time-tracker-display {
+        width: 40px;
+        height: 40px;
+    }
+
+    .time-tracker-display::after {
+        width: 22px;
+        height: 22px;
+    }
+
+    .time-token-num {
+        font-size: 1rem;
+    }
+
+    /* Choice buttons: reduce max-height slightly so content area has more room */
+    .choice-buttons-area {
+        max-height: 32vh;
+    }
+}
+
+
+/* ============================================================
+   CHAPTER SELECT — phone / small tablet (767px and below)
+   Two full-screen panes stacked vertically. The list pane fills
+   the viewport; selecting a chapter scrolls (via JS) to the
+   detail pane below it. .chapters-layout becomes the scroll
+   container instead of being clipped with overflow:hidden.
+   ============================================================ */
+@media (max-width: 767px) {
+
+    /* Override the default overflow:hidden so the two panes can scroll */
+    .chapters-layout {
+        flex-direction: column;
+        overflow-y: auto;
+    }
+
+    /* List pane: full viewport height */
+    .chapters-list-pane {
+        width: 100%;
+        height: 100vh;
+        height: 100dvh;
+        flex-shrink: 0;
+        border-right: none;
+        border-bottom: 1px solid var(--color-border);
+    }
+
+    /* Detail pane: full viewport height */
+    .chapters-detail-pane {
+        width: 100%;
+        flex: none;
+        min-height: 100vh;
+        min-height: 100dvh;
+    }
+
+    /* height:100% breaks when parent has only min-height; use auto instead */
+    #chapter-detail {
+        height: auto;
+    }
+
+    /* Fixed-proportion art so the info/button panel is always visible below it */
+    .chapter-detail-image {
+        flex: 0 0 40vh;
+    }
+
+    .chapter-detail-info {
+        padding: 1rem 1.25rem 1.5rem;
+    }
+
+    .chapter-detail-num {
+        font-size: 1.5rem;
+    }
+}
+
+
+/* ============================================================
+   MIGHT DECKS OVERLAY — phone / small tablet (767px and below)
+   ============================================================ */
+@media (max-width: 767px) {
+
+    /* Drawn cards grid: 5 columns instead of 10 so cards stay readable */
+    .might-grid {
+        grid-template-columns: repeat(5, 1fr);
+    }
+
+    /* Staging bar: allow wrap so attack / defense / draw don't overflow */
+    .might-staging-bar {
+        flex-wrap: wrap;
+        gap: 0.4rem;
+        padding: 0.4rem 0.75rem;
+    }
+
+    /* Staged info can shrink on a narrow row */
+    .might-staged-info {
+        flex: 1 1 60%;
+        min-width: 0;
+    }
+
+    /* Attack / defense widgets: tighter */
+    .might-attack-widget,
+    .might-defense-widget {
+        min-width: unset;
+        padding: 0 0.2rem;
+    }
+
+    /* Draw button: slightly smaller */
+    .btn-draw-might {
+        padding: 0.4rem 1.1rem;
+        font-size: 0.9rem;
+    }
+
+    /* Deck card backs: cap smaller so all 8 fit in two groups */
+    .might-deck-slot .might-card-back {
+        max-width: 72px;
+    }
+}
+
+
+/* ============================================================
+   MODALS — phone portrait (575px and below)
+   ============================================================ */
+@media (max-width: 575px) {
+
+    /* Settings and bug report modals: full width */
+    .settings-modal {
+        width: 98%;
+    }
+
+    .bug-modal {
+        max-width: 100%;
+        /* dvh fallback for notched phones */
+        height: calc(100dvh - 1rem);
+    }
+}
+
+
+/* ============================================================
+   HOME SCREEN — phone (575px and below)
+   ============================================================ */
+@media (max-width: 575px) {
+
+    /* Logo: slightly wider so it doesn't look tiny */
+    .home-logo {
+        width: 88%;
+    }
+}
