@@ -89,6 +89,11 @@
         flex: 1 1 auto;
     }
 
+    /* Might Decks is unusable at this width — hide the button */
+    #btn-might-open {
+        display: none;
+    }
+
     /* Shrink header right-side button text and padding */
     .game-header-right .btn-ghost-game {
         font-size: 0.78rem;
@@ -244,49 +249,6 @@
 
     .chapter-detail-num {
         font-size: 1.5rem;
-    }
-}
-
-
-/* ============================================================
-   MIGHT DECKS OVERLAY — phone / small tablet (767px and below)
-   ============================================================ */
-@media (max-width: 767px) {
-
-    /* Drawn cards grid: 5 columns instead of 10 so cards stay readable */
-    .might-grid {
-        grid-template-columns: repeat(5, 1fr);
-    }
-
-    /* Staging bar: allow wrap so attack / defense / draw don't overflow */
-    .might-staging-bar {
-        flex-wrap: wrap;
-        gap: 0.4rem;
-        padding: 0.4rem 0.75rem;
-    }
-
-    /* Staged info can shrink on a narrow row */
-    .might-staged-info {
-        flex: 1 1 60%;
-        min-width: 0;
-    }
-
-    /* Attack / defense widgets: tighter */
-    .might-attack-widget,
-    .might-defense-widget {
-        min-width: unset;
-        padding: 0 0.2rem;
-    }
-
-    /* Draw button: slightly smaller */
-    .btn-draw-might {
-        padding: 0.4rem 1.1rem;
-        font-size: 0.9rem;
-    }
-
-    /* Deck card backs: cap smaller so all 8 fit in two groups */
-    .might-deck-slot .might-card-back {
-        max-width: 72px;
     }
 }
 
