@@ -181,6 +181,19 @@
 
 
 /* ============================================================
+   CHAPTER SELECT — medium screens (1023px and below)
+   The list pane is 25% wide at these sizes; the heading crowds
+   the settings button off-screen before the 767px breakpoint
+   restructures the layout.
+   ============================================================ */
+@media (max-width: 1023px) {
+    .chapters-list-header .screen-heading {
+        display: none;
+    }
+}
+
+
+/* ============================================================
    CHAPTER SELECT — phone / small tablet (767px and below)
    Two full-screen panes stacked vertically. The list pane fills
    the viewport; selecting a chapter scrolls (via JS) to the
