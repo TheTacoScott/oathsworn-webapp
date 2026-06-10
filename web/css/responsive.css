@@ -113,11 +113,13 @@
 
     .ct-num {
         font-size: 0.75rem;
+        transform: translate(-50%, calc(-50% + 2px));
     }
 
     .clue-token-exclaim .ct-bang,
     .clue-token-x .ct-x {
         font-size: 0.72rem;
+        transform: translate(-50%, calc(-50% + 2px));
     }
 
     /* Smaller path A/B toggle buttons */
@@ -162,17 +164,6 @@
     .clue-token {
         width: 24px;
         height: 24px;
-    }
-
-    /* Nudge token labels down 2px — at 24px the inner circle is tight
-       and the glyphs sit visually high without this correction. */
-    .ct-num {
-        transform: translate(-50%, calc(-50% + 2px));
-    }
-
-    .clue-token-exclaim .ct-bang,
-    .clue-token-x .ct-x {
-        transform: translate(-50%, calc(-50% + 2px));
     }
 
     .time-tracker-display {
