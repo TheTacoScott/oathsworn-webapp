@@ -89,8 +89,9 @@
         flex: 1 1 auto;
     }
 
-    /* Might Decks is unusable at this width — hide the button */
-    #btn-might-open {
+    /* Might Decks is unusable at this width — hide both entry points */
+    #btn-might-open,
+    #btn-might-home {
         display: none;
     }
 
