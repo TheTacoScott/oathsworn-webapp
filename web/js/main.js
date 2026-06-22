@@ -915,9 +915,9 @@ function loadSaveDataScreen() {
 
             const rows = [
                 [S('ui.save_section'), currentSection],
-                ['History', S('ui.save_history').replace('%s', cs.sectionsList.length)],
-                ['Time', cs.timeTrackList || 0],
-                ['Locations', cs.locationsList && cs.locationsList.length ? cs.locationsList.join(', ') : S('ui.save_locations_none')],
+                [S('ui.save_history_label'), S('ui.save_history').replace('%s', cs.sectionsList.length)],
+                [S('ui.save_time'), cs.timeTrackList || 0],
+                [S('ui.save_locations_label'), cs.locationsList && cs.locationsList.length ? cs.locationsList.join(', ') : S('ui.save_locations_none')],
             ];
 
             if (cs.clue1 || cs.clue2) {
@@ -925,7 +925,7 @@ function loadSaveDataScreen() {
                     cs.clue1 && S('ui.save_clue_n').replace('%s', 1),
                     cs.clue2 && S('ui.save_clue_n').replace('%s', 2),
                 ].filter(Boolean).join(', ');
-                rows.push(['Clues', found]);
+                rows.push([S('ui.save_clues_label'), found]);
             }
 
             if (cs.unvisitedDeepwoodTokens && cs.unvisitedDeepwoodTokens.length > 0) {

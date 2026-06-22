@@ -608,7 +608,7 @@ class GameEngine {
             clue2: false,
             unvisitedDeepwoodTokens: [],
             pathChoice: null,
-            clueTokens: [false, false, false, false, false, false, false],
+            clueTokens: [false, false, false, false, false, false, false, false],
         };
         this._save(save);
     }
