@@ -503,7 +503,7 @@
     border: 1px solid var(--btn-choice-border);
     color: var(--btn-choice-text);
     font-family: var(--font-body);
-    font-size: clamp(1rem, 0.6rem + 0.35vw, 1.4rem);
+    font-size: clamp(1.2rem, 1rem + 0.3vw, 1.6rem);
     text-align: left;
     padding: 0.6rem 1rem;
     width: 100%;
@@ -525,7 +525,7 @@
     border: 1px solid var(--btn-location-border);
     color: var(--btn-location-text);
     font-family: var(--font-body);
-    font-size: clamp(1rem, 0.6rem + 0.35vw, 1.4rem);
+    font-size: clamp(1.2rem, 1rem + 0.3vw, 1.6rem);
     text-align: left;
     padding: 0.6rem 1rem 0.6rem 3.5rem;
     width: 100%;
