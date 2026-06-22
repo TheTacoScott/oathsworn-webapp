@@ -498,14 +498,22 @@
     padding-bottom: 0.2rem;
 }
 
+.btn-choice,
+.btn-location {
+    /* Grows from 0 to 0.4rem as the viewport widens; padding shrinks by the
+       same amount so the button's overall height stays roughly constant
+       while the text claims more of that space. */
+    --btn-text-grow: clamp(0rem, 0.3vw - 0.2rem, 0.4rem);
+}
+
 .btn-choice {
     background-color: var(--btn-choice-bg);
     border: 1px solid var(--btn-choice-border);
     color: var(--btn-choice-text);
     font-family: var(--font-body);
-    font-size: 1rem;
+    font-size: calc(1.2rem + var(--btn-text-grow));
     text-align: left;
-    padding: 0.6rem 1rem;
+    padding: calc(0.6rem - var(--btn-text-grow) * 0.6) 1rem;
     width: 100%;
 }
 
@@ -525,9 +533,9 @@
     border: 1px solid var(--btn-location-border);
     color: var(--btn-location-text);
     font-family: var(--font-body);
-    font-size: 1rem;
+    font-size: calc(1.2rem + var(--btn-text-grow));
     text-align: left;
-    padding: 0.6rem 1rem 0.6rem 3.5rem;
+    padding: calc(0.6rem - var(--btn-text-grow) * 0.6) 1rem calc(0.6rem - var(--btn-text-grow) * 0.6) 3.5rem;
     width: 100%;
 }
 
